@@ -407,6 +407,38 @@
   .rtb-amount { font-size: 2.2rem; font-weight: 800; color: var(--white); }
   .rtb-method { font-size: 0.8rem; color: var(--accent); margin-top: 4px; }
 
+  /* ── CUPOM ── */
+  .cupom-section {
+    background: var(--card-bg);
+    border: 1.5px dashed rgba(26,188,156,.35);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+  .cupom-header {
+    font-size: .72rem; font-weight: 700; color: var(--accent);
+    text-transform: uppercase; letter-spacing: .8px; margin-bottom: 12px;
+  }
+  .cupom-row { display: flex; gap: 10px; }
+  .cupom-row input {
+    flex: 1; background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; color: var(--white);
+    font-family: 'Courier New', monospace; font-size: .95rem;
+    font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    transition: border .2s;
+  }
+  .cupom-row input:focus { border-color: var(--accent); outline: none; }
+  .cupom-row input:disabled { opacity: .6; }
+  .cupom-row button {
+    background: var(--accent); color: var(--petrol); border: none;
+    border-radius: 8px; padding: 10px 20px; font-weight: 800;
+    font-size: .85rem; cursor: pointer; transition: opacity .2s; white-space: nowrap;
+  }
+  .cupom-row button:hover:not(:disabled) { opacity: .82; }
+  .cupom-row button:disabled { opacity: .5; cursor: default; }
+  .cupom-ok  { color: var(--accent); font-size: .82rem; margin-top: 10px; font-weight: 600; }
+  .cupom-err { color: var(--danger);  font-size: .82rem; margin-top: 8px; }
+
   /* ── BUTTONS ── */
   .btn-row {
     display: flex;
@@ -869,6 +901,18 @@
 
     <div class="review-total-box" id="review-total-box"></div>
 
+    <!-- Cupom de Bonificação -->
+    <div class="cupom-section">
+      <div class="cupom-header">🎟️ Código de Bonificação</div>
+      <div class="cupom-row">
+        <input type="text" id="f_cupom" placeholder="EX: BONUS10"
+               oninput="this.value=this.value.toUpperCase()"
+               onkeydown="if(event.key==='Enter') aplicarCupom()"/>
+        <button id="btn-cupom" onclick="aplicarCupom()">Aplicar</button>
+      </div>
+      <div id="cupom-msg"></div>
+    </div>
+
     <button class="btn-wa" onclick="sendWhatsApp()">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
@@ -977,6 +1021,12 @@ let selectedVariants = {}; // { productId: variantIndex }
 let activeLabFilter = 'todos';
 let countdownInterval = null;
 
+// ─── CUPOM DE BONIFICAÇÃO ────────────────────────────────────────────────────
+let CUPONS_VALIDOS = {}; // carregado do Sheets (aba "Cupons")
+let cupomAplicado  = false;
+let cupomDesconto  = 0;
+let cupomCodigo    = '';
+
 // ─── INIT ───────────────────────────────────────────────────────────────────
 window.onload = () => {
   carregarProdutos();
@@ -986,12 +1036,14 @@ async function carregarProdutos() {
   const grid = document.getElementById('products-grid');
   grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray)">⏳ Carregando produtos...</div>';
   try {
-    const [resProd, resProt] = await Promise.all([
+    const [resProd, resProt, resCupons] = await Promise.all([
       fetch(`${SHEETS_URL}?action=produtos`),
-      fetch(`${SHEETS_URL}?action=protocolos`)
+      fetch(`${SHEETS_URL}?action=protocolos`),
+      fetch(`${SHEETS_URL}?action=cupons`)
     ]);
     const data = await resProd.json();
-    PROTOCOLS = await resProt.json();
+    PROTOCOLS      = await resProt.json();
+    CUPONS_VALIDOS = await resCupons.json();
     CATALOG = data.map(p => ({
       id:          p.id,
       icon:        p.icone,
@@ -1030,6 +1082,29 @@ function setLabFilter(lab) {
 }
 
 // ─── PROMO HELPERS ──────────────────────────────────────────────────────────
+function aplicarCupom() {
+  const codigo = (document.getElementById('f_cupom').value || '').trim().toUpperCase();
+  const msg    = document.getElementById('cupom-msg');
+  if (!codigo) {
+    msg.innerHTML = `<div class="cupom-err">⚠️ Digite um código de bonificação.</div>`;
+    return;
+  }
+  if (CUPONS_VALIDOS[codigo] !== undefined) {
+    cupomAplicado = true;
+    cupomDesconto = CUPONS_VALIDOS[codigo];
+    cupomCodigo   = codigo;
+    document.getElementById('f_cupom').disabled = true;
+    document.getElementById('btn-cupom').disabled = true;
+    const pct = (cupomDesconto * 100).toFixed(0);
+    msg.innerHTML = `<div class="cupom-ok">✅ Cupom <strong>${codigo}</strong> aplicado! ${pct}% de desconto sobre o total.</div>`;
+    buildReview(); // atualiza o total na tela
+  } else {
+    cupomAplicado = false;
+    cupomDesconto = 0;
+    msg.innerHTML = `<div class="cupom-err">❌ Código inválido. Verifique e tente novamente.</div>`;
+  }
+}
+
 function parseBrDate(str) {
   if (!str) return null;
   const s = String(str).trim();
@@ -1492,16 +1567,25 @@ function buildReview() {
   }
 
   // Total box
-  const subtotalProd = getFinalTotal() - freteValor;
+  const subtotalBruto = getTotal();
+  const totalFinal    = getFinalTotal();
+  const descontoValor = cupomAplicado ? (subtotalBruto + freteValor) * cupomDesconto : 0;
+  const descontoHtml  = cupomAplicado ? `
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.85rem;color:var(--accent);font-weight:700">
+      <span>🎟️ Desconto (${(cupomDesconto*100).toFixed(0)}% — ${cupomCodigo})</span>
+      <span>− R$ ${descontoValor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+    </div>` : '';
   document.getElementById('review-total-box').innerHTML = `
     <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.85rem;color:rgba(255,255,255,.6)">
-      <span>Subtotal produtos</span><span>R$ ${subtotalProd.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+      <span>Subtotal produtos</span><span>R$ ${subtotalBruto.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
     </div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:14px;font-size:.85rem;color:rgba(255,255,255,.6)">
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.85rem;color:rgba(255,255,255,.6)">
       <span>Frete</span><span>${freteValor===0 ? '🎉 Grátis' : 'R$ '+freteValor.toFixed(2).replace('.',',')}</span>
     </div>
+    ${descontoHtml}
+    <div style="border-top:1px solid rgba(255,255,255,.15);margin:10px 0"></div>
     <div class="rtb-label">Total do Pedido</div>
-    <div class="rtb-amount">R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+    <div class="rtb-amount">R$ ${totalFinal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
     <div class="rtb-method">${selectedPayment}</div>`;
 }
 
@@ -1549,6 +1633,10 @@ function sendWhatsApp() {
 
   msg += `\n━━━━━━━━━━━━━━━━━━━━━━\n`;
   msg += `📦 Frete: ${freteValor === 0 ? 'GRÁTIS' : 'R$ ' + freteValor.toFixed(2).replace('.',',')}\n`;
+  if (cupomAplicado) {
+    const desc = (getTotal() + freteValor) * cupomDesconto;
+    msg += `🎟️ Desconto (${(cupomDesconto*100).toFixed(0)}% — ${cupomCodigo}): − R$ ${desc.toLocaleString('pt-BR',{minimumFractionDigits:2})}\n`;
+  }
   msg += `💰 *TOTAL: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}*\n`;
   msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
   msg += `\n_Pedido enviado via formulário PharmaFit-PY_`;
@@ -1586,6 +1674,9 @@ function sendWhatsApp() {
     parcelas,
     obs:           v('f_obs'),
     obs_pagamento: v('f_obs_pag'),
+    cupom_codigo:  cupomCodigo || '',
+    cupom_pct:     cupomAplicado ? (cupomDesconto * 100).toFixed(0) : '0',
+    cupom_valor:   cupomAplicado ? ((getTotal() + freteValor) * cupomDesconto).toFixed(2) : '0',
     carrinho:      JSON.stringify(Object.fromEntries(Object.keys(cart).map(id => {
       const p = CATALOG.find(x => x.id === id);
       const key = (p && p.variantes) ? `${id}__${selectedVariants[id] || 0}` : id;
@@ -1608,6 +1699,7 @@ function getFinalTotal() {
     const parc = parseInt(document.getElementById('f_parcelas').value);
     if (parc > 3) total *= 1.05;
   }
+  if (cupomAplicado && cupomDesconto > 0) total *= (1 - cupomDesconto);
   return total;
 }
 
@@ -1620,8 +1712,17 @@ function showSuccess() {
 function newOrder() {
   // Reset
   cart = {};
-  selectedPayment = '';
-  currentStep = 1;
+  selectedPayment  = '';
+  currentStep      = 1;
+  cupomAplicado    = false;
+  cupomDesconto    = 0;
+  cupomCodigo      = '';
+  const fc = document.getElementById('f_cupom');
+  const bc = document.getElementById('btn-cupom');
+  const mc = document.getElementById('cupom-msg');
+  if (fc) { fc.value = ''; fc.disabled = false; }
+  if (bc) bc.disabled = false;
+  if (mc) mc.innerHTML = '';
   document.querySelectorAll('input, textarea, select').forEach(el => { if (el.id !== 'f_parcelas') el.value = ''; });
   document.querySelectorAll('.pay-opt').forEach(el => el.classList.remove('selected'));
   document.getElementById('installment-wrap').classList.remove('show');
