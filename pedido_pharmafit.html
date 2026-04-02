@@ -1234,7 +1234,7 @@ function renderProducts() {
       <span class="promo-price-old">R$ ${p.price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>` : '';
     const temProtocolo = PROTOCOLS && PROTOCOLS[p.id];
     const saibaMaisBtn = temProtocolo ? `<button class="btn-saiba-mais" onclick="event.stopPropagation(); abrirProtocolo('${p.id}')">📋 Saiba mais sobre este produto</button>` : '';
-    const variantHtml = p.variantes ? `
+    const variantHtml = (p.variantes && p.variantes.length > 0) ? `
       <div class="pc-variant">
         <select onclick="event.stopPropagation()" onchange="event.stopPropagation(); changeVariant('${p.id}', this.value)">
           ${p.variantes.map((v,i) => `<option value="${i}" ${i===varIdx?'selected':''}>${v.dose} — R$ ${parseFloat(v.preco).toLocaleString('pt-BR',{minimumFractionDigits:2})}</option>`).join('')}
