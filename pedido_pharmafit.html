@@ -1036,14 +1036,20 @@ async function carregarProdutos() {
   const grid = document.getElementById('products-grid');
   grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray)">⏳ Carregando produtos...</div>';
   try {
-    const [resProd, resProt, resCupons] = await Promise.all([
+    const [resProd, resProt] = await Promise.all([
       fetch(`${SHEETS_URL}?action=produtos`),
-      fetch(`${SHEETS_URL}?action=protocolos`),
-      fetch(`${SHEETS_URL}?action=cupons`)
+      fetch(`${SHEETS_URL}?action=protocolos`)
     ]);
     const data = await resProd.json();
-    PROTOCOLS      = await resProt.json();
-    CUPONS_VALIDOS = await resCupons.json();
+    PROTOCOLS = await resProt.json();
+
+    // Cupons — carregado separado para não travar se aba não existir
+    try {
+      const resCupons = await fetch(`${SHEETS_URL}?action=cupons`);
+      const cuponsData = await resCupons.json();
+      if (cuponsData && typeof cuponsData === 'object') CUPONS_VALIDOS = cuponsData;
+    } catch(e) { /* sem cupons configurados ainda */ }
+
     CATALOG = data.map(p => ({
       id:          p.id,
       icon:        p.icone,
@@ -1053,7 +1059,8 @@ async function carregarProdutos() {
       stock:       parseInt(p.estoque) || 0,
       tags:        Array.isArray(p.tags) ? p.tags : [],
       lab:         p.lab || '',
-      variantes:   Array.isArray(p.variantes) ? p.variantes : null,
+      variantes:   (Array.isArray(p.variantes) && p.variantes.length > 0 && p.variantes[0].dose)
+                     ? p.variantes : null,
       promo_preco: parseFloat(p.promo_preco) || 0,
       promo_inicio: p.promo_inicio || '',
       promo_fim:   p.promo_fim || ''
