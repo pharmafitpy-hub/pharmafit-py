@@ -1329,7 +1329,7 @@ function getPriceByKey(key) {
   if (varIdx !== null && p.variantes && p.variantes[varIdx]) {
     const v = p.variantes[varIdx];
     const promoV = parseFloat(v.promo_preco) || 0;
-    if (promoV > 0) return promoV;
+    if (promoV > 0 && isPromoAtiva(p)) return promoV;
     return parseFloat(v.preco) || 0;
   }
   const promo = isPromoAtiva(p);
@@ -1436,7 +1436,8 @@ function renderProducts() {
               ? `<span class="vr-stock low">⚡ ${vStock} un.</span>`
               : `<span class="vr-stock ok">✅ ${vStock} un.</span>`;
           const vPromo = parseFloat(v.promo_preco) || 0;
-          const vPromoHtml = vPromo > 0
+          const vPromoAtiva = vPromo > 0 && promoAtiva;
+          const vPromoHtml = vPromoAtiva
             ? `<span class="vr-price-old">R$ ${vPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
                <span class="vr-price promo">R$ ${vPromo.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`
             : `<span class="vr-price">R$ ${vPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`;
