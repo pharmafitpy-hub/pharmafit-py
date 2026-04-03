@@ -1227,6 +1227,7 @@ async function buscarCliente(docParam) {
       bemVindo.innerHTML = `✅ Bem-vindo de volta, <strong>${data.responsavel || data.clinica}</strong>! Dados preenchidos automaticamente.`;
       limpar.style.display = 'block';
     } else {
+      naoEncontrado.innerHTML = '⚠️ Não encontramos seus dados. Preencha o formulário manualmente abaixo.';
       naoEncontrado.style.display = 'block';
     }
   } catch(e) {
@@ -1235,7 +1236,6 @@ async function buscarCliente(docParam) {
 }
 
 function limparAcesso() {
-  document.getElementById('ar-telefone').value = '';
   document.getElementById('ar-bem-vindo').style.display = 'none';
   document.getElementById('ar-nao-encontrado').style.display = 'none';
   document.getElementById('ar-limpar').style.display = 'none';
@@ -1326,12 +1326,13 @@ function getPriceByKey(key) {
   const { id, varIdx } = parseCartKey(key);
   const p = CATALOG.find(x => x.id === id);
   if (!p) return 0;
-  const promo = isPromoAtiva(p);
   if (varIdx !== null && p.variantes && p.variantes[varIdx]) {
-    const base = parseFloat(p.variantes[varIdx].preco) || 0;
-    if (promo && p.promo_pct > 0) return parseFloat((base * (1 - p.promo_pct / 100)).toFixed(2));
-    return base;
+    const v = p.variantes[varIdx];
+    const promoV = parseFloat(v.promo_preco) || 0;
+    if (promoV > 0) return promoV;
+    return parseFloat(v.preco) || 0;
   }
+  const promo = isPromoAtiva(p);
   if (promo) {
     if (p.promo_pct > 0) return parseFloat((p.price * (1 - p.promo_pct / 100)).toFixed(2));
     if (p.promo_preco > 0) return p.promo_preco;
@@ -1434,9 +1435,10 @@ function renderProducts() {
             : vStock <= 5
               ? `<span class="vr-stock low">⚡ ${vStock} un.</span>`
               : `<span class="vr-stock ok">✅ ${vStock} un.</span>`;
-          const vPromoHtml = (promoAtiva && p.promo_pct > 0)
+          const vPromo = parseFloat(v.promo_preco) || 0;
+          const vPromoHtml = vPromo > 0
             ? `<span class="vr-price-old">R$ ${vPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
-               <span class="vr-price promo">R$ ${vPriceDisc.toLocaleString('pt-BR',{minimumFractionDigits:2})} (-${p.promo_pct}%)</span>`
+               <span class="vr-price promo">R$ ${vPromo.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`
             : `<span class="vr-price">R$ ${vPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`;
           return `<div class="variant-row ${semV ? 'vr-disabled' : ''}">
             <div class="vr-info">
