@@ -8,20 +8,18 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --petrol:      #7C3AED;
-      --petrol-dark: #0F0B1A;
-      --petrol-mid:  #7C3AED;
-      --petrol-lite: #EDE9FE;
-      --petrol-bg:   #F5F3FF;
+      --petrol:      #1B4F72;
+      --petrol-dark: #0D2B3E;
+      --petrol-mid:  #2471A3;
+      --petrol-lite: #D6EAF8;
+      --petrol-bg:   #EBF5FB;
       --white:       #FFFFFF;
       --gray-1:      #F4F6F7;
       --gray-2:      #E5E8EA;
-      --text-dark:   #1A1428;
-      --text-mid:    #6B7280;
+      --text-dark:   #1A2530;
+      --text-mid:    #4A6278;
       --green-wa:    #25D366;
       --green-wa-d:  #1DA851;
-      --accent:      #F59E0B;
-      --accent-d:    #D97706;
     }
     html { scroll-behavior: smooth; }
     body { font-family: 'Lato', sans-serif; color: var(--text-dark); background: var(--white); overflow-x: hidden; }
@@ -426,22 +424,6 @@
       .prod-grid { grid-template-columns:1fr; }
       .hero { padding:100px 20px 60px; }
     }
-
-    /* B2C — overrides purple/gold */
-    .hero { background: linear-gradient(135deg, #0F0B1A 0%, #1A1428 45%, #2D1B69 75%, #0F0B1A 100%) !important; }
-    nav { background: rgba(15,11,26,0.97) !important; }
-    .stat-box .s-num { color: #F59E0B !important; }
-    .hero-badge { background: rgba(124,58,237,0.2) !important; border-color: rgba(124,58,237,0.4) !important; }
-    .btn-pedido { background: linear-gradient(135deg, #F59E0B, #D97706) !important; box-shadow: 0 8px 30px rgba(245,158,11,0.45) !important; }
-    .btn-pedido:hover { box-shadow: 0 14px 40px rgba(245,158,11,0.6) !important; }
-    .section-badge { background: var(--petrol-lite) !important; color: #7C3AED !important; }
-    .quem-card { border-top-color: #7C3AED !important; }
-    .como-bg { background: linear-gradient(135deg, #0F0B1A 0%, #1A1428 100%) !important; }
-    .dif-visual { background: linear-gradient(135deg, #0F0B1A 0%, #1A1428 100%) !important; }
-    .dif-visual .dv-title span { color: #F59E0B !important; }
-    .cta-final { background: linear-gradient(135deg, #0F0B1A 0%, #0a0614 50%, #0F0B1A 100%) !important; }
-    footer { background: #050310 !important; }
-    .h-card .hc-tag { background: rgba(124,58,237,0.2) !important; color: #A855F7 !important; }
   </style>
 </head>
 <body>
@@ -464,12 +446,14 @@
 <section class="hero">
   <div class="hero-inner">
     <div class="hero-left">
-      <div class="hero-badge"><span class="dot"></span> WELLNESS & PERFORMANCE</div>
+      <div class="hero-badge"><span class="dot"></span> Farmácia Especializada em Peptídeos</div>
       <h1 class="hero-title">
-        Peptídeos para <span class="highlight">Resultados Reais</span>
+        Peptídeos de<br/><span class="highlight">Alta Performance</span><br/>para Clínicas
       </h1>
       <p class="hero-desc">
-        Compostos de alta pureza para emagrecimento, rejuvenescimento e performance. Entrega discreta com suporte especializado.
+        Protocolos clínicos avançados com <strong>peptídeos de alta pureza</strong> para
+        rejuvenescimento, emagrecimento, reparo tecidual e performance.
+        <strong>Entrega com documentação científica completa</strong> para cada produto.
       </p>
       <div class="hero-btns">
         <a href="pedido_pharmafit.html" class="btn-pedido">
@@ -481,9 +465,9 @@
         <a href="#produtos" class="btn-outline">Ver Produtos ↓</a>
       </div>
       <div class="hero-stats">
-        <div class="stat-box"><div class="s-num">15+</div><div class="s-label">Produtos disponíveis</div></div>
-        <div class="stat-box"><div class="s-num">100%</div><div class="s-label">Pureza garantida</div></div>
-        <div class="stat-box"><div class="s-num">48h</div><div class="s-label">Entrega expressa</div></div>
+        <div class="stat-box"><div class="s-num">8+</div><div class="s-label">Peptídeos disponíveis</div></div>
+        <div class="stat-box"><div class="s-num">FDA</div><div class="s-label">Compostos aprovados</div></div>
+        <div class="stat-box"><div class="s-num">100%</div><div class="s-label">Documentação inclusa</div></div>
       </div>
     </div>
     <div class="hero-cards">
@@ -664,7 +648,7 @@
 </div>
 
 <script>
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyRztbTEL6ko4Cg2g1MlE_3hzXV43oNbeuz_861mta5qSk-iqC2rrkpSFmpBqF4dH1Y2g/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwSM2eVjBp0sbddf3CL70loX0OWqh5hSrO3SzL1uj9z54lN9i7G1PTON67rWD5CkTWA/exec';
 let protocolosCache = null;
 let produtosCache = null;
 const CORES = ['c1','c2','c3','c4','c5','c6','c7','c8'];
