@@ -6,21 +6,20 @@
 <title>Pedido PharmaFit-PY</title>
 <style>
   :root {
-    --bg: #0F0B1A;
-    --card-bg: #1A1428;
-    --petrol: #0F0B1A;
-    --petrol2: #1A1428;
-    --blue: #7C3AED;
-    --accent: #F59E0B;
-    --green: #10B981;
+    --petrol: #0D2B3E;
+    --petrol2: #1B4F72;
+    --blue: #2471A3;
+    --accent: #1ABC9C;
+    --green: #27AE60;
     --wa: #25D366;
-    --light: #F5F3FF;
-    --gray: #9CA3AF;
-    --border: #2D2440;
-    --input-bg: #1F1935;
+    --light: #ECF0F1;
+    --gray: #7F8C8D;
+    --border: #2C3E50;
+    --card-bg: #152535;
+    --input-bg: #1a3348;
     --white: #ffffff;
-    --danger: #EF4444;
-    --warn: #F59E0B;
+    --danger: #E74C3C;
+    --warn: #F39C12;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -408,6 +407,51 @@
   .rtb-amount { font-size: 2.2rem; font-weight: 800; color: var(--white); }
   .rtb-method { font-size: 0.8rem; color: var(--accent); margin-top: 4px; }
 
+  /* ── ACESSO RÁPIDO ── */
+  .acesso-rapido {
+    background: linear-gradient(135deg, rgba(26,188,156,.08), rgba(36,113,163,.12));
+    border: 1.5px solid rgba(26,188,156,.3);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .acesso-rapido.full { grid-column: 1 / -1; }
+  .ar-titulo {
+    font-size: .8rem; font-weight: 800; color: var(--accent);
+    text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px;
+  }
+  .ar-sub { font-size: .8rem; color: var(--gray); margin-bottom: 14px; }
+  .ar-row { display: flex; gap: 10px; }
+  .ar-row input {
+    flex: 1; background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 11px 14px; color: var(--white);
+    font-size: .95rem; font-family: inherit; transition: border .2s;
+  }
+  .ar-row input:focus { border-color: var(--accent); outline: none; }
+  .ar-row button {
+    background: var(--accent); color: var(--petrol); border: none;
+    border-radius: 8px; padding: 11px 20px; font-weight: 800;
+    font-size: .85rem; cursor: pointer; transition: opacity .2s; white-space: nowrap;
+  }
+  .ar-row button:hover { opacity: .85; }
+  .ar-bem-vindo {
+    display: none; margin-top: 12px;
+    background: rgba(39,174,96,.12); border: 1px solid rgba(39,174,96,.3);
+    border-radius: 8px; padding: 10px 14px;
+    font-size: .85rem; color: var(--green); font-weight: 600;
+  }
+  .ar-nao-encontrado {
+    display: none; margin-top: 12px;
+    font-size: .82rem; color: var(--gray);
+  }
+  .ar-loading { display: none; margin-top: 10px; font-size: .82rem; color: var(--gray); }
+  .ar-limpar {
+    background: transparent; border: none; color: var(--gray);
+    font-size: .75rem; cursor: pointer; margin-top: 8px;
+    text-decoration: underline; padding: 0;
+  }
+  .ar-limpar:hover { color: var(--white); }
+
   /* ── CUPOM ── */
   .cupom-section {
     background: var(--card-bg);
@@ -651,24 +695,6 @@
     .btn { width: 100%; text-align: center; }
     main { padding: 20px 14px 80px; }
   }
-
-  /* B2C — gradiente no header */
-  header {
-    background: linear-gradient(135deg, #1A1428, #0F0B1A) !important;
-    border-bottom: 2px solid var(--accent) !important;
-  }
-  /* Cor do stepper ativo */
-  .step.active .step-circle { background: var(--accent) !important; border-color: var(--accent) !important; color: #0F0B1A !important; }
-  .step.done .step-circle { background: var(--green) !important; border-color: var(--green) !important; }
-  /* Botão próximo com accent gold */
-  .btn-next { background: var(--accent) !important; color: #0F0B1A !important; }
-  .btn-next:hover { background: #D97706 !important; }
-  /* Lab filter ativo */
-  .lab-btn.active { background: var(--accent) !important; color: #0F0B1A !important; border-color: var(--accent) !important; }
-  /* Promo ribbon cor */
-  .promo-ribbon { background: linear-gradient(135deg, #7C3AED, #A855F7) !important; }
-  /* Cupom botão */
-  .cupom-row button { background: var(--accent) !important; color: #0F0B1A !important; }
 </style>
 </head>
 <body>
@@ -679,8 +705,8 @@
        onerror="this.style.display='none'; document.getElementById('logo-text').style.display='block'"/>
   <div id="logo-text" style="display:none; width:44px; height:44px; background:#1B4F72; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">💊</div>
   <div>
-    <h1>PharmaFit</h1>
-    <span>Peptídeos de Alta Performance</span>
+    <h1>PharmaFit-PY</h1>
+    <span>Formulário de Pedido — Peptídeos</span>
   </div>
   <div class="header-right">
     <button class="btn-history" onclick="openHistory()">📋 Histórico</button>
@@ -716,21 +742,21 @@
 
   <!-- STEP 1 — DADOS CADASTRAIS -->
   <div class="step-panel active" id="panel1">
-    <div class="panel-title">👤 Seus Dados</div>
-    <div class="panel-subtitle">Preencha seus dados para realizarmos o pedido</div>
+    <div class="panel-title">📋 Dados da Clínica</div>
+    <div class="panel-subtitle">Preencha os dados do responsável pelo pedido</div>
 
     <div id="alert1" class="alert">⚠️ Preencha todos os campos obrigatórios antes de continuar.</div>
 
     <div class="form-grid">
       <div class="field full">
-        <label>Seu Nome Completo <span class="required-mark">*</span></label>
-        <input type="text" id="f_clinica" placeholder="Ex: João Silva"/>
+        <label>Nome da Clínica <span class="required-mark">*</span></label>
+        <input type="text" id="f_clinica" placeholder="Ex: Clínica Estética Bella Vida"/>
       </div>
       <div class="field">
-        <label>Apelido / Como Prefere Ser Chamado</label>
-        <input type="text" id="f_responsavel" placeholder="Ex: João"/>
+        <label>Responsável <span class="required-mark">*</span></label>
+        <input type="text" id="f_responsavel" placeholder="Nome completo"/>
       </div>
-      <div class="field" style="display:none">
+      <div class="field">
         <label>Cargo / Especialidade</label>
         <input type="text" id="f_cargo" placeholder="Ex: Médico, Enfermeiro, Proprietário"/>
       </div>
@@ -742,9 +768,23 @@
         <label>E-mail <span class="required-mark">*</span></label>
         <input type="email" id="f_email" placeholder="contato@clinica.com"/>
       </div>
+
+      <!-- Acesso Rápido — Cliente Recorrente -->
+      <div class="acesso-rapido full" style="margin-bottom:0">
+        <div class="ar-titulo">⚡ Já é cliente?</div>
+        <div class="ar-sub">Digite seu CNPJ ou CPF no campo abaixo — preencheremos o cadastro automaticamente</div>
+        <div class="ar-loading" id="ar-loading">⏳ Buscando seus dados...</div>
+        <div class="ar-bem-vindo" id="ar-bem-vindo"></div>
+        <div class="ar-nao-encontrado" id="ar-nao-encontrado"></div>
+        <button class="ar-limpar" id="ar-limpar" style="display:none" onclick="limparAcesso()">
+          ✕ Limpar campos e preencher manualmente
+        </button>
+      </div>
+
       <div class="field">
-        <label>CPF (opcional)</label>
-        <input type="text" id="f_documento" placeholder="00.000.000/0001-00"/>
+        <label>CNPJ / CPF</label>
+        <input type="text" id="f_documento" placeholder="00.000.000/0001-00"
+               oninput="agendarBuscaCliente(this.value)"/>
       </div>
       <div class="field">
         <label>Cidade</label>
@@ -759,7 +799,7 @@
         <input type="text" id="f_endereco" placeholder="Rua, número, bairro, CEP"/>
       </div>
       <div class="field full">
-        <label>Observações</label>
+        <label>Observações Iniciais</label>
         <textarea id="f_obs" placeholder="Alguma informação adicional sobre o pedido?"></textarea>
       </div>
     </div>
@@ -854,7 +894,7 @@
 
     <!-- FRETE -->
     <div class="frete-section">
-      <div class="frete-header">🚚 Calcular Frete</div>
+      <div class="frete-header">🚚 Calcular Frete (Correios)</div>
       <div class="frete-body">
         <div style="display:flex; gap:10px; align-items:flex-end">
           <div class="field" style="flex:1">
@@ -899,7 +939,7 @@
   <!-- STEP 4 — REVISÃO -->
   <div class="step-panel" id="panel4">
     <div class="panel-title">✅ Revisar e Enviar</div>
-    <div class="panel-subtitle">Confira seus dados antes de enviar pelo WhatsApp</div>
+    <div class="panel-subtitle">Confira todos os dados antes de enviar pelo WhatsApp</div>
 
     <div class="review-card">
       <div class="rc-header">📋 Dados da Clínica</div>
@@ -992,7 +1032,7 @@
 
 <script>
 // ─── CONFIG ─────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyRztbTEL6ko4Cg2g1MlE_3hzXV43oNbeuz_861mta5qSk-iqC2rrkpSFmpBqF4dH1Y2g/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwSM2eVjBp0sbddf3CL70loX0OWqh5hSrO3SzL1uj9z54lN9i7G1PTON67rWD5CkTWA/exec';
 
 // ─── TABELA DE FRETE POR ESTADO ──────────────────────────────────────────────
 const FRETE_TABELA = {
@@ -1108,6 +1148,70 @@ function setLabFilter(lab) {
 }
 
 // ─── PROMO HELPERS ──────────────────────────────────────────────────────────
+// ─── ACESSO RÁPIDO — CLIENTE RECORRENTE ─────────────────────────────────────
+let _buscaTimer = null;
+
+function agendarBuscaCliente(valor) {
+  clearTimeout(_buscaTimer);
+  const doc = valor.replace(/\D/g,'');
+  // Dispara quando tiver 11 dígitos (CPF) ou 14 dígitos (CNPJ)
+  if (doc.length === 11 || doc.length === 14) {
+    _buscaTimer = setTimeout(() => buscarCliente(doc), 600);
+  }
+}
+
+async function buscarCliente(docParam) {
+  const doc = (docParam || '').replace(/\D/g,'');
+  if (!doc || (doc.length !== 11 && doc.length !== 14)) return;
+
+  const loading       = document.getElementById('ar-loading');
+  const bemVindo      = document.getElementById('ar-bem-vindo');
+  const naoEncontrado = document.getElementById('ar-nao-encontrado');
+  const limpar        = document.getElementById('ar-limpar');
+
+  loading.style.display       = 'block';
+  bemVindo.style.display      = 'none';
+  naoEncontrado.style.display = 'none';
+  limpar.style.display        = 'none';
+
+  try {
+    const res  = await fetch(`${SHEETS_URL}?action=cliente&documento=${encodeURIComponent(doc)}`);
+    const data = await res.json();
+    loading.style.display = 'none';
+
+    if (data && data.clinica) {
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+      set('f_clinica',     data.clinica);
+      set('f_responsavel', data.responsavel);
+      set('f_cargo',       data.cargo);
+      set('f_telefone',    data.telefone);
+      set('f_email',       data.email);
+      set('f_documento',   data.documento);
+      set('f_cidade',      data.cidade);
+      set('f_estado',      data.estado);
+      set('f_endereco',    data.endereco);
+
+      bemVindo.style.display = 'block';
+      bemVindo.innerHTML = `✅ Bem-vindo de volta, <strong>${data.responsavel || data.clinica}</strong>! Dados preenchidos automaticamente.`;
+      limpar.style.display = 'block';
+    } else {
+      naoEncontrado.style.display = 'block';
+    }
+  } catch(e) {
+    loading.style.display = 'none';
+  }
+}
+
+function limparAcesso() {
+  document.getElementById('ar-telefone').value = '';
+  document.getElementById('ar-bem-vindo').style.display = 'none';
+  document.getElementById('ar-nao-encontrado').style.display = 'none';
+  document.getElementById('ar-limpar').style.display = 'none';
+  ['f_clinica','f_responsavel','f_cargo','f_telefone','f_email','f_documento','f_cidade','f_estado','f_endereco'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+}
+
 function aplicarCupom() {
   const codigo = (document.getElementById('f_cupom').value || '').trim().toUpperCase();
   const msg    = document.getElementById('cupom-msg');
