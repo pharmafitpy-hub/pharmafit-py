@@ -1336,6 +1336,13 @@ function getVariantLabel(key) {
   return p.conc;
 }
 
+function getVariantStock(id) {
+  const p = CATALOG.find(x => x.id === id);
+  if (!p || !p.variantes) return p ? p.stock : 0;
+  // Retorna o maior estoque entre as variantes (card só desativado se TODAS estiverem sem estoque)
+  return Math.max(...p.variantes.map(v => parseInt(v.estoque) || 0));
+}
+
 function changeVariantQty(id, varIdx, delta) {
   const key = `${id}__${varIdx}`;
   const p = CATALOG.find(x => x.id === id);
