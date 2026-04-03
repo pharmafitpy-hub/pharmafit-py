@@ -415,7 +415,6 @@
     padding: 20px;
     margin-bottom: 24px;
   }
-  .acesso-rapido.full { grid-column: 1 / -1; }
   .ar-titulo {
     font-size: .8rem; font-weight: 800; color: var(--accent);
     text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px;
@@ -747,7 +746,24 @@
 
     <div id="alert1" class="alert">⚠️ Preencha todos os campos obrigatórios antes de continuar.</div>
 
+    <!-- Acesso Rápido — Cliente Recorrente -->
+    <div class="acesso-rapido">
+      <div class="ar-titulo">⚡ Já é cliente?</div>
+      <div class="ar-sub">Digite seu CNPJ ou CPF abaixo — preencheremos o cadastro automaticamente</div>
+      <div class="ar-loading" id="ar-loading">⏳ Buscando seus dados...</div>
+      <div class="ar-bem-vindo" id="ar-bem-vindo"></div>
+      <div class="ar-nao-encontrado" id="ar-nao-encontrado"></div>
+      <button class="ar-limpar" id="ar-limpar" style="display:none" onclick="limparAcesso()">
+        ✕ Limpar campos e preencher manualmente
+      </button>
+    </div>
+
     <div class="form-grid">
+      <div class="field full">
+        <label>CNPJ / CPF</label>
+        <input type="text" id="f_documento" placeholder="00.000.000/0001-00"
+               oninput="agendarBuscaCliente(this.value)"/>
+      </div>
       <div class="field full">
         <label>Nome da Clínica <span class="required-mark">*</span></label>
         <input type="text" id="f_clinica" placeholder="Ex: Clínica Estética Bella Vida"/>
@@ -767,24 +783,6 @@
       <div class="field">
         <label>E-mail <span class="required-mark">*</span></label>
         <input type="email" id="f_email" placeholder="contato@clinica.com"/>
-      </div>
-
-      <!-- Acesso Rápido — Cliente Recorrente -->
-      <div class="acesso-rapido full" style="margin-bottom:0">
-        <div class="ar-titulo">⚡ Já é cliente?</div>
-        <div class="ar-sub">Digite seu CNPJ ou CPF no campo abaixo — preencheremos o cadastro automaticamente</div>
-        <div class="ar-loading" id="ar-loading">⏳ Buscando seus dados...</div>
-        <div class="ar-bem-vindo" id="ar-bem-vindo"></div>
-        <div class="ar-nao-encontrado" id="ar-nao-encontrado"></div>
-        <button class="ar-limpar" id="ar-limpar" style="display:none" onclick="limparAcesso()">
-          ✕ Limpar campos e preencher manualmente
-        </button>
-      </div>
-
-      <div class="field">
-        <label>CNPJ / CPF</label>
-        <input type="text" id="f_documento" placeholder="00.000.000/0001-00"
-               oninput="agendarBuscaCliente(this.value)"/>
       </div>
       <div class="field">
         <label>Cidade</label>
