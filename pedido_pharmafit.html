@@ -1283,14 +1283,18 @@ function parseBrDate(str) {
   return isNaN(dt.getTime()) ? null : dt;
 }
 
-function isPromoAtiva(p) {
+function isPromoDentroData(p) {
   if (!p.promo_fim) return false;
-  if (!p.promo_preco && !p.promo_pct) return false;
   const now = new Date();
   const fim   = parseBrDate(p.promo_fim);
   const inicio = p.promo_inicio ? parseBrDate(p.promo_inicio) : new Date(0);
   if (!fim) return false;
   return now >= (inicio || new Date(0)) && now <= fim;
+}
+
+function isPromoAtiva(p) {
+  if (!p.promo_preco && !p.promo_pct) return false;
+  return isPromoDentroData(p);
 }
 
 function getCountdown(dataFim) {
@@ -1329,7 +1333,7 @@ function getPriceByKey(key) {
   if (varIdx !== null && p.variantes && p.variantes[varIdx]) {
     const v = p.variantes[varIdx];
     const promoV = parseFloat(v.promo_preco) || 0;
-    if (promoV > 0 && isPromoAtiva(p)) return promoV;
+    if (promoV > 0 && isPromoDentroData(p)) return promoV;
     return parseFloat(v.preco) || 0;
   }
   const promo = isPromoAtiva(p);
@@ -1436,7 +1440,7 @@ function renderProducts() {
               ? `<span class="vr-stock low">⚡ ${vStock} un.</span>`
               : `<span class="vr-stock ok">✅ ${vStock} un.</span>`;
           const vPromo = parseFloat(v.promo_preco) || 0;
-          const vPromoAtiva = vPromo > 0 && promoAtiva;
+          const vPromoAtiva = vPromo > 0 && isPromoDentroData(p);
           const vPromoHtml = vPromoAtiva
             ? `<span class="vr-price-old">R$ ${vPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
                <span class="vr-price promo">R$ ${vPromo.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`
