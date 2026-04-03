@@ -6,20 +6,21 @@
 <title>Pedido PharmaFit-PY</title>
 <style>
   :root {
-    --petrol: #0D2B3E;
-    --petrol2: #1B4F72;
-    --blue: #2471A3;
-    --accent: #1ABC9C;
-    --green: #27AE60;
+    --bg: #0F0B1A;
+    --card-bg: #1A1428;
+    --petrol: #0F0B1A;
+    --petrol2: #1A1428;
+    --blue: #7C3AED;
+    --accent: #F59E0B;
+    --green: #10B981;
     --wa: #25D366;
-    --light: #ECF0F1;
-    --gray: #7F8C8D;
-    --border: #2C3E50;
-    --card-bg: #152535;
-    --input-bg: #1a3348;
+    --light: #F5F3FF;
+    --gray: #9CA3AF;
+    --border: #2D2440;
+    --input-bg: #1F1935;
     --white: #ffffff;
-    --danger: #E74C3C;
-    --warn: #F39C12;
+    --danger: #EF4444;
+    --warn: #F59E0B;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -650,6 +651,24 @@
     .btn { width: 100%; text-align: center; }
     main { padding: 20px 14px 80px; }
   }
+
+  /* B2C — gradiente no header */
+  header {
+    background: linear-gradient(135deg, #1A1428, #0F0B1A) !important;
+    border-bottom: 2px solid var(--accent) !important;
+  }
+  /* Cor do stepper ativo */
+  .step.active .step-circle { background: var(--accent) !important; border-color: var(--accent) !important; color: #0F0B1A !important; }
+  .step.done .step-circle { background: var(--green) !important; border-color: var(--green) !important; }
+  /* Botão próximo com accent gold */
+  .btn-next { background: var(--accent) !important; color: #0F0B1A !important; }
+  .btn-next:hover { background: #D97706 !important; }
+  /* Lab filter ativo */
+  .lab-btn.active { background: var(--accent) !important; color: #0F0B1A !important; border-color: var(--accent) !important; }
+  /* Promo ribbon cor */
+  .promo-ribbon { background: linear-gradient(135deg, #7C3AED, #A855F7) !important; }
+  /* Cupom botão */
+  .cupom-row button { background: var(--accent) !important; color: #0F0B1A !important; }
 </style>
 </head>
 <body>
@@ -660,8 +679,8 @@
        onerror="this.style.display='none'; document.getElementById('logo-text').style.display='block'"/>
   <div id="logo-text" style="display:none; width:44px; height:44px; background:#1B4F72; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">💊</div>
   <div>
-    <h1>PharmaFit-PY</h1>
-    <span>Formulário de Pedido — Peptídeos</span>
+    <h1>PharmaFit</h1>
+    <span>Peptídeos de Alta Performance</span>
   </div>
   <div class="header-right">
     <button class="btn-history" onclick="openHistory()">📋 Histórico</button>
@@ -697,21 +716,21 @@
 
   <!-- STEP 1 — DADOS CADASTRAIS -->
   <div class="step-panel active" id="panel1">
-    <div class="panel-title">📋 Dados da Clínica</div>
-    <div class="panel-subtitle">Preencha os dados do responsável pelo pedido</div>
+    <div class="panel-title">👤 Seus Dados</div>
+    <div class="panel-subtitle">Preencha seus dados para realizarmos o pedido</div>
 
     <div id="alert1" class="alert">⚠️ Preencha todos os campos obrigatórios antes de continuar.</div>
 
     <div class="form-grid">
       <div class="field full">
-        <label>Nome da Clínica <span class="required-mark">*</span></label>
-        <input type="text" id="f_clinica" placeholder="Ex: Clínica Estética Bella Vida"/>
+        <label>Seu Nome Completo <span class="required-mark">*</span></label>
+        <input type="text" id="f_clinica" placeholder="Ex: João Silva"/>
       </div>
       <div class="field">
-        <label>Responsável <span class="required-mark">*</span></label>
-        <input type="text" id="f_responsavel" placeholder="Nome completo"/>
+        <label>Apelido / Como Prefere Ser Chamado</label>
+        <input type="text" id="f_responsavel" placeholder="Ex: João"/>
       </div>
-      <div class="field">
+      <div class="field" style="display:none">
         <label>Cargo / Especialidade</label>
         <input type="text" id="f_cargo" placeholder="Ex: Médico, Enfermeiro, Proprietário"/>
       </div>
@@ -724,7 +743,7 @@
         <input type="email" id="f_email" placeholder="contato@clinica.com"/>
       </div>
       <div class="field">
-        <label>CNPJ / CPF</label>
+        <label>CPF (opcional)</label>
         <input type="text" id="f_documento" placeholder="00.000.000/0001-00"/>
       </div>
       <div class="field">
@@ -740,7 +759,7 @@
         <input type="text" id="f_endereco" placeholder="Rua, número, bairro, CEP"/>
       </div>
       <div class="field full">
-        <label>Observações Iniciais</label>
+        <label>Observações</label>
         <textarea id="f_obs" placeholder="Alguma informação adicional sobre o pedido?"></textarea>
       </div>
     </div>
@@ -835,7 +854,7 @@
 
     <!-- FRETE -->
     <div class="frete-section">
-      <div class="frete-header">🚚 Calcular Frete (Correios)</div>
+      <div class="frete-header">🚚 Calcular Frete</div>
       <div class="frete-body">
         <div style="display:flex; gap:10px; align-items:flex-end">
           <div class="field" style="flex:1">
@@ -880,7 +899,7 @@
   <!-- STEP 4 — REVISÃO -->
   <div class="step-panel" id="panel4">
     <div class="panel-title">✅ Revisar e Enviar</div>
-    <div class="panel-subtitle">Confira todos os dados antes de enviar pelo WhatsApp</div>
+    <div class="panel-subtitle">Confira seus dados antes de enviar pelo WhatsApp</div>
 
     <div class="review-card">
       <div class="rc-header">📋 Dados da Clínica</div>
@@ -973,7 +992,7 @@
 
 <script>
 // ─── CONFIG ─────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwSM2eVjBp0sbddf3CL70loX0OWqh5hSrO3SzL1uj9z54lN9i7G1PTON67rWD5CkTWA/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyRztbTEL6ko4Cg2g1MlE_3hzXV43oNbeuz_861mta5qSk-iqC2rrkpSFmpBqF4dH1Y2g/exec';
 
 // ─── TABELA DE FRETE POR ESTADO ──────────────────────────────────────────────
 const FRETE_TABELA = {
