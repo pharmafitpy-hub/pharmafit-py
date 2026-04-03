@@ -1079,7 +1079,8 @@ let activeLabFilter = 'todos';
 let countdownInterval = null;
 
 // ─── CUPOM DE BONIFICAÇÃO ────────────────────────────────────────────────────
-let CUPONS_VALIDOS = {}; // carregado do Sheets (aba "Cupons")
+let CUPONS_VALIDOS  = {}; // carregado do Sheets (aba "Cupons")
+let PARCELAS_CONFIG = []; // carregado do Sheets (aba "Parcelas")
 let cupomAplicado  = false;
 let cupomDesconto  = 0;
 let cupomCodigo    = '';
@@ -1106,6 +1107,19 @@ async function carregarProdutos() {
       const cuponsData = await resCupons.json();
       if (cuponsData && typeof cuponsData === 'object') CUPONS_VALIDOS = cuponsData;
     } catch(e) { /* sem cupons configurados ainda */ }
+
+    // Parcelas — carregado do Sheets
+    try {
+      const resParcelas = await fetch(`${SHEETS_URL}?action=parcelas`);
+      const parcelasData = await resParcelas.json();
+      if (Array.isArray(parcelasData) && parcelasData.length > 0) {
+        PARCELAS_CONFIG = parcelasData;
+        const sel = document.getElementById('f_parcelas');
+        sel.innerHTML = PARCELAS_CONFIG.map(p =>
+          `<option value="${p.parcelas}">${p.parcelas}x ${p.juros > 0 ? '+ ' + p.juros + '%' : 'sem juros'}</option>`
+        ).join('');
+      }
+    } catch(e) { /* usa opções padrão do HTML */ }
 
     CATALOG = data.map(p => ({
       id:          p.id,
@@ -1573,7 +1587,9 @@ function selectPayment(method) {
 function calcInstallment() {
   const parcelas = parseInt(document.getElementById('f_parcelas').value);
   let total = getTotal();
-  if (parcelas > 3) total *= 1.05; // 5% acréscimo
+  const config = PARCELAS_CONFIG.find(p => p.parcelas === parcelas);
+  const juros = config ? config.juros : 0;
+  if (juros > 0) total *= (1 + juros / 100);
   const por = total / parcelas;
   document.getElementById('f_parcela_val').value = `R$ ${por.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
 }
@@ -1690,8 +1706,10 @@ function buildReview() {
   // Total com frete
   total += freteValor;
   if (selectedPayment === 'Cartão de Crédito') {
-    const parc = parseInt(document.getElementById('f_parcelas').value);
-    if (parc > 3) total *= 1.05;
+    const parc   = parseInt(document.getElementById('f_parcelas').value);
+    const config = PARCELAS_CONFIG.find(p => p.parcelas === parc);
+    const juros  = config ? config.juros : 0;
+    if (juros > 0) total *= (1 + juros / 100);
   }
 
   // Total box
@@ -1824,8 +1842,10 @@ function sendWhatsApp() {
 function getFinalTotal() {
   let total = getTotal() + freteValor;
   if (selectedPayment === 'Cartão de Crédito') {
-    const parc = parseInt(document.getElementById('f_parcelas').value);
-    if (parc > 3) total *= 1.05;
+    const parc   = parseInt(document.getElementById('f_parcelas').value);
+    const config = PARCELAS_CONFIG.find(p => p.parcelas === parc);
+    const juros  = config ? config.juros : 0;
+    if (juros > 0) total *= (1 + juros / 100);
   }
   if (cupomAplicado && cupomDesconto > 0) total *= (1 - cupomDesconto);
   return total;
