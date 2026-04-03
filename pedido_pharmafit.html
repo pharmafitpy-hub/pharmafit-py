@@ -604,7 +604,14 @@
   .variant-row.vr-disabled { opacity: .45; pointer-events: none; }
   .vr-info { flex: 1; display: flex; flex-direction: column; gap: 1px; }
   .vr-dose { font-size: .82rem; font-weight: 600; color: var(--white); }
+  .vr-price-row { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-top: 2px; }
   .vr-price { font-size: .75rem; color: var(--accent); }
+  .vr-price.promo { color: #e74c3c; }
+  .vr-price-old { font-size: .72rem; color: var(--gray); text-decoration: line-through; }
+  .vr-stock { font-size: .68rem; padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
+  .vr-stock.ok { color: var(--accent); }
+  .vr-stock.low { color: var(--warn); }
+  .vr-stock.out { color: var(--danger); font-weight: 700; }
   .vr-controls { display: flex; align-items: center; gap: 6px; }
   .vr-btn {
     background: var(--input-bg); border: 1px solid var(--border); color: var(--white);
@@ -1145,6 +1152,7 @@ async function carregarProdutos() {
       variantes:   (Array.isArray(p.variantes) && p.variantes.length > 0 && p.variantes[0].dose)
                      ? p.variantes : null,
       promo_preco: parseFloat(p.promo_preco) || 0,
+      promo_pct:   parseFloat(p.promo_pct)   || 0,
       promo_inicio: p.promo_inicio || '',
       promo_fim:   p.promo_fim || ''
     }));
@@ -1276,7 +1284,8 @@ function parseBrDate(str) {
 }
 
 function isPromoAtiva(p) {
-  if (!p.promo_preco || !p.promo_fim) return false;
+  if (!p.promo_fim) return false;
+  if (!p.promo_preco && !p.promo_pct) return false;
   const now = new Date();
   const fim   = parseBrDate(p.promo_fim);
   const inicio = p.promo_inicio ? parseBrDate(p.promo_inicio) : new Date(0);
@@ -1317,9 +1326,15 @@ function getPriceByKey(key) {
   const { id, varIdx } = parseCartKey(key);
   const p = CATALOG.find(x => x.id === id);
   if (!p) return 0;
-  if (isPromoAtiva(p)) return p.promo_preco;
+  const promo = isPromoAtiva(p);
   if (varIdx !== null && p.variantes && p.variantes[varIdx]) {
-    return parseFloat(p.variantes[varIdx].preco) || 0;
+    const base = parseFloat(p.variantes[varIdx].preco) || 0;
+    if (promo && p.promo_pct > 0) return parseFloat((base * (1 - p.promo_pct / 100)).toFixed(2));
+    return base;
+  }
+  if (promo) {
+    if (p.promo_pct > 0) return parseFloat((p.price * (1 - p.promo_pct / 100)).toFixed(2));
+    if (p.promo_preco > 0) return p.promo_preco;
   }
   return p.price;
 }
@@ -1411,19 +1426,29 @@ function renderProducts() {
           const key = `${p.id}__${i}`;
           const vQty = cart[key] || 0;
           const vPrice = parseFloat(v.preco) || 0;
+          const vPriceDisc = getPriceByKey(key);
           const vStock = parseInt(v.estoque) || 0;
           const semV = vStock === 0;
+          const vStockLabel = semV
+            ? `<span class="vr-stock out">⚠️ Sem estoque</span>`
+            : vStock <= 5
+              ? `<span class="vr-stock low">⚡ ${vStock} un.</span>`
+              : `<span class="vr-stock ok">✅ ${vStock} un.</span>`;
+          const vPromoHtml = (promoAtiva && p.promo_pct > 0)
+            ? `<span class="vr-price-old">R$ ${vPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+               <span class="vr-price promo">R$ ${vPriceDisc.toLocaleString('pt-BR',{minimumFractionDigits:2})} (-${p.promo_pct}%)</span>`
+            : `<span class="vr-price">R$ ${vPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`;
           return `<div class="variant-row ${semV ? 'vr-disabled' : ''}">
             <div class="vr-info">
               <span class="vr-dose">${v.dose}</span>
-              <span class="vr-price">R$ ${vPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+              <div class="vr-price-row">${vPromoHtml}${vStockLabel}</div>
             </div>
             <div class="vr-controls">
               <button class="vr-btn" onclick="event.stopPropagation(); changeVariantQty('${p.id}',${i},-1)">−</button>
               <span class="vr-qty" id="vqty-${p.id}-${i}">${vQty}</span>
               <button class="vr-btn" onclick="event.stopPropagation(); changeVariantQty('${p.id}',${i},1)">+</button>
             </div>
-            <span class="vr-sub" id="vsub-${p.id}-${i}">${vQty > 0 ? `= R$ ${(vPrice*vQty).toLocaleString('pt-BR',{minimumFractionDigits:2})}` : ''}</span>
+            <span class="vr-sub" id="vsub-${p.id}-${i}">${vQty > 0 ? `= R$ ${(vPriceDisc*vQty).toLocaleString('pt-BR',{minimumFractionDigits:2})}` : ''}</span>
           </div>`;
         }).join('')}
       </div>` : '';
