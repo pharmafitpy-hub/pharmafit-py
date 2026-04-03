@@ -594,14 +594,26 @@
   .lab-btn:hover { border-color: var(--blue); color: var(--white); }
   .lab-btn.active { background: var(--accent); border-color: var(--accent); color: var(--petrol); font-weight: 700; }
 
-  /* ── VARIANT SELECT ── */
-  .pc-variant { margin: 8px 0 4px; }
-  .pc-variant select {
-    width: 100%; background: var(--input-bg); border: 1px solid var(--border);
-    border-radius: 6px; padding: 6px 10px; color: var(--white);
-    font-size: 0.82rem; cursor: pointer; font-family: inherit;
+  /* ── VARIANT ROWS ── */
+  .variant-rows { margin: 10px 0 4px; display: flex; flex-direction: column; gap: 6px; }
+  .variant-row {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,.04); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 10px;
   }
-  .pc-variant select:focus { border-color: var(--accent); outline: none; }
+  .variant-row.vr-disabled { opacity: .45; pointer-events: none; }
+  .vr-info { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+  .vr-dose { font-size: .82rem; font-weight: 600; color: var(--white); }
+  .vr-price { font-size: .75rem; color: var(--accent); }
+  .vr-controls { display: flex; align-items: center; gap: 6px; }
+  .vr-btn {
+    background: var(--input-bg); border: 1px solid var(--border); color: var(--white);
+    width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
+    font-size: 1rem; line-height: 1; font-family: inherit; transition: all .15s;
+  }
+  .vr-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .vr-qty { min-width: 20px; text-align: center; font-size: .88rem; font-weight: 700; }
+  .vr-sub { font-size: .72rem; color: var(--accent); white-space: nowrap; min-width: 70px; text-align: right; }
 
   /* ── PROMO ── */
   .promo-ribbon {
@@ -1296,50 +1308,57 @@ function startCountdowns() {
 }
 
 // ─── HELPERS DE VARIANTE/PREÇO/ESTOQUE ──────────────────────────────────────
-function getProductPrice(id) {
+function parseCartKey(key) {
+  const parts = key.split('__');
+  return { id: parts[0], varIdx: parts.length > 1 ? parseInt(parts[1]) : null };
+}
+
+function getPriceByKey(key) {
+  const { id, varIdx } = parseCartKey(key);
   const p = CATALOG.find(x => x.id === id);
   if (!p) return 0;
   if (isPromoAtiva(p)) return p.promo_preco;
-  if (p.variantes && p.variantes.length > 0) {
-    const idx = selectedVariants[id] || 0;
-    return parseFloat(p.variantes[idx].preco) || 0;
+  if (varIdx !== null && p.variantes && p.variantes[varIdx]) {
+    return parseFloat(p.variantes[varIdx].preco) || 0;
   }
   return p.price;
 }
 
-function getVariantStock(id) {
-  const p = CATALOG.find(x => x.id === id);
-  if (!p) return 0;
-  if (p.variantes && p.variantes.length > 0) {
-    const idx = selectedVariants[id] || 0;
-    return parseInt(p.variantes[idx].estoque) || 0;
-  }
-  return p.stock;
+function getProductPrice(id) {
+  return getPriceByKey(id);
 }
 
-function getVariantLabel(id) {
+function getVariantLabel(key) {
+  const { id, varIdx } = parseCartKey(key);
   const p = CATALOG.find(x => x.id === id);
   if (!p) return '';
-  if (p.variantes && p.variantes.length > 0) {
-    const idx = selectedVariants[id] || 0;
-    return p.variantes[idx].dose;
-  }
+  if (varIdx !== null && p.variantes && p.variantes[varIdx]) return p.variantes[varIdx].dose;
   return p.conc;
 }
 
-function changeVariant(id, idx) {
-  selectedVariants[id] = parseInt(idx);
-  const price = getProductPrice(id);
-  const stock = getVariantStock(id);
-  const priceEl = document.getElementById('price-' + id);
-  const stockEl = document.getElementById('stock-' + id);
-  if (priceEl) priceEl.textContent = `R$ ${price.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
-  if (stockEl) stockEl.innerHTML = stock === 0
-    ? `<span style="color:#e74c3c;font-size:.7rem;font-weight:700">⚠️ Sem estoque</span>`
-    : stock <= 10
-      ? `<span style="color:#f39c12;font-size:.7rem">⚡ Últimas ${stock} un.</span>`
-      : `<span style="color:var(--accent);font-size:.7rem">✅ ${stock} em estoque</span>`;
-  updateSubtotal(id);
+function changeVariantQty(id, varIdx, delta) {
+  const key = `${id}__${varIdx}`;
+  const p = CATALOG.find(x => x.id === id);
+  const maxStock = p && p.variantes && p.variantes[varIdx] ? parseInt(p.variantes[varIdx].estoque) || 999 : 999;
+  const newQty = Math.max(0, Math.min(maxStock, (cart[key] || 0) + delta));
+  if (newQty === 0) delete cart[key]; else cart[key] = newQty;
+
+  const qtyEl = document.getElementById(`vqty-${id}-${varIdx}`);
+  if (qtyEl) qtyEl.textContent = newQty;
+
+  const subEl = document.getElementById(`vsub-${id}-${varIdx}`);
+  if (subEl) {
+    const price = getPriceByKey(key);
+    subEl.textContent = newQty > 0 ? `= R$ ${(price * newQty).toLocaleString('pt-BR', {minimumFractionDigits:2})}` : '';
+  }
+
+  const hasAny = p && p.variantes.some((_, i) => (cart[`${id}__${i}`] || 0) > 0);
+  const cardEl = document.getElementById(`pc-${id}`);
+  if (cardEl) {
+    cardEl.classList.toggle('selected', hasAny);
+    const chk = cardEl.querySelector('.pc-check');
+    if (chk) chk.textContent = hasAny ? '✓' : '';
+  }
   updateTotal();
 }
 
@@ -1376,32 +1395,34 @@ function renderProducts() {
       <span class="promo-price-old">R$ ${p.price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>` : '';
     const temProtocolo = PROTOCOLS && PROTOCOLS[p.id];
     const saibaMaisBtn = temProtocolo ? `<button class="btn-saiba-mais" onclick="event.stopPropagation(); abrirProtocolo('${p.id}')">📋 Saiba mais sobre este produto</button>` : '';
-    const variantHtml = (p.variantes && p.variantes.length > 0) ? `
-      <div class="pc-variant">
-        <select onclick="event.stopPropagation()" onchange="event.stopPropagation(); changeVariant('${p.id}', this.value)">
-          ${p.variantes.map((v,i) => `<option value="${i}" ${i===varIdx?'selected':''}>${v.dose} — R$ ${parseFloat(v.preco).toLocaleString('pt-BR',{minimumFractionDigits:2})}</option>`).join('')}
-        </select>
+    const temVariantes = p.variantes && p.variantes.length > 0;
+
+    // Produtos COM variantes: cada dose tem sua própria linha com [− qty +]
+    const variantRowsHtml = temVariantes ? `
+      <div class="variant-rows">
+        ${p.variantes.map((v, i) => {
+          const key = `${p.id}__${i}`;
+          const vQty = cart[key] || 0;
+          const vPrice = parseFloat(v.preco) || 0;
+          const vStock = parseInt(v.estoque) || 0;
+          const semV = vStock === 0;
+          return `<div class="variant-row ${semV ? 'vr-disabled' : ''}">
+            <div class="vr-info">
+              <span class="vr-dose">${v.dose}</span>
+              <span class="vr-price">R$ ${vPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+            </div>
+            <div class="vr-controls">
+              <button class="vr-btn" onclick="event.stopPropagation(); changeVariantQty('${p.id}',${i},-1)">−</button>
+              <span class="vr-qty" id="vqty-${p.id}-${i}">${vQty}</span>
+              <button class="vr-btn" onclick="event.stopPropagation(); changeVariantQty('${p.id}',${i},1)">+</button>
+            </div>
+            <span class="vr-sub" id="vsub-${p.id}-${i}">${vQty > 0 ? `= R$ ${(vPrice*vQty).toLocaleString('pt-BR',{minimumFractionDigits:2})}` : ''}</span>
+          </div>`;
+        }).join('')}
       </div>` : '';
 
-    grid.innerHTML += `
-      <div class="product-card ${isSelected ? 'selected' : ''} ${semEstoque ? 'disabled' : ''} ${promoAtiva ? 'promo-ativa' : ''}"
-           id="pc-${p.id}" onclick="${semEstoque ? '' : `toggleProduct('${p.id}')`}"
-           style="${semEstoque ? 'opacity:.5;cursor:not-allowed' : ''}">
-        ${promoRibbon}
-        <div class="pc-header">
-          <span class="pc-icon">${p.icon}</span>
-          <div class="pc-check">${isSelected ? '✓' : ''}</div>
-        </div>
-        <div class="pc-name">${p.name}</div>
-        <div class="pc-conc">${p.conc}</div>
-        <div class="pc-tags">${labBadge}${p.tags.map(t=>`<span class="pc-tag">${t}</span>`).join('')}</div>
-        <div style="margin:6px 0" id="stock-${p.id}">${estoqueLabel}</div>
-        ${variantHtml}
-        <div class="pc-price-row" style="flex-direction:column;align-items:flex-start;gap:2px">
-          ${promoPrecoHtml}<div style="display:flex;align-items:baseline;gap:4px"><span class="pc-price" id="price-${p.id}" style="${promoAtiva?'color:#F39C12':''}">R$ ${currentPrice.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
-          <span class="pc-unit">/ unidade</span></div>
-        </div>
-        ${promoTimer}
+    // Produtos SEM variantes: comportamento original
+    const qtyWrapHtml = !temVariantes ? `
         <div class="pc-qty-wrap" id="qty-wrap-${p.id}">
           <button class="qty-btn" onclick="event.stopPropagation(); changeQty('${p.id}',-1)">−</button>
           <input class="qty-input" type="number" id="qty-${p.id}" value="${qty}" min="1" max="${p.stock}"
@@ -1410,7 +1431,33 @@ function renderProducts() {
           <button class="qty-btn" onclick="event.stopPropagation(); changeQty('${p.id}',1)">+</button>
           <span class="qty-label">un.</span>
           <span class="pc-subtotal" id="sub-${p.id}">= R$ ${subtotal}</span>
+        </div>` : '';
+
+    const cardOnclick = temVariantes ? '' : (semEstoque ? '' : `toggleProduct('${p.id}')`);
+    const cardSelected = temVariantes
+      ? p.variantes.some((_, i) => (cart[`${p.id}__${i}`] || 0) > 0)
+      : isSelected;
+
+    grid.innerHTML += `
+      <div class="product-card ${cardSelected ? 'selected' : ''} ${semEstoque ? 'disabled' : ''} ${promoAtiva ? 'promo-ativa' : ''}"
+           id="pc-${p.id}" onclick="${cardOnclick}"
+           style="${!temVariantes && semEstoque ? 'opacity:.5;cursor:not-allowed' : ''}">
+        ${promoRibbon}
+        <div class="pc-header">
+          <span class="pc-icon">${p.icon}</span>
+          <div class="pc-check">${cardSelected ? '✓' : ''}</div>
         </div>
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-conc">${p.conc}</div>
+        <div class="pc-tags">${labBadge}${p.tags.map(t=>`<span class="pc-tag">${t}</span>`).join('')}</div>
+        ${!temVariantes ? `<div style="margin:6px 0" id="stock-${p.id}">${estoqueLabel}</div>` : ''}
+        ${!temVariantes ? `<div class="pc-price-row" style="flex-direction:column;align-items:flex-start;gap:2px">
+          ${promoPrecoHtml}<div style="display:flex;align-items:baseline;gap:4px">
+          <span class="pc-price" id="price-${p.id}" style="${promoAtiva?'color:#F39C12':''}">R$ ${currentPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+          <span class="pc-unit">/ unidade</span></div></div>` : ''}
+        ${promoTimer}
+        ${variantRowsHtml}
+        ${qtyWrapHtml}
         ${saibaMaisBtn}
       </div>`;
   });
@@ -1449,9 +1496,9 @@ function updateSubtotal(id) {
 
 function updateTotal() {
   let total = 0, count = 0;
-  Object.keys(cart).forEach(id => {
-    total += getProductPrice(id) * cart[id];
-    count += cart[id];
+  Object.keys(cart).forEach(key => {
+    total += getPriceByKey(key) * cart[key];
+    count += cart[key];
   });
   document.getElementById('total-display').textContent = total.toLocaleString('pt-BR', {minimumFractionDigits:2});
   document.getElementById('items-count').textContent = `${count} produto(s) · ${Object.keys(cart).length} tipo(s)`;
@@ -1459,7 +1506,7 @@ function updateTotal() {
 
 function getTotal() {
   let total = 0;
-  Object.keys(cart).forEach(id => { total += getProductPrice(id) * cart[id]; });
+  Object.keys(cart).forEach(key => { total += getPriceByKey(key) * cart[key]; });
   return total;
 }
 
@@ -1672,12 +1719,13 @@ function buildReview() {
   // Produtos
   let html = '';
   let total = 0;
-  Object.keys(cart).forEach(id => {
+  Object.keys(cart).forEach(key => {
+    const { id } = parseCartKey(key);
     const p = CATALOG.find(x => x.id === id);
     if (!p) return;
-    const qty = cart[id];
-    const price = getProductPrice(id);
-    const varLabel = getVariantLabel(id);
+    const qty = cart[key];
+    const price = getPriceByKey(key);
+    const varLabel = getVariantLabel(key);
     const sub = price * qty;
     total += sub;
     html += `<div class="rp-item">
@@ -1756,12 +1804,13 @@ function sendWhatsApp() {
   if (v('f_obs')) msg += `Obs: ${v('f_obs')}\n`;
 
   msg += `\n💊 *PRODUTOS SOLICITADOS*\n`;
-  Object.keys(cart).forEach(id => {
+  Object.keys(cart).forEach(key => {
+    const { id } = parseCartKey(key);
     const p = CATALOG.find(x => x.id === id);
     if (!p) return;
-    const qty = cart[id];
-    const price = getProductPrice(id);
-    const varLabel = getVariantLabel(id);
+    const qty = cart[key];
+    const price = getPriceByKey(key);
+    const varLabel = getVariantLabel(key);
     msg += `• ${p.name} (${varLabel}) — ${qty}x — R$ ${(price * qty).toLocaleString('pt-BR',{minimumFractionDigits:2})}\n`;
   });
 
@@ -1791,12 +1840,13 @@ function sendWhatsApp() {
   saveOrder(total);
 
   // Salvar no Google Sheets
-  const itensPedido = Object.keys(cart).map(id => {
+  const itensPedido = Object.keys(cart).map(key => {
+    const { id } = parseCartKey(key);
     const p = CATALOG.find(x => x.id === id);
-    if (!p) return id;
-    const price = getProductPrice(id);
-    const varLabel = getVariantLabel(id);
-    return `${cart[id]}x ${p.name} (${varLabel}) = R$ ${(price * cart[id]).toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+    if (!p) return key;
+    const price = getPriceByKey(key);
+    const varLabel = getVariantLabel(key);
+    return `${cart[key]}x ${p.name} (${varLabel}) = R$ ${(price * cart[key]).toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
   }).join('\n');
   const parcelas = selectedPayment === 'Cartão de Crédito'
     ? `${document.getElementById('f_parcelas').value}x de ${document.getElementById('f_parcela_val').value}`
@@ -1823,11 +1873,7 @@ function sendWhatsApp() {
     cupom_codigo:  cupomCodigo || '',
     cupom_pct:     cupomAplicado ? (cupomDesconto * 100).toFixed(0) : '0',
     cupom_valor:   cupomAplicado ? ((getTotal() + freteValor) * cupomDesconto).toFixed(2) : '0',
-    carrinho:      JSON.stringify(Object.fromEntries(Object.keys(cart).map(id => {
-      const p = CATALOG.find(x => x.id === id);
-      const key = (p && p.variantes) ? `${id}__${selectedVariants[id] || 0}` : id;
-      return [key, cart[id]];
-    })))
+    carrinho:      JSON.stringify(cart)
   });
   fetch(`${SHEETS_URL}?${params.toString()}`, { method: 'GET', mode: 'no-cors' }).catch(() => {});
 
