@@ -691,11 +691,36 @@
     transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
   }
   .btn-ver-informativo:hover { background: rgba(26,188,156,.18); border-color: var(--accent); }
-  .pm-iframe-wrap {
-    margin-top: 14px; border-radius: 10px; overflow: hidden;
-    border: 1px solid var(--border); display: none;
+
+  /* ── INFORMATIVO FULLSCREEN ── */
+  .info-overlay {
+    display: none; position: fixed; inset: 0; z-index: 1100;
+    background: rgba(0,0,0,.85);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
   }
-  #pm-iframe { width: 100%; height: 580px; border: none; background: #fff; display: block; }
+  .info-overlay.open { display: flex; }
+  .info-overlay-inner {
+    width: 100%; max-width: 960px; height: 90vh;
+    display: flex; flex-direction: column;
+    border-radius: 14px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .info-overlay-bar {
+    background: var(--petrol2); padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .info-overlay-bar span { font-size: .85rem; color: var(--gray); }
+  .btn-fechar-info {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--white); padding: 6px 16px; border-radius: 8px;
+    cursor: pointer; font-size: .82rem; font-weight: 600; transition: all .2s;
+  }
+  .btn-fechar-info:hover { background: var(--danger); border-color: var(--danger); }
+  #info-iframe { flex: 1; border: none; background: #fff; }
 
   /* ── SUCCESS ── */
   .success-screen {
@@ -1080,13 +1105,21 @@
       <span>Estas são <strong>informações gerais</strong> do produto. Para protocolos específicos, advertências detalhadas, dosagens individualizadas e orientações de reconstituição, acesse o informativo completo abaixo.</span>
     </div>
     <div class="pm-info-footer" id="pm-info-footer" style="display:none">
-      <button class="btn-ver-informativo" id="btn-informativo" onclick="toggleInformativo()">
+      <button class="btn-ver-informativo" onclick="abrirInformativo()">
         📋 Acessar informativo completo do produto
       </button>
-      <div class="pm-iframe-wrap" id="pm-iframe-wrap">
-        <iframe id="pm-iframe" src=""></iframe>
-      </div>
     </div>
+  </div>
+</div>
+
+<!-- INFORMATIVO FULLSCREEN OVERLAY -->
+<div class="info-overlay" id="info-overlay">
+  <div class="info-overlay-inner">
+    <div class="info-overlay-bar">
+      <span id="info-overlay-title">Informativo do produto</span>
+      <button class="btn-fechar-info" onclick="fecharInformativo()">✕ Fechar informativo</button>
+    </div>
+    <iframe id="info-iframe" src=""></iframe>
   </div>
 </div>
 
@@ -1688,42 +1721,31 @@ function abrirProtocolo(id) {
     </div>`).join('');
 
   // Informativo
-  const footer   = document.getElementById('pm-info-footer');
-  const iframeEl = document.getElementById('pm-iframe');
-  const iframeWrap = document.getElementById('pm-iframe-wrap');
-  const modalEl  = document.querySelector('#protocol-modal .modal');
-  const aviso = document.getElementById('pm-aviso');
+  const footer = document.getElementById('pm-info-footer');
+  const aviso  = document.getElementById('pm-aviso');
   if (proto.pagina) {
-    iframeEl.src = proto.pagina;
-    aviso.style.display = 'flex';
-    footer.style.display = 'block';
-    iframeWrap.style.display = 'none';
-    document.getElementById('btn-informativo').textContent = '📋 Acessar informativo completo do produto';
-    modalEl.style.maxWidth = '640px';
+    aviso.style.display   = 'flex';
+    footer.style.display  = 'block';
+    footer.dataset.pagina = proto.pagina;
+    footer.dataset.titulo = p.name;
   } else {
-    aviso.style.display = 'none';
+    aviso.style.display  = 'none';
     footer.style.display = 'none';
-    iframeEl.src = '';
-    modalEl.style.maxWidth = '640px';
   }
 
   document.getElementById('protocol-modal').classList.add('open');
 }
 
-function toggleInformativo() {
-  const wrap    = document.getElementById('pm-iframe-wrap');
-  const btn     = document.getElementById('btn-informativo');
-  const modalEl = document.querySelector('#protocol-modal .modal');
-  const isOpen  = wrap.style.display === 'block';
-  if (isOpen) {
-    wrap.style.display = 'none';
-    btn.textContent = '📄 Ver informativo completo';
-    modalEl.style.maxWidth = '640px';
-  } else {
-    wrap.style.display = 'block';
-    btn.textContent = '✕ Fechar informativo';
-    modalEl.style.maxWidth = '960px';
-  }
+function abrirInformativo() {
+  const footer = document.getElementById('pm-info-footer');
+  document.getElementById('info-iframe').src = footer.dataset.pagina;
+  document.getElementById('info-overlay-title').textContent = footer.dataset.titulo || 'Informativo do produto';
+  document.getElementById('info-overlay').classList.add('open');
+}
+
+function fecharInformativo() {
+  document.getElementById('info-overlay').classList.remove('open');
+  document.getElementById('info-iframe').src = '';
 }
 
 function getFreteLabel() {
