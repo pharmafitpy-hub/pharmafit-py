@@ -665,6 +665,37 @@
   }
   .proto-section-body { font-size: .85rem; color: rgba(255,255,255,.82); line-height: 1.65; }
   .proto-loading { text-align: center; padding: 30px; color: var(--gray); }
+  .pm-aviso {
+    margin: 0 24px 16px;
+    padding: 12px 16px;
+    background: rgba(243,156,18,.08);
+    border: 1px solid rgba(243,156,18,.3);
+    border-radius: 10px;
+    font-size: .8rem;
+    color: #f5c842;
+    line-height: 1.6;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .pm-aviso-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+  .pm-info-footer {
+    padding: 14px 24px 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+  }
+  .btn-ver-informativo {
+    width: 100%; padding: 11px 16px; border-radius: 10px;
+    background: rgba(26,188,156,.08); border: 1px solid rgba(26,188,156,.3);
+    color: var(--accent); cursor: pointer; font-size: .88rem; font-weight: 600;
+    transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-ver-informativo:hover { background: rgba(26,188,156,.18); border-color: var(--accent); }
+  .pm-iframe-wrap {
+    margin-top: 14px; border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--border); display: none;
+  }
+  #pm-iframe { width: 100%; height: 580px; border: none; background: #fff; display: block; }
 
   /* ── SUCCESS ── */
   .success-screen {
@@ -1043,6 +1074,18 @@
     </div>
     <div class="proto-modal-body" id="pm-body">
       <div class="proto-loading">⏳ Carregando protocolo...</div>
+    </div>
+    <div class="pm-aviso" id="pm-aviso" style="display:none">
+      <span class="pm-aviso-icon">⚠️</span>
+      <span>Estas são <strong>informações gerais</strong> do produto. Para protocolos específicos, advertências detalhadas, dosagens individualizadas e orientações de reconstituição, acesse o informativo completo abaixo.</span>
+    </div>
+    <div class="pm-info-footer" id="pm-info-footer" style="display:none">
+      <button class="btn-ver-informativo" id="btn-informativo" onclick="toggleInformativo()">
+        📋 Acessar informativo completo do produto
+      </button>
+      <div class="pm-iframe-wrap" id="pm-iframe-wrap">
+        <iframe id="pm-iframe" src=""></iframe>
+      </div>
     </div>
   </div>
 </div>
@@ -1644,7 +1687,43 @@ function abrirProtocolo(id) {
       <div class="proto-section-body">${String(s.campo).replace(/\n/g,'<br>')}</div>
     </div>`).join('');
 
+  // Informativo
+  const footer   = document.getElementById('pm-info-footer');
+  const iframeEl = document.getElementById('pm-iframe');
+  const iframeWrap = document.getElementById('pm-iframe-wrap');
+  const modalEl  = document.querySelector('#protocol-modal .modal');
+  const aviso = document.getElementById('pm-aviso');
+  if (proto.pagina) {
+    iframeEl.src = `../docs/informativos/${proto.pagina}`;
+    aviso.style.display = 'flex';
+    footer.style.display = 'block';
+    iframeWrap.style.display = 'none';
+    document.getElementById('btn-informativo').textContent = '📋 Acessar informativo completo do produto';
+    modalEl.style.maxWidth = '640px';
+  } else {
+    aviso.style.display = 'none';
+    footer.style.display = 'none';
+    iframeEl.src = '';
+    modalEl.style.maxWidth = '640px';
+  }
+
   document.getElementById('protocol-modal').classList.add('open');
+}
+
+function toggleInformativo() {
+  const wrap    = document.getElementById('pm-iframe-wrap');
+  const btn     = document.getElementById('btn-informativo');
+  const modalEl = document.querySelector('#protocol-modal .modal');
+  const isOpen  = wrap.style.display === 'block';
+  if (isOpen) {
+    wrap.style.display = 'none';
+    btn.textContent = '📄 Ver informativo completo';
+    modalEl.style.maxWidth = '640px';
+  } else {
+    wrap.style.display = 'block';
+    btn.textContent = '✕ Fechar informativo';
+    modalEl.style.maxWidth = '960px';
+  }
 }
 
 function getFreteLabel() {
