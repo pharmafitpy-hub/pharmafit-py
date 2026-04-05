@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Informativo Técnico — BiologicalFace Lifting | PharmaFit-PY</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --petrol:      #1B4F72;
+      --petrol-dark: #0D2B3E;
+      --petrol-mid:  #2471A3;
+      --petrol-lite: #D6EAF8;
+      --petrol-bg:   #EBF5FB;
+      --amber:       #B7600A;
+      --amber-mid:   #E67E22;
+      --amber-lite:  #FAE5D3;
+      --amber-bg:    #FEF5EC;
+      --gold:        #9A7D0A;
+      --gold-mid:    #D4AC0D;
+      --gold-lite:   #FCF3CF;
+      --gold-bg:     #FEFDE7;
+      --rose:        #7D3C98;
+      --rose-mid:    #AF7AC5;
+      --rose-lite:   #E8DAEF;
+      --rose-bg:     #F5EEF8;
+      --blush:       #C0392B;
+      --blush-mid:   #E74C3C;
+      --white:       #FFFFFF;
+      --gray-1:      #F4F6F7;
+      --gray-2:      #D5D8DC;
+      --text-dark:   #1A2530;
+      --text-mid:    #3D566E;
+    }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      color: var(--text-dark);
+      background: #c8d8e4;
+      font-size: 10.5pt;
+      line-height: 1.6;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      background: #fff;
+      margin: 12mm auto;
+      box-shadow: 0 4px 32px rgba(13,43,62,0.18);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ─── HEADER ─────────────────────────────────────── */
+    .header {
+      background: linear-gradient(135deg, #4A1A5A 0%, var(--rose) 45%, var(--petrol) 100%);
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: 30%;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.03);
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 28px 14px;
+    }
+    .header-logo img {
+      height: 72px;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+    }
+    .header-center {
+      text-align: center;
+      flex: 1;
+      padding: 0 20px;
+    }
+    .header-tag {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7pt;
+      font-weight: 600;
+      letter-spacing: 3px;
+      color: rgba(255,255,255,0.55);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .header-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16.5pt;
+      font-weight: 800;
+      color: white;
+      line-height: 1.1;
+      letter-spacing: -0.3px;
+    }
+    .header-title span { color: #D7BDE2; }
+    .header-subtitle {
+      font-size: 8pt;
+      color: rgba(255,255,255,0.62);
+      margin-top: 5px;
+      font-weight: 300;
+      letter-spacing: 0.4px;
+    }
+    .header-badge {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .badge-box {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-family: 'Montserrat', sans-serif;
+    }
+    .badge-box .b-label {
+      font-size: 6pt;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .badge-box .b-val {
+      font-size: 8pt;
+      font-weight: 700;
+      color: white;
+      margin-top: 1px;
+    }
+    .header-bar {
+      height: 4px;
+      background: linear-gradient(90deg, #D7BDE2 0%, var(--rose-mid) 30%, var(--gold-mid) 60%, var(--petrol-mid) 100%);
+    }
+
+    /* ─── FDA STRIP ───────────────────────────────────── */
+    .fda-strip {
+      background: var(--rose-bg);
+      border-bottom: 1px solid var(--rose-lite);
+      padding: 8px 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .fda-badge {
+      background: var(--rose);
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7pt;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+    .fda-badge2 {
+      background: var(--petrol);
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7pt;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+    .fda-text {
+      font-size: 8pt;
+      color: var(--rose);
+      font-weight: 400;
+      line-height: 1.4;
+    }
+    .fda-text strong { color: var(--rose); font-weight: 700; }
+
+    /* ─── CONTENT ─────────────────────────────────────── */
+    .content {
+      padding: 22px 28px 28px;
+      flex: 1;
+    }
+
+    /* ─── INTRO STRIP ─────────────────────────────────── */
+    .intro-strip {
+      background: var(--rose-bg);
+      border-left: 5px solid var(--rose-mid);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .intro-icon {
+      font-size: 28px;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .intro-text {
+      font-size: 9.5pt;
+      color: var(--text-mid);
+      line-height: 1.55;
+    }
+    .intro-text strong { color: var(--petrol-dark); }
+
+    /* ─── SECTION ─────────────────────────────────────── */
+    .section {
+      margin-bottom: 22px;
+    }
+    .section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9.5pt;
+      font-weight: 700;
+      color: var(--white);
+      background: linear-gradient(90deg, var(--rose) 0%, var(--rose-mid) 100%);
+      padding: 7px 14px;
+      border-radius: 6px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title .num {
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      width: 20px; height: 20px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 8.5pt;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* ─── MOA TABLE ───────────────────────────────────── */
+    table.moa {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    table.moa thead tr { background: var(--rose); }
+    table.moa thead th {
+      padding: 8px 11px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7.5pt;
+      font-weight: 600;
+      color: white;
+      text-align: left;
+      letter-spacing: 0.5px;
+    }
+    table.moa tbody tr:nth-child(odd)  { background: var(--white); }
+    table.moa tbody tr:nth-child(even) { background: var(--gray-1); }
+    table.moa tbody tr:hover           { background: var(--rose-lite); }
+    table.moa tbody td {
+      padding: 7px 11px;
+      color: var(--text-dark);
+      border-bottom: 1px solid var(--gray-2);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    table.moa tbody td:first-child {
+      font-weight: 700;
+      color: var(--rose);
+      white-space: nowrap;
+      font-size: 8pt;
+    }
+    table.moa tbody td:last-child {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: var(--petrol-mid);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* ─── DISS BOX ────────────────────────────────────── */
+    .diss-box {
+      background: var(--gray-1);
+      border-radius: 8px;
+      border: 1px solid var(--gray-2);
+      padding: 16px;
+    }
+    .diss-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .diss-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .step-circle {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--rose);
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9pt;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(125,60,152,0.35);
+    }
+    .step-text {
+      font-size: 9pt;
+      color: var(--text-mid);
+      line-height: 1.5;
+      padding-top: 4px;
+    }
+    .step-text strong {
+      color: var(--petrol-dark);
+      font-weight: 700;
+    }
+
+    /* ─── DOSE TABLE ──────────────────────────────────── */
+    .dose-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .dose-table thead tr { background: var(--rose); }
+    .dose-table thead th {
+      padding: 7px 11px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: white;
+      text-align: left;
+      letter-spacing: 0.5px;
+    }
+    .dose-table tbody tr:nth-child(odd)  { background: var(--white); }
+    .dose-table tbody tr:nth-child(even) { background: var(--rose-bg); }
+    .dose-table tbody tr:hover           { background: var(--rose-lite); }
+    .dose-table tbody td {
+      padding: 7px 11px;
+      color: var(--text-dark);
+      border-bottom: 1px solid var(--gray-2);
+    }
+    .dose-table tbody td:first-child { font-weight: 600; color: var(--rose); }
+
+    /* ─── PROTO GRID ──────────────────────────────────── */
+    .proto-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .proto-card {
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+    }
+    .proto-head {
+      padding: 12px 14px;
+      color: white;
+    }
+    .proto-head.p1 { background: linear-gradient(135deg, var(--rose), var(--rose-mid)); }
+    .proto-head.p2 { background: linear-gradient(135deg, #4A1A5A, var(--rose)); }
+    .proto-head.p3 { background: linear-gradient(135deg, var(--petrol-dark), var(--petrol-mid)); }
+    .proto-head .ph-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      opacity: 0.65;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .proto-head .ph-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9.5pt;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+    .proto-body {
+      background: var(--gray-1);
+      padding: 12px 14px;
+    }
+    .proto-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--gray-2);
+      gap: 8px;
+    }
+    .proto-row:last-child { border-bottom: none; }
+    .pr-label {
+      font-size: 7.5pt;
+      color: var(--text-mid);
+      font-weight: 400;
+      flex-shrink: 0;
+    }
+    .pr-val {
+      font-size: 7.5pt;
+      color: var(--petrol-dark);
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* ─── TWO COL ─────────────────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    /* ─── ADV BOX ─────────────────────────────────────── */
+    .adv-box {
+      background: #FEF9E7;
+      border: 1px solid #F9E79F;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .adv-box .adv-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: var(--amber);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .adv-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .adv-item:last-child { margin-bottom: 0; }
+    .adv-icon {
+      font-size: 13px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .adv-text {
+      font-size: 8.5pt;
+      color: var(--text-mid);
+      line-height: 1.45;
+    }
+    .adv-text strong { color: var(--amber); }
+
+    /* ─── REF BOX ─────────────────────────────────────── */
+    .ref-box {
+      background: var(--petrol-bg);
+      border: 1px solid var(--petrol-lite);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .ref-box .ref-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: var(--petrol);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ref-list {
+      list-style: none;
+      padding: 0;
+    }
+    .ref-list li {
+      font-size: 7.5pt;
+      color: var(--text-mid);
+      padding: 3px 0;
+      border-bottom: 1px solid var(--petrol-lite);
+      line-height: 1.45;
+    }
+    .ref-list li:last-child { border-bottom: none; }
+    .ref-list li::before {
+      content: '▸ ';
+      color: var(--petrol-mid);
+      font-size: 7pt;
+    }
+
+    /* ─── FOOTER ──────────────────────────────────────── */
+    .footer {
+      background: var(--petrol-dark);
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-left {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7pt;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.5px;
+    }
+    .footer-center {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7pt;
+      color: rgba(255,255,255,0.3);
+      text-align: center;
+    }
+    .footer-right {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 7pt;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.5px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <img src="../logo_pharmafit.png" alt="PharmaFit-PY" onerror="this.style.display='none'" />
+      </div>
+      <div class="header-center">
+        <div class="header-tag">Biorevitalização Facial · PDRN + Ácido Hialurônico + Peptídeos · Lifting Sem Cirurgia</div>
+        <div class="header-title">BiologicalFace <span>Lifting</span></div>
+        <div class="header-subtitle">Neocolagênese · Hidratação Profunda · Regeneração Celular · Bioestimulação Multiplex</div>
+      </div>
+      <div class="header-badge">
+        <div class="badge-box">
+          <div class="b-label">Apresentação</div>
+          <div class="b-val">Ampola 5ml</div>
+        </div>
+        <div class="badge-box">
+          <div class="b-label">Via</div>
+          <div class="b-val">ID / SC / Nappage</div>
+        </div>
+        <div class="badge-box">
+          <div class="b-label">Código</div>
+          <div class="b-val">BIOFL-5-PFY</div>
+        </div>
+      </div>
+    </div>
+    <div class="header-bar"></div>
+  </div>
+
+  <!-- FDA STRIP -->
+  <div class="fda-strip">
+    <span class="fda-badge">CE Mark</span>
+    <span class="fda-badge2">Israderm</span>
+    <span class="fda-text">
+      <strong>BiologicalFace Lifting Israderm</strong> — Dispositivo médico classe II (CE Mark) · PDRN (Polydeoxyribonucleotide) + HA cross-linked + Peptídeos de Colágeno · Biorevitalizador de última geração
+    </span>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- INTRO -->
+    <div class="intro-strip">
+      <div class="intro-icon">✨</div>
+      <div class="intro-text">
+        <strong>BiologicalFace Lifting</strong> da Israderm é uma formulação biorevitalizadora de última geração que combina três princípios ativos sinérgicos: <strong>PDRN (Polidesoxirribonucleotídeo)</strong> para regeneração celular via receptores A2A adenosina, <strong>Ácido Hialurônico</strong> de alto e baixo peso molecular para hidratação multidimensional, e <strong>Peptídeos bioativos</strong> de colágeno/elastina para estimulação fibroblástica. O resultado é um lifting biológico gradual e natural, sem necessidade de procedimentos invasivos.
+      </div>
+    </div>
+
+    <!-- SECTION 1: MECANISMO DE AÇÃO -->
+    <div class="section">
+      <div class="section-title"><span class="num">1</span> Mecanismo de Ação</div>
+      <table class="moa">
+        <thead>
+          <tr>
+            <th style="width:24%">Componente / Via</th>
+            <th style="width:58%">Ação Farmacológica</th>
+            <th style="width:18%">Sistema</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>PDRN — Receptor A2A</td>
+            <td>Liga-se ao receptor A2A de adenosina · ativa síntese de colágeno e proliferação fibroblástica · regeneração tecidual profunda</td>
+            <td>Receptor A2A</td>
+          </tr>
+          <tr>
+            <td>HA Alto PM (&gt;1500kDa)</td>
+            <td>Hidratação profunda dérmica · restaura turgor e volume · efeito imediato de preenchimento</td>
+            <td>Higroscópico</td>
+          </tr>
+          <tr>
+            <td>HA Baixo PM (&lt;50kDa)</td>
+            <td>Penetra derme superficial · estimula fibroblastos · efeito bioestimulante além de hidratante</td>
+            <td>Biostimulante</td>
+          </tr>
+          <tr>
+            <td>Peptídeos de Colágeno</td>
+            <td>Sequências de aminoácidos que ativam síntese de colágeno tipos I, III e elastina</td>
+            <td>Fibroblasto</td>
+          </tr>
+          <tr>
+            <td>Peptídeos Anti-aging</td>
+            <td>Inibidores de MMP · proteção da matriz extracelular · redução de rugas finas</td>
+            <td>ECM Protection</td>
+          </tr>
+          <tr>
+            <td>Vitaminas Antioxidantes</td>
+            <td>Complexo de vitaminas C+E+B · proteção contra radicais livres · brilho e uniformização</td>
+            <td>Antioxidante</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 2: PREPARO E TÉCNICA -->
+    <div class="section">
+      <div class="section-title"><span class="num">2</span> Preparo, Técnica e Dosagem</div>
+      <div class="diss-box">
+        <div class="diss-steps">
+          <div class="diss-step">
+            <div class="step-circle">1</div>
+            <div class="step-text"><strong>Limpeza</strong> — Limpeza facial completa com loção micelar</div>
+          </div>
+          <div class="diss-step">
+            <div class="step-circle">2</div>
+            <div class="step-text"><strong>Antissepsia</strong> — Clorexidina 0,5% ou álcool 70% na área</div>
+          </div>
+          <div class="diss-step">
+            <div class="step-circle">3</div>
+            <div class="step-text"><strong>Anestesia</strong> — EMLA tópico 30–40min antes se necessário</div>
+          </div>
+          <div class="diss-step">
+            <div class="step-circle">4</div>
+            <div class="step-text"><strong>Seringa</strong> — Seringa 1ml com agulha 32G × 4mm para nappage</div>
+          </div>
+          <div class="diss-step">
+            <div class="step-circle">5</div>
+            <div class="step-text"><strong>Técnica</strong> — Micropápulas intradérmicas a cada 1cm ou técnica de bolus de 0,05ml/ponto</div>
+          </div>
+        </div>
+        <table class="dose-table">
+          <thead>
+            <tr>
+              <th>Indicação</th>
+              <th>Volume/Sessão</th>
+              <th>Técnica</th>
+              <th>Resultado Esperado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Manutenção Leve</td>
+              <td>1–2ml/sessão</td>
+              <td>Nappage superficial</td>
+              <td>Hidratação e brilho</td>
+            </tr>
+            <tr>
+              <td>Biorevitalização</td>
+              <td>3–5ml/sessão</td>
+              <td>ID profundo</td>
+              <td>Firmeza e luminosidade</td>
+            </tr>
+            <tr>
+              <td>Lifting Completo</td>
+              <td>5ml/sessão</td>
+              <td>ID + bolus</td>
+              <td>Máximo efeito lifting</td>
+            </tr>
+            <tr>
+              <td>Programa Completo</td>
+              <td>5ml × 4 sessões</td>
+              <td>Mensal × 4 meses</td>
+              <td>Transformação facial</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECTION 3: PROTOCOLOS -->
+    <div class="section">
+      <div class="section-title"><span class="num">3</span> Protocolos Clínicos</div>
+      <div class="proto-grid">
+        <div class="proto-card">
+          <div class="proto-head p1">
+            <div class="ph-num">Protocolo 01</div>
+            <div class="ph-title">Hidratação e Luminosidade</div>
+          </div>
+          <div class="proto-body">
+            <div class="proto-row">
+              <span class="pr-label">Volume</span>
+              <span class="pr-val">2–3ml ID nappage</span>
+            </div>
+            <div class="proto-row">
+              <span class="pr-label">Sessões</span>
+              <span class="pr-val">3 sessões mensais</span>
+            </div>
+            <div class="proto-row">
+              <span class="pr-label">Indicação</span>
+              <span class="pr-val">Pele seca e opaca</span>
+            </div>
+            <div class="proto-row">
+              <span class="pr-label">Resultado</span>
+              <span class="pr-val">Brilho + hidratação</span>
+            </div>
+          </div>
+        </div>
+        <div class="proto-card">
+          <div class="proto-head p2">
+            <div class="ph-num">Protocolo 02</div>
+            <div class="ph-title">Lifting Biológico Completo</div>
+          </div>
+          <div class="proto-body">
+            <div class="proto-row">
+              <span class="pr-label">Volume</span>
+              <span class="pr-val">5ml/sessão</span>
+            </div>
+            <div class="proto-row">
+              <span class="pr-label">Sessões</span>
+              <span class="pr-val">4 sessões</span>
+            </div>
+            <div class="proto-row">
+              <span class="pr-label">Intervalo</span>
+              <span class="pr-val">3–4 semanas</span>
+            </div>
+            <div class="proto-row">
+              <span class="pr-label">Resultado</span>
+              <span class="pr-val">Firmeza + contorno</span>
+            </div>
+          </div>
+        </div>
+        <div class="proto-card">
+          <div class="proto-head p3">
+            <div class="ph-num">Protocolo 03</div>
+            <div class="ph-title">Regeneração Pós-Procedimento</div>
+          </div>
+          <div class="proto-body">
+            <div class="proto-row">
+              <span class="pr-label">Volume</span>
+              <span class="pr-val">3–5ml/sessão</span>
+            </div>
+            <div class="proto-row">
+              <span class="pr-label">Sessões</span>
+              <span class="pr-val">2–3 sessões</span>
+            </div>
+            <div class="proto-row">
+              <span class="pr-label">Frequência</span>
+              <span class="pr-val">Semanal × 3 semanas</span>
+            </div>
+            <div class="proto-row">
+              <span class="pr-label">Indicação</span>
+              <span class="pr-val">Pós laser/peeling</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TWO COL: PRECAUÇÕES + REFERÊNCIAS -->
+    <div class="two-col">
+      <div class="adv-box">
+        <div class="adv-title">⚠️ Precauções e Contraindicações</div>
+        <div class="adv-item">
+          <span class="adv-icon">🐟</span>
+          <span class="adv-text"><strong>Contraindicado</strong> em hipersensibilidade a componentes de peixe (PDRN derivado de salmão)</span>
+        </div>
+        <div class="adv-item">
+          <span class="adv-icon">🚫</span>
+          <span class="adv-text"><strong>Não aplicar</strong> em infecção ativa, herpes labial em atividade ou dermatite ativa</span>
+        </div>
+        <div class="adv-item">
+          <span class="adv-icon">🔴</span>
+          <span class="adv-text"><strong>Eritema transitório</strong> e inchaço leve por 24–48h — normal e esperado após aplicação</span>
+        </div>
+        <div class="adv-item">
+          <span class="adv-icon">⏳</span>
+          <span class="adv-text"><strong>Resultado gradual:</strong> percepção plena em 4–8 semanas após protocolo completo</span>
+        </div>
+        <div class="adv-item">
+          <span class="adv-icon">⚡</span>
+          <span class="adv-text"><strong>Não associar</strong> com peelings químicos profundos ou laser ablativo na mesma sessão</span>
+        </div>
+      </div>
+      <div class="ref-box">
+        <div class="ref-title">📋 Dados Técnicos do Produto</div>
+        <ul class="ref-list">
+          <li>Fabricante: Israderm — BiologicalFace Lifting</li>
+          <li>Registro: Dispositivo médico Classe II (CE Mark)</li>
+          <li>PDRN: Polidesoxirribonucleotídeo (salmão)</li>
+          <li>HA: Alto PM (&gt;1500kDa) + Baixo PM (&lt;50kDa)</li>
+          <li>Peptídeos: Colágeno Tipo I, III + Elastina</li>
+          <li>Vitaminas: C + E + Complexo B</li>
+          <li>Volume: Ampola de 5ml</li>
+          <li>Agulha: 32G × 4mm (nappage) / 27G (bolus)</li>
+          <li>Conservar: 2–8°C — proteger da luz</li>
+          <li>Código: BIOFL-5-PFY · PharmaFit-PY</li>
+        </ul>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">PharmaFit-PY · Laboratorio Farmacéutico</div>
+    <div class="footer-center">Documento técnico informativo · Uso exclusivo de profissionais habilitados · Aplicação sob responsabilidade médica</div>
+    <div class="footer-right">BIOFL-5-PFY · Rev. 2026</div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Informativo Técnico — Durateston Plus Gold 250mg | PharmaFit-PY</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --petrol:      #1B4F72;
+      --petrol-dark: #0D2B3E;
+      --petrol-mid:  #2471A3;
+      --petrol-lite: #D6EAF8;
+      --petrol-bg:   #EBF5FB;
+      --amber:       #B7600A;
+      --amber-mid:   #E67E22;
+      --amber-lite:  #FAE5D3;
+      --amber-bg:    #FEF5EC;
+      --gold:        #9A7D0A;
+      --gold-mid:    #D4AC0D;
+      --gold-lite:   #FCF3CF;
+      --gold-bg:     #FEFDE7;
+      --white:       #FFFFFF;
+      --gray-1:      #F4F6F7;
+      --gray-2:      #D5D8DC;
+      --text-dark:   #1A2530;
+      --text-mid:    #3D566E;
+    }
+    body { font-family: 'Lato', sans-serif; color: var(--text-dark); background: #c8d8e4; font-size: 10.5pt; line-height: 1.6; }
+    .page { width: 210mm; min-height: 297mm; background: var(--white); margin: 12mm auto; box-shadow: 0 4px 32px rgba(13,43,62,0.18); position: relative; overflow: hidden; display: flex; flex-direction: column; }
+
+    /* HEADER */
+    .header { background: linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol) 40%, var(--gold) 75%, var(--gold-mid) 100%); padding: 0; position: relative; overflow: hidden; flex-shrink: 0; }
+    .header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,0.04); }
+    .header::after { content: ''; position: absolute; bottom: -60px; left: 30%; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.03); }
+    .orb-gold { position: absolute; top: 10px; right: 155px; width: 90px; height: 90px; border-radius: 50%; background: radial-gradient(circle, rgba(212,172,13,0.35) 0%, transparent 70%); }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px 28px 12px; }
+    .header-logo img { height: 70px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3)); }
+    .header-center { text-align: center; flex: 1; padding: 0 20px; }
+    .header-tag { font-family: 'Montserrat', sans-serif; font-size: 6.5pt; font-weight: 600; letter-spacing: 3px; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 4px; }
+    .header-title { font-family: 'Montserrat', sans-serif; font-size: 20pt; font-weight: 800; color: white; line-height: 1.05; letter-spacing: 2px; }
+    .header-title .accent { color: #FAD7A0; text-shadow: 0 0 22px rgba(250,215,160,0.7); }
+    .header-title .gold-text { color: #F9E79F; text-shadow: 0 0 18px rgba(249,231,159,0.5); }
+    .header-subtitle { font-size: 8.5pt; color: rgba(255,255,255,0.65); margin-top: 5px; font-weight: 300; letter-spacing: 0.5px; }
+    .header-badge { text-align: right; display: flex; flex-direction: column; gap: 6px; }
+    .badge-box { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 12px; font-family: 'Montserrat', sans-serif; }
+    .badge-box .b-label { font-size: 6pt; color: rgba(255,255,255,0.5); letter-spacing: 1.5px; text-transform: uppercase; }
+    .badge-box .b-val { font-size: 8.5pt; font-weight: 700; color: white; margin-top: 2px; }
+    .badge-box .b-val span { color: #F9E79F; font-size: 13pt; font-weight: 800; }
+    .header-bar { height: 4px; background: linear-gradient(90deg, var(--petrol-dark) 0%, var(--petrol-mid) 25%, var(--gold) 55%, var(--gold-mid) 80%, var(--amber-mid) 100%); }
+
+    /* FDA STRIP */
+    .fda-strip { background: linear-gradient(90deg, var(--petrol-dark) 0%, var(--petrol) 100%); padding: 7px 26px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+    .fda-badge { background: var(--gold); color: white; font-family: 'Montserrat', sans-serif; font-size: 6.5pt; font-weight: 800; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.8px; white-space: nowrap; }
+    .fda-badge2 { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.75); font-family: 'Montserrat', sans-serif; font-size: 6pt; font-weight: 600; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; white-space: nowrap; }
+    .fda-text { font-size: 7.5pt; color: rgba(255,255,255,0.55); flex: 1; letter-spacing: 0.3px; }
+
+    /* CONTENT */
+    .content { padding: 16px 26px 20px; flex: 1; }
+    .intro-strip { background: linear-gradient(135deg, var(--gold-bg) 0%, var(--petrol-bg) 100%); border-left: 5px solid var(--gold-mid); border-radius: 0 8px 8px 0; padding: 11px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px; }
+    .intro-icon { font-size: 26px; line-height: 1; flex-shrink: 0; }
+    .intro-text { font-size: 9pt; color: var(--text-mid); line-height: 1.5; }
+    .intro-text strong { color: var(--petrol-dark); }
+
+    /* SECTIONS */
+    .section { margin-bottom: 16px; }
+    .section-title { font-family: 'Montserrat', sans-serif; font-size: 9.5pt; font-weight: 700; color: var(--white); background: linear-gradient(90deg, var(--petrol) 0%, var(--petrol-mid) 100%); padding: 6px 14px; border-radius: 6px; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .section-title .num { background: rgba(255,255,255,0.2); border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 8.5pt; font-weight: 800; flex-shrink: 0; }
+
+    /* MOA TABLE */
+    table.moa { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+    table.moa thead tr { background: linear-gradient(90deg, var(--petrol) 0%, var(--gold) 100%); color: white; }
+    table.moa thead th { padding: 7px 10px; text-align: left; font-family: 'Montserrat', sans-serif; font-size: 7.5pt; font-weight: 700; letter-spacing: 0.5px; }
+    table.moa tbody tr:nth-child(odd) { background: var(--gray-1); }
+    table.moa tbody tr:nth-child(even) { background: var(--white); }
+    table.moa tbody td { padding: 6px 10px; color: var(--text-dark); border-bottom: 1px solid var(--gray-2); vertical-align: top; }
+    table.moa tbody td:first-child { font-weight: 700; color: var(--gold); width: 34%; }
+    table.moa tbody td:last-child { width: 16%; }
+    table.moa tbody td .tag { display: inline-block; background: var(--gold-lite); color: var(--gold); font-size: 7pt; font-weight: 700; padding: 2px 7px; border-radius: 4px; margin-top: 2px; }
+    table.moa tbody td .tag.petrol { background: var(--petrol-lite); color: var(--petrol-dark); }
+    table.moa tbody td .tag.amber { background: var(--amber-lite); color: var(--amber); }
+
+    /* DISSOLUTION BOX */
+    .diss-box { background: linear-gradient(135deg, var(--petrol-bg) 0%, var(--gold-bg) 100%); border: 1.5px solid var(--petrol-lite); border-radius: 10px; padding: 14px 18px; }
+    .diss-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 14px; }
+    .diss-step { text-align: center; }
+    .diss-step .step-circle { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--petrol) 0%, var(--gold-mid) 100%); color: white; font-family: 'Montserrat', sans-serif; font-size: 13pt; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; box-shadow: 0 2px 8px rgba(27,79,114,0.25); }
+    .diss-step .step-text { font-size: 7pt; color: var(--text-mid); line-height: 1.3; }
+    .diss-step .step-text strong { color: var(--petrol-dark); display: block; }
+
+    /* DOSE TABLE */
+    .dose-table { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+    .dose-table thead tr { background: linear-gradient(90deg, var(--petrol-dark) 0%, var(--gold) 100%); color: white; }
+    .dose-table thead th { padding: 6px 10px; font-family: 'Montserrat', sans-serif; font-size: 7pt; font-weight: 700; letter-spacing: 0.5px; text-align: center; }
+    .dose-table tbody tr:nth-child(odd) { background: var(--gold-bg); }
+    .dose-table tbody tr:nth-child(even) { background: var(--white); }
+    .dose-table tbody td { padding: 5px 10px; text-align: center; border-bottom: 1px solid var(--gold-lite); }
+    .dose-table tbody td:first-child { font-weight: 700; color: var(--gold); }
+
+    /* PROTO GRID */
+    .proto-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .proto-card { border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(13,43,62,0.1); }
+    .proto-head { padding: 9px 12px; color: white; font-family: 'Montserrat', sans-serif; }
+    .proto-head.p1 { background: linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol-mid) 100%); }
+    .proto-head.p2 { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-mid) 100%); }
+    .proto-head.p3 { background: linear-gradient(135deg, var(--amber) 0%, var(--amber-mid) 100%); }
+    .proto-head .p-num { font-size: 6pt; font-weight: 600; letter-spacing: 2px; opacity: 0.7; text-transform: uppercase; margin-bottom: 2px; }
+    .proto-head .p-title { font-size: 8.5pt; font-weight: 800; line-height: 1.2; }
+    .proto-head .p-icon { font-size: 18px; float: right; margin-top: -24px; opacity: 0.8; }
+    .proto-body { background: var(--gray-1); padding: 10px 12px; }
+    .proto-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; font-size: 8pt; border-bottom: 1px dashed var(--gray-2); padding-bottom: 4px; }
+    .proto-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .proto-row .pr-label { color: var(--text-mid); font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; min-width: 52px; }
+    .proto-row .pr-val { color: var(--text-dark); font-size: 7.5pt; text-align: right; line-height: 1.3; }
+    .proto-row .pr-val strong { color: var(--petrol-dark); }
+
+    /* TWO COL */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .adv-box { background: #FEF9E7; border: 1.5px solid #F9CA24; border-radius: 8px; padding: 12px 14px; }
+    .adv-box .box-title { font-family: 'Montserrat', sans-serif; font-size: 8pt; font-weight: 800; color: #B7770D; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .adv-item { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 5px; font-size: 8pt; }
+    .adv-item .adv-icon { font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+    .adv-item .adv-text { color: var(--text-mid); line-height: 1.4; }
+    .adv-item .adv-text strong { color: #7D6608; }
+    .ref-box { background: var(--gray-1); border: 1px solid var(--gray-2); border-radius: 8px; padding: 10px 14px; }
+    .ref-box .box-title { font-family: 'Montserrat', sans-serif; font-size: 8pt; font-weight: 800; color: var(--petrol); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .ref-list { list-style: none; padding: 0; }
+    .ref-list li { font-size: 7pt; color: var(--text-mid); line-height: 1.45; padding: 3px 0 3px 16px; border-bottom: 1px dashed var(--gray-2); position: relative; }
+    .ref-list li:last-child { border-bottom: none; }
+    .ref-list li::before { content: attr(data-n); position: absolute; left: 0; color: var(--gold); font-weight: 700; font-size: 7pt; }
+    .ref-list li em { color: var(--petrol); font-style: italic; }
+
+    /* SMALL HEADER (page 2) */
+    .header-small { background: linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol) 45%, var(--gold) 100%); padding: 10px 28px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .header-small img { height: 42px; filter: drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
+    .header-small .hs-title { font-family: 'Montserrat', sans-serif; font-size: 12pt; font-weight: 800; color: white; letter-spacing: 2px; }
+    .header-small .hs-title span { color: #F9E79F; }
+    .header-small .hs-sub { font-size: 7pt; color: rgba(255,255,255,0.5); letter-spacing: 0.5px; font-weight: 300; }
+    .header-small .hs-right { text-align: right; }
+
+    /* FOOTER */
+    .footer { background: var(--petrol-dark); padding: 8px 28px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .footer-brand { font-family: 'Montserrat', sans-serif; font-size: 7pt; font-weight: 600; color: rgba(255,255,255,0.5); letter-spacing: 1.5px; text-transform: uppercase; }
+    .footer-brand span { color: #F9E79F; }
+    .footer-code { font-size: 6.5pt; color: rgba(255,255,255,0.35); letter-spacing: 1px; }
+    .footer-page { font-size: 7pt; color: rgba(255,255,255,0.4); font-family: 'Montserrat', sans-serif; font-weight: 600; }
+
+    @media print { body { background: white; } .page { margin: 0; box-shadow: none; page-break-after: always; } }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     PÁGINA 1 — FRENTE
+═══════════════════════════════════════════════════════════ -->
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="orb-gold"></div>
+    <div class="header-inner">
+      <div class="header-logo">
+        <img src="../logo_pharmafit.png" alt="PharmaFit-PY" onerror="this.style.display='none'" />
+      </div>
+      <div class="header-center">
+        <div class="header-tag">Informativo Técnico — Terapia Hormonal com Testosterona</div>
+        <div class="header-title">
+          <span class="accent">DURATESTON</span> <span class="gold-text">PLUS GOLD</span> <span style="font-size:16pt;font-weight:400;color:rgba(255,255,255,0.7);">250mg</span>
+        </div>
+        <div class="header-subtitle">Blend Tetrafásico de Testosterona &nbsp;·&nbsp; Reposição Hormonal Masculina &nbsp;·&nbsp; Performance e Vitalidade</div>
+      </div>
+      <div class="header-badge">
+        <div class="badge-box">
+          <div class="b-label">Concentração</div>
+          <div class="b-val"><span>250</span> mg/ml</div>
+        </div>
+        <div class="badge-box">
+          <div class="b-label">Via</div>
+          <div class="b-val">IM profunda</div>
+        </div>
+        <div class="badge-box">
+          <div class="b-label">Código</div>
+          <div class="b-val">DURA-250-PFY</div>
+        </div>
+      </div>
+    </div>
+    <div class="header-bar"></div>
+  </div>
+
+  <!-- FDA STRIP -->
+  <div class="fda-strip">
+    <div class="fda-badge">USO RESTRITO</div>
+    <div class="fda-badge2">Prescrição Médica</div>
+    <div class="fda-text">Durateston® (Sustanon® equivalente) — Blend de 4 ésteres de testosterona — Testosterona Propionato + Fenilpropionato + Isocaproato + Decanoato — Uso restrito a prescrição médica</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- INTRO -->
+    <div class="intro-strip">
+      <div class="intro-icon">💪</div>
+      <div class="intro-text">
+        <strong>Durateston Plus Gold 250mg</strong> é uma formulação de testosterona exógena contendo <strong>quatro ésteres de testosterona com diferentes velocidades de absorção e meia-vida</strong>, proporcionando um perfil plasmático de testosterona mais estável do que formulações de éster único. O blend tetrafásico garante <strong>pico rápido pelo propionato (24–48h)</strong>, manutenção pelo fenilpropionato e isocaproato (5–8 dias) e <strong>ação prolongada pelo decanoato (15–17 dias)</strong>.
+      </div>
+    </div>
+
+    <!-- SECTION 1 — MECANISMO DE AÇÃO -->
+    <div class="section">
+      <div class="section-title"><span class="num">1</span> Perfil Farmacocinético — Blend Tetrafásico</div>
+      <table class="moa">
+        <thead>
+          <tr>
+            <th>Éster / Via de Ação</th>
+            <th>Efeito Clínico</th>
+            <th>Alvo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Testosterona Propionato (30mg)</td>
+            <td>Ação rápida · pico em 24–48h · eleva testosterona imediatamente após aplicação</td>
+            <td><span class="tag">Rápido</span></td>
+          </tr>
+          <tr>
+            <td>Testosterona Fenilpropionato (60mg)</td>
+            <td>Ação intermediária · sustenta níveis plasmáticos em 3–5 dias · transição do propionato</td>
+            <td><span class="tag petrol">Intermediário</span></td>
+          </tr>
+          <tr>
+            <td>Testosterona Isocaproato (60mg)</td>
+            <td>Ação intermediária-longa · pico em 5–7 dias · garante cobertura entre aplicações</td>
+            <td><span class="tag petrol">Intermediário</span></td>
+          </tr>
+          <tr>
+            <td>Testosterona Decanoato (100mg)</td>
+            <td>Ação prolongada · meia-vida 15–17 dias · garante estabilidade basal de testosterona</td>
+            <td><span class="tag amber">Lento</span></td>
+          </tr>
+          <tr>
+            <td>Receptor Androgênico (AR)</td>
+            <td>Ativa transcrição gênica · síntese proteica · hipertrofia muscular · eritropoiese</td>
+            <td><span class="tag">AR Nuclear</span></td>
+          </tr>
+          <tr>
+            <td>Eixo HPGT</td>
+            <td>Suprime eixo hipotálamo-pituitária-gonadal · monitorar durante e após ciclo</td>
+            <td><span class="tag amber">Supressão</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECTION 2 — PREPARO E DOSAGEM -->
+    <div class="section">
+      <div class="section-title"><span class="num">2</span> Preparo &amp; Aplicação — Solução Oleosa Injetável Pronta</div>
+      <div class="diss-box">
+        <div class="diss-steps">
+          <div class="diss-step">
+            <div class="step-circle">1</div>
+            <div class="step-text"><strong>Aquecimento</strong>Segure o frasco nas mãos por 1 min para reduzir viscosidade</div>
+          </div>
+          <div class="diss-step">
+            <div class="step-circle">2</div>
+            <div class="step-text"><strong>Higienizar</strong>Álcool 70% na tampa e no local de aplicação</div>
+          </div>
+          <div class="diss-step">
+            <div class="step-circle">3</div>
+            <div class="step-text"><strong>Seringa</strong>Agulha 21G × 40mm para músculo glúteo</div>
+          </div>
+          <div class="diss-step">
+            <div class="step-circle">4</div>
+            <div class="step-text"><strong>Aspirar</strong>Verifique que não há retorno venoso antes de injetar</div>
+          </div>
+          <div class="diss-step">
+            <div class="step-circle">5</div>
+            <div class="step-text"><strong>Aplicar</strong>Lenta e profunda — quadrante superior externo do glúteo</div>
+          </div>
+        </div>
+        <table class="dose-table">
+          <thead>
+            <tr>
+              <th>Modalidade</th>
+              <th>Dose (mg)</th>
+              <th>Volume (ml)</th>
+              <th>Frequência / Indicação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>TRT Baixa</td>
+              <td>125 mg</td>
+              <td>0,5 ml</td>
+              <td>A cada 10–14 dias (TRT)</td>
+            </tr>
+            <tr>
+              <td>TRT Padrão</td>
+              <td>250 mg</td>
+              <td>1 ml</td>
+              <td>A cada 3 semanas (TRT)</td>
+            </tr>
+            <tr>
+              <td>Performance</td>
+              <td>250–500 mg</td>
+              <td>1–2 ml</td>
+              <td>Semanal (ciclo)</td>
+            </tr>
+            <tr>
+              <td>Alta Performance</td>
+              <td>500 mg</td>
+              <td>2 ml</td>
+              <td>A cada 5–7 dias (ciclo)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-brand"><span>PHARMAFIT-PY</span> · Terapia Hormonal Premium</div>
+    <div class="footer-code">DOC: DURA-250-PFY · Rev. Mar/2026</div>
+    <div class="footer-page">1 / 2</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PÁGINA 2 — VERSO
+═══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="header-small">
+    <img src="../logo_pharmafit.png" alt="PharmaFit-PY" />
+    <div>
+      <div class="hs-title"><span>DURATESTON</span> PLUS GOLD · Protocolos</div>
+      <div class="hs-sub">Blend Tetrafásico de Testosterona · 250mg/ml · IM Profunda</div>
+    </div>
+    <div class="hs-right">
+      <div class="hs-title" style="font-size:9pt;color:rgba(255,255,255,0.5);">PHARMAFIT-PY</div>
+      <div class="hs-sub">Terapia Hormonal Masculina</div>
+    </div>
+  </div>
+  <div class="header-bar"></div>
+
+  <div class="content">
+
+    <!-- SECTION 3 — PROTOCOLOS -->
+    <div class="section">
+      <div class="section-title"><span class="num">3</span> Protocolos de Uso Clínico</div>
+      <div class="proto-grid">
+
+        <div class="proto-card">
+          <div class="proto-head p1">
+            <div class="p-num">Protocolo 01</div>
+            <div class="p-title">Terapia de Reposição Hormonal (TRT)</div>
+            <div class="p-icon">⚕️</div>
+          </div>
+          <div class="proto-body">
+            <div class="proto-row"><span class="pr-label">Objetivo</span><span class="pr-val">Manter T total 600–900 ng/dL</span></div>
+            <div class="proto-row"><span class="pr-label">Dose</span><span class="pr-val"><strong>125–250mg</strong> IM</span></div>
+            <div class="proto-row"><span class="pr-label">Freq.</span><span class="pr-val">A cada 10–21 dias</span></div>
+            <div class="proto-row"><span class="pr-label">Monit.</span><span class="pr-val">Total T, Livre T, E2, PSA, Hto</span></div>
+            <div class="proto-row"><span class="pr-label">Revisão</span><span class="pr-val">A cada 3 meses</span></div>
+            <div class="proto-row"><span class="pr-label">Duração</span><span class="pr-val">Contínua com monitoramento</span></div>
+          </div>
+        </div>
+
+        <div class="proto-card">
+          <div class="proto-head p2">
+            <div class="p-num">Protocolo 02</div>
+            <div class="p-title">Ciclo de Massa</div>
+            <div class="p-icon">🏆</div>
+          </div>
+          <div class="proto-body">
+            <div class="proto-row"><span class="pr-label">Objetivo</span><span class="pr-val">Hipertrofia e ganho de força</span></div>
+            <div class="proto-row"><span class="pr-label">Dose</span><span class="pr-val"><strong>250–500mg</strong>/semana IM</span></div>
+            <div class="proto-row"><span class="pr-label">Duração</span><span class="pr-val">10–16 semanas</span></div>
+            <div class="proto-row"><span class="pr-label">Adjuvante</span><span class="pr-val">Anastrozol 0,5mg/EOD se necessário</span></div>
+            <div class="proto-row"><span class="pr-label">PCT</span><span class="pr-val">Obrigatória ao final do ciclo</span></div>
+            <div class="proto-row"><span class="pr-label">Resultado</span><span class="pr-val">Massa muscular + força</span></div>
+          </div>
+        </div>
+
+        <div class="proto-card">
+          <div class="proto-head p3">
+            <div class="p-num">Protocolo 03</div>
+            <div class="p-title">Protocolo Combinado</div>
+            <div class="p-icon">⚡</div>
+          </div>
+          <div class="proto-body">
+            <div class="proto-row"><span class="pr-label">Objetivo</span><span class="pr-val">Massa seca c/ menor aromatização</span></div>
+            <div class="proto-row"><span class="pr-label">Dose</span><span class="pr-val"><strong>250mg</strong>/sem + Oxandrolona 40mg/dia</span></div>
+            <div class="proto-row"><span class="pr-label">Via</span><span class="pr-val">IM + oral (Oxandrolona)</span></div>
+            <div class="proto-row"><span class="pr-label">Duração</span><span class="pr-val">12 semanas</span></div>
+            <div class="proto-row"><span class="pr-label">PCT</span><span class="pr-val">Obrigatória</span></div>
+            <div class="proto-row"><span class="pr-label">Resultado</span><span class="pr-val">Massa seca e definição</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TWO COL: PRECAUÇÕES + REFERÊNCIAS -->
+    <div class="two-col">
+
+      <div class="adv-box">
+        <div class="box-title">⚠️ Precauções &amp; Monitoramento</div>
+        <div class="adv-item">
+          <span class="adv-icon">🔬</span>
+          <div class="adv-text"><strong>Monitoramento obrigatório:</strong> adultos do sexo masculino com indicação médica — exames hormonais a cada 3 meses.</div>
+        </div>
+        <div class="adv-item">
+          <span class="adv-icon">🩸</span>
+          <div class="adv-text"><strong>Policitemia:</strong> risco de hematócrito elevado — verificar a cada 3 meses durante uso.</div>
+        </div>
+        <div class="adv-item">
+          <span class="adv-icon">🏥</span>
+          <div class="adv-text"><strong>PSA obrigatório:</strong> monitorar em homens acima de 40 anos — contraindicado em câncer de próstata.</div>
+        </div>
+        <div class="adv-item">
+          <span class="adv-icon">💧</span>
+          <div class="adv-text"><strong>Aromatização:</strong> monitorar estradiol — risco de ginecomastia e retenção hídrica.</div>
+        </div>
+        <div class="adv-item">
+          <span class="adv-icon">🔄</span>
+          <div class="adv-text"><strong>PCT obrigatória:</strong> Clomifeno 50mg/dia × 4 semanas ao término de qualquer ciclo.</div>
+        </div>
+      </div>
+
+      <div class="ref-box">
+        <div class="box-title">📚 Referências Científicas</div>
+        <ul class="ref-list">
+          <li data-n="1">Bhasin S. et al. <em>Testosterone therapy in men with hypogonadism: an Endocrine Society clinical practice guideline.</em> J Clin Endocrinol Metab, 2018.</li>
+          <li data-n="2">Rosen RC. et al. <em>Testosterone and libido.</em> Am J Med, 2011.</li>
+          <li data-n="3">Sustanon® 250 Prescribing Information. <em>Organon Laboratories Ltd.</em> MHRA, 2020.</li>
+          <li data-n="4">Handelsman DJ. <em>Pharmacokinetics of testosterone enanthate and its esters.</em> Clin Endocrinol, 1990.</li>
+          <li data-n="5">Nieschlag E. et al. <em>Male hypogonadism: symptoms and treatment.</em> J Endocrinol Invest, 2012.</li>
+          <li data-n="6">PharmaFit-PY. <em>Dossier técnico Durateston Plus Gold 250mg.</em> 2026.</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- MONITORAMENTO LABORATORIAL -->
+    <div style="background: var(--petrol-bg); border: 1px solid var(--petrol-lite); border-radius: 8px; padding: 10px 14px; margin-top: 10px;">
+      <div style="font-family: 'Montserrat', sans-serif; font-size: 7.5pt; font-weight: 800; color: var(--petrol); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;">🩺 Protocolo de Monitoramento Laboratorial — TRT</div>
+      <div style="display:grid; grid-template-columns: repeat(3,1fr); gap: 8px;">
+        <div style="background:white; border-radius:6px; padding:8px 10px; border: 1px solid var(--gray-2);">
+          <div style="font-family:'Montserrat',sans-serif; font-size:7pt; font-weight:700; color:var(--petrol); margin-bottom:4px; text-transform:uppercase;">A cada 3 meses</div>
+          <div style="font-size:7.5pt; color:var(--text-mid); line-height:1.5;">Testosterona Total · Testosterona Livre · Estradiol (E2) · Hematócrito · Hemoglobina</div>
+        </div>
+        <div style="background:white; border-radius:6px; padding:8px 10px; border: 1px solid var(--gray-2);">
+          <div style="font-family:'Montserrat',sans-serif; font-size:7pt; font-weight:700; color:var(--gold); margin-bottom:4px; text-transform:uppercase;">A cada 6 meses</div>
+          <div style="font-size:7.5pt; color:var(--text-mid); line-height:1.5;">PSA · LH · FSH · Perfil lipídico · Função hepática (TGO/TGP/GGT)</div>
+        </div>
+        <div style="background:white; border-radius:6px; padding:8px 10px; border: 1px solid var(--gray-2);">
+          <div style="font-family:'Montserrat',sans-serif; font-size:7pt; font-weight:700; color:var(--amber); margin-bottom:4px; text-transform:uppercase;">Sinais de Alerta</div>
+          <div style="font-size:7.5pt; color:var(--text-mid); line-height:1.5;">Hto &gt;54% · PSA &gt;4ng/mL · E2 &gt;50pg/mL · Ginecomastia · Edema severo</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-brand"><span>PHARMAFIT-PY</span> · Terapia Hormonal Premium</div>
+    <div class="footer-code">DOC: DURA-250-PFY · Rev. Mar/2026</div>
+    <div class="footer-page">2 / 2</div>
+  </div>
+</div>
+
+</body>
+</html>
