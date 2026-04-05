@@ -583,16 +583,27 @@
     font-family: inherit;
   }
 
-  /* ── LAB FILTERS ── */
-  .lab-filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  /* ── FILTERS & SORT ── */
+  .filter-area { margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; }
+  .lab-filters { display:flex; flex-wrap:wrap; gap:8px; }
   .lab-btn {
     background: var(--card-bg); border: 1px solid var(--border);
     color: var(--gray); padding: 6px 16px; border-radius: 20px;
     cursor: pointer; font-size: 0.78rem; font-weight: 600;
     transition: all .2s; font-family: inherit;
   }
-  .lab-btn:hover { border-color: var(--blue); color: var(--white); }
+  .lab-btn:hover { border-color: var(--accent); color: var(--white); }
   .lab-btn.active { background: var(--accent); border-color: var(--accent); color: var(--petrol); font-weight: 700; }
+  .sort-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .sort-label { font-size: .72rem; color: var(--gray); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+  .sort-btn {
+    background: var(--card-bg); border: 1px solid var(--border);
+    color: var(--gray); padding: 5px 14px; border-radius: 20px;
+    cursor: pointer; font-size: 0.75rem; font-weight: 600;
+    transition: all .2s; font-family: inherit;
+  }
+  .sort-btn:hover { border-color: var(--blue); color: var(--white); }
+  .sort-btn.active { background: var(--blue); border-color: var(--blue); color: var(--white); font-weight: 700; }
 
   /* ── VARIANT ROWS ── */
   .variant-rows { margin: 10px 0 4px; display: flex; flex-direction: column; gap: 6px; }
@@ -889,7 +900,15 @@
 
     <div id="alert2" class="alert">⚠️ Selecione pelo menos 1 produto para continuar.</div>
 
-    <div class="lab-filters" id="lab-filters"></div>
+    <div class="filter-area">
+      <div class="lab-filters" id="lab-filters"></div>
+      <div class="sort-bar">
+        <span class="sort-label">Ordenar:</span>
+        <button class="sort-btn active" data-sort="alpha" onclick="setSort('alpha')">A–Z</button>
+        <button class="sort-btn" data-sort="price-asc" onclick="setSort('price-asc')">↑ Menor preço</button>
+        <button class="sort-btn" data-sort="price-desc" onclick="setSort('price-desc')">↓ Maior preço</button>
+      </div>
+    </div>
     <div class="products-grid" id="products-grid">
       <!-- cards gerados via JS -->
     </div>
@@ -1170,7 +1189,8 @@ let currentStep = 1;
 let selectedPayment = '';
 let cart = {};             // { productId: qty }
 let selectedVariants = {}; // { productId: variantIndex }
-let activeLabFilter = 'todos';
+let activeTagFilter = 'todos';
+let activeSort = 'alpha';
 let countdownInterval = null;
 
 // ─── CUPOM DE BONIFICAÇÃO ────────────────────────────────────────────────────
@@ -1223,7 +1243,7 @@ async function carregarProdutos() {
       conc:        p.conc,
       price:       parseFloat(p.preco) || 0,
       stock:       parseInt(p.estoque) || 0,
-      tags:        Array.isArray(p.tags) ? p.tags : [],
+      tags:        Array.isArray(p.tags) ? p.tags : (p.tags ? String(p.tags).split(',').map(t=>t.trim()).filter(Boolean) : []),
       lab:         p.lab || '',
       variantes:   (Array.isArray(p.variantes) && p.variantes.length > 0 && p.variantes[0].dose)
                      ? p.variantes : null,
@@ -1232,27 +1252,65 @@ async function carregarProdutos() {
       promo_inicio: p.promo_inicio || '',
       promo_fim:   p.promo_fim || ''
     }));
-    renderLabFilters();
+    renderFilters();
     renderProducts();
   } catch(e) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#e74c3c">⚠️ Erro ao carregar produtos. Recarregue a página.</div>';
   }
 }
 
-// ─── LAB FILTERS ────────────────────────────────────────────────────────────
-function renderLabFilters() {
-  const labs = [...new Set(CATALOG.filter(p => p.lab).map(p => p.lab))].sort();
+// ─── FILTERS & SORT ─────────────────────────────────────────────────────────
+const TAG_LABELS = {
+  peptideo:'Peptídeo', emagrecimento:'Emagrecimento', recuperacao:'Recuperação',
+  reparo:'Reparo', muscular:'Muscular', imunidade:'Imunidade',
+  longevidade:'Longevidade', cognicao:'Cognição', hormonal:'Hormonal',
+  pele:'Pele', blend:'Blend', antiaging:'Anti-aging', sexual:'Sexual',
+  vitalidade:'Vitalidade', mitocondria:'Mitocôndria', energia:'Energia',
+  neuroprotetor:'Neuroprotetor', ansiedade:'Ansiedade', gh:'GH',
+  performance:'Performance', massa:'Massa', sono:'Sono', foco:'Foco',
+  cicatrizacao:'Cicatrização', antimicrobiano:'Antimicrobiano',
+  regeneracao:'Regeneração', estetico:'Estético'
+};
+function displayTag(t) {
+  return TAG_LABELS[t] || (t.charAt(0).toUpperCase() + t.slice(1));
+}
+
+function renderFilters() {
+  const allTags = [...new Set(CATALOG.flatMap(p => p.tags))].sort();
   const bar = document.getElementById('lab-filters');
-  bar.innerHTML = ['Todos', ...labs].map(lab => {
-    const val = lab === 'Todos' ? 'todos' : lab;
-    return `<button class="lab-btn ${val === activeLabFilter ? 'active' : ''}" onclick="setLabFilter('${val}')">${lab}</button>`;
+  bar.innerHTML = ['todos', ...allTags].map(tag => {
+    const label = tag === 'todos' ? 'Todos' : displayTag(tag);
+    return `<button class="lab-btn ${tag === activeTagFilter ? 'active' : ''}" onclick="setTagFilter('${tag}')">${label}</button>`;
   }).join('');
 }
 
-function setLabFilter(lab) {
-  activeLabFilter = lab;
-  renderLabFilters();
+function setTagFilter(tag) {
+  activeTagFilter = tag;
+  renderFilters();
   renderProducts();
+}
+
+function setSort(mode) {
+  activeSort = mode;
+  document.querySelectorAll('.sort-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.sort === mode);
+  });
+  renderProducts();
+}
+
+function getEffectivePrice(p) {
+  if (p.variantes && p.variantes.length > 0) {
+    return Math.min(...p.variantes.map(v => {
+      const promoV = parseFloat(v.promo_preco) || 0;
+      if (promoV > 0 && isPromoDentroData(p)) return promoV;
+      return parseFloat(v.preco) || 0;
+    }));
+  }
+  if (isPromoAtiva(p)) {
+    if (p.promo_pct > 0) return parseFloat((p.price * (1 - p.promo_pct / 100)).toFixed(2));
+    if (p.promo_preco > 0) return p.promo_preco;
+  }
+  return p.price;
 }
 
 // ─── PROMO HELPERS ──────────────────────────────────────────────────────────
@@ -1469,10 +1527,17 @@ function changeVariantQty(id, varIdx, delta) {
 function renderProducts() {
   const grid = document.getElementById('products-grid');
   grid.innerHTML = '';
-  const list = activeLabFilter === 'todos' ? CATALOG : CATALOG.filter(p => p.lab === activeLabFilter);
+  let list = activeTagFilter === 'todos' ? [...CATALOG] : CATALOG.filter(p => p.tags.includes(activeTagFilter));
+  if (activeSort === 'alpha') {
+    list.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+  } else if (activeSort === 'price-asc') {
+    list.sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b));
+  } else if (activeSort === 'price-desc') {
+    list.sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a));
+  }
 
   if (list.length === 0) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--gray)">Nenhum produto neste laboratório.</div>`;
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--gray)">Nenhum produto encontrado para este filtro.</div>`;
     updateTotal(); return;
   }
 
