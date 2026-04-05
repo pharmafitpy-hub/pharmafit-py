@@ -1738,9 +1738,14 @@ function abrirProtocolo(id) {
 
 function abrirInformativo() {
   const footer = document.getElementById('pm-info-footer');
-  document.getElementById('info-iframe').src = footer.dataset.pagina;
-  document.getElementById('info-overlay-title').textContent = footer.dataset.titulo || 'Informativo do produto';
-  document.getElementById('info-overlay').classList.add('open');
+  const pagina = footer.dataset.pagina;
+  if (window.innerWidth < 768) {
+    window.open(pagina, '_blank');
+  } else {
+    document.getElementById('info-iframe').src = pagina;
+    document.getElementById('info-overlay-title').textContent = footer.dataset.titulo || 'Informativo do produto';
+    document.getElementById('info-overlay').classList.add('open');
+  }
 }
 
 function fecharInformativo() {
