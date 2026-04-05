@@ -584,12 +584,21 @@
   }
 
   /* ── FILTERS & SORT ── */
-  .filter-area { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
-  .filter-group { display: flex; flex-direction: column; gap: 6px; }
+  .filter-area { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .filter-group { display: flex; flex-direction: column; gap: 0; }
+  .filter-group-header {
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; padding: 7px 0; border-bottom: 1px solid var(--border);
+    user-select: none;
+  }
+  .filter-group-header:hover .filter-group-label { color: var(--white); }
   .filter-group-label {
     font-size: .65rem; text-transform: uppercase; letter-spacing: 1px;
-    color: var(--gray); font-weight: 700;
+    color: var(--gray); font-weight: 700; transition: color .15s;
   }
+  .filter-arrow { font-size: .65rem; color: var(--gray); transition: transform .2s; }
+  .filter-arrow.open { transform: rotate(180deg); }
+  .lab-filters { display:flex; flex-wrap:wrap; gap:8px; padding: 10px 0 4px; }
   .lab-filters { display:flex; flex-wrap:wrap; gap:8px; }
   .lab-btn {
     background: var(--card-bg); border: 1px solid var(--border);
@@ -912,12 +921,18 @@
 
     <div class="filter-area">
       <div class="filter-group">
-        <div class="filter-group-label">Laboratórios</div>
-        <div class="lab-filters" id="lab-filters"></div>
+        <div class="filter-group-header" onclick="toggleFilterGroup('lab-filters','arrow-lab')">
+          <span class="filter-group-label">Laboratórios</span>
+          <span class="filter-arrow" id="arrow-lab">▼</span>
+        </div>
+        <div class="lab-filters" id="lab-filters" style="display:none"></div>
       </div>
       <div class="filter-group">
-        <div class="filter-group-label">Propriedades</div>
-        <div class="lab-filters" id="tag-filters"></div>
+        <div class="filter-group-header" onclick="toggleFilterGroup('tag-filters','arrow-tag')">
+          <span class="filter-group-label">Propriedades</span>
+          <span class="filter-arrow" id="arrow-tag">▼</span>
+        </div>
+        <div class="lab-filters" id="tag-filters" style="display:none"></div>
       </div>
       <div class="sort-bar">
         <span class="sort-label">Ordenar:</span>
@@ -1309,6 +1324,14 @@ function renderFilters() {
   }).join('');
 }
 
+function toggleFilterGroup(filterId, arrowId) {
+  const el = document.getElementById(filterId);
+  const arrow = document.getElementById(arrowId);
+  const open = el.style.display !== 'none';
+  el.style.display = open ? 'none' : 'flex';
+  arrow.classList.toggle('open', !open);
+}
+
 function setLabFilter(lab) {
   activeLabFilter = lab;
   renderFilters();
@@ -1584,7 +1607,7 @@ function renderProducts() {
     const stockAtual = p.variantes ? getVariantStock(p.id) : p.stock;
     const semEstoque = stockAtual === 0;
     const estoqueLabel = semEstoque
-      ? `<span style="color:#e74c3c;font-size:.7rem;font-weight:700">⚠️ Sem estoque</span>`
+      ? `<span style="color:#f39c12;font-size:.7rem;font-weight:700">🕐 Sem estoque — chega em até 7 dias</span>`
       : stockAtual <= 10
         ? `<span style="color:#f39c12;font-size:.7rem">⚡ Últimas ${stockAtual} un.</span>`
         : `<span style="color:var(--accent);font-size:.7rem">✅ ${stockAtual} em estoque</span>`;
@@ -1620,10 +1643,13 @@ function renderProducts() {
             ? `<span class="vr-price-old">R$ ${vPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
                <span class="vr-price promo">R$ ${vPromo.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`
             : `<span class="vr-price">R$ ${vPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`;
-          return `<div class="variant-row ${semV ? 'vr-disabled' : ''}">
+          const vStockLabel2 = semV
+            ? `<span class="vr-stock" style="color:#f39c12;font-size:.68rem">🕐 Chega em 7 dias</span>`
+            : vStockLabel;
+          return `<div class="variant-row">
             <div class="vr-info">
               <span class="vr-dose">${v.dose}</span>
-              <div class="vr-price-row">${vPromoHtml}${vStockLabel}</div>
+              <div class="vr-price-row">${vPromoHtml}${vStockLabel2}</div>
             </div>
             <div class="vr-controls">
               <button class="vr-btn" onclick="event.stopPropagation(); changeVariantQty('${p.id}',${i},-1)">−</button>
@@ -1647,15 +1673,15 @@ function renderProducts() {
           <span class="pc-subtotal" id="sub-${p.id}">= R$ ${subtotal}</span>
         </div>` : '';
 
-    const cardOnclick = temVariantes ? '' : (semEstoque ? '' : `toggleProduct('${p.id}')`);
+    const cardOnclick = temVariantes ? '' : `toggleProduct('${p.id}')`;
     const cardSelected = temVariantes
       ? p.variantes.some((_, i) => (cart[`${p.id}__${i}`] || 0) > 0)
       : isSelected;
 
     grid.innerHTML += `
-      <div class="product-card ${cardSelected ? 'selected' : ''} ${semEstoque ? 'disabled' : ''} ${promoAtiva ? 'promo-ativa' : ''}"
+      <div class="product-card ${cardSelected ? 'selected' : ''} ${promoAtiva ? 'promo-ativa' : ''}"
            id="pc-${p.id}" onclick="${cardOnclick}"
-           style="${!temVariantes && semEstoque ? 'opacity:.5;cursor:not-allowed' : ''}">
+           style="">
         ${promoRibbon}
         <div class="pc-header">
           <span class="pc-icon">${p.icon}</span>
