@@ -1694,7 +1694,7 @@ function abrirProtocolo(id) {
   const modalEl  = document.querySelector('#protocol-modal .modal');
   const aviso = document.getElementById('pm-aviso');
   if (proto.pagina) {
-    iframeEl.src = `informativos/${proto.pagina}`;
+    iframeEl.src = proto.pagina;
     aviso.style.display = 'flex';
     footer.style.display = 'block';
     iframeWrap.style.display = 'none';
