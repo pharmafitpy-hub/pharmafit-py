@@ -950,6 +950,28 @@
 
     <div id="alert2" class="alert">⚠️ Selecione pelo menos 1 produto para continuar.</div>
 
+    <!-- ⭐ Em Destaque -->
+    <div class="hl-section" id="section-destaque" style="display:none">
+      <div class="hl-header">
+        <span>⭐</span>
+        <span class="hl-title">Em Destaque</span>
+        <span class="hl-sub">Os mais vendidos</span>
+      </div>
+      <div class="hl-grid" id="grid-destaque"></div>
+    </div>
+
+    <!-- 💡 Você também pode gostar -->
+    <div class="hl-section" id="section-recomendado" style="display:none">
+      <div class="hl-header">
+        <span>💡</span>
+        <span class="hl-title">Você também pode gostar</span>
+        <span class="hl-sub">Selecionados para você</span>
+      </div>
+      <div class="hl-grid" id="grid-recomendado"></div>
+    </div>
+
+    <div class="catalog-divider" id="catalog-divider" style="display:none">📦 Catálogo Completo</div>
+
     <div class="filter-area">
       <div class="filter-group">
         <div class="filter-group-header" onclick="toggleFilterGroup('lab-filters','arrow-lab')">
@@ -972,27 +994,6 @@
         <button class="sort-btn" data-sort="price-desc" onclick="setSort('price-desc')">↓ Maior preço</button>
       </div>
     </div>
-    <!-- ⭐ Em Destaque -->
-    <div class="hl-section" id="section-destaque" style="display:none">
-      <div class="hl-header">
-        <span>⭐</span>
-        <span class="hl-title">Em Destaque</span>
-        <span class="hl-sub">Os mais vendidos</span>
-      </div>
-      <div class="hl-grid" id="grid-destaque"></div>
-    </div>
-
-    <!-- 💡 Você também pode gostar -->
-    <div class="hl-section" id="section-recomendado" style="display:none">
-      <div class="hl-header">
-        <span>💡</span>
-        <span class="hl-title">Você também pode gostar</span>
-        <span class="hl-sub">Selecionados para você</span>
-      </div>
-      <div class="hl-grid" id="grid-recomendado"></div>
-    </div>
-
-    <div class="catalog-divider" id="catalog-divider" style="display:none">📦 Catálogo Completo</div>
 
     <div class="products-grid" id="products-grid">
       <!-- cards gerados via JS -->
