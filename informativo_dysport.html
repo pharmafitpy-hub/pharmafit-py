@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dysport 500UI — Informativo Técnico | Pharmafit</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #c8c8c8; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; gap: 40px; }
+  .page { width: 794px; min-height: 1123px; background: #ffffff; position: relative; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.18); display: flex; flex-direction: column; }
+
+  /* HEADER — índigo */
+  .header { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #1e1b4b 100%); padding: 20px 24px 18px; display: flex; align-items: flex-start; justify-content: space-between; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 78% 35%, rgba(67,56,202,0.30) 0%, transparent 55%), radial-gradient(circle at 15% 75%, rgba(49,46,129,0.22) 0%, transparent 45%); }
+  .header-left { position: relative; z-index: 1; flex: 1; }
+  .header-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(67,56,202,0.22); border: 1px solid rgba(129,140,248,0.45); border-radius: 20px; padding: 3px 10px; margin-bottom: 8px; }
+  .header-badge span { color: #c7d2fe; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+  .header-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: #818cf8; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+  .header-title { font-size: 36px; font-weight: 900; letter-spacing: -1px; line-height: 1; color: #ffffff; text-shadow: 0 2px 12px rgba(67,56,202,0.6); }
+  .header-title span { color: #818cf8; }
+  .header-subtitle { font-size: 11.5px; color: #c7d2fe; font-weight: 500; margin-top: 4px; letter-spacing: 0.3px; }
+  .header-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .tag { background: rgba(67,56,202,0.18); border: 1px solid rgba(129,140,248,0.38); color: #c7d2fe; font-size: 9px; font-weight: 700; letter-spacing: 1px; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
+  .header-logo { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .header-logo img.logo-pharmafit { width: 100px; height: 100px; object-fit: contain; border-radius: 12px; border: 2px solid rgba(129,140,248,0.55); background: transparent; filter: drop-shadow(0 0 10px rgba(67,56,202,0.6)); }
+  .logo-label { font-size: 8px; color: #c7d2fe; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; text-align: center; }
+
+  /* ACCENT BAR */
+  .accent-bar { height: 4px; background: linear-gradient(90deg, #312e81, #4338ca, #818cf8, #c7d2fe, #312e81); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
+  @keyframes shimmer { 0%{background-position:0% 0%} 100%{background-position:200% 0%} }
+
+  .content { flex: 1; padding: 18px 24px 14px; display: flex; flex-direction: column; gap: 14px; }
+  .section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .section-title .icon { width: 26px; height: 26px; border-radius: 6px; background: linear-gradient(135deg, #4338ca, #818cf8); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .section-title h2 { font-size: 13px; font-weight: 800; color: #312e81; text-transform: uppercase; letter-spacing: 0.8px; }
+  .section-title .line { flex: 1; height: 1px; background: linear-gradient(90deg, #818cf8, transparent); }
+
+  /* ALERT BOX — crítico */
+  .alert-box { background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #ef4444; border-radius: 8px; padding: 10px 14px; }
+  .alert-title { font-size: 10px; font-weight: 800; color: #dc2626; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+  .alert-text { font-size: 9.5px; color: #7f1d1d; line-height: 1.6; }
+
+  .intro-card { background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border: 1px solid #c7d2fe; border-left: 4px solid #818cf8; border-radius: 8px; padding: 12px 14px; }
+  .intro-text { font-size: 10.5px; line-height: 1.65; color: #1f2937; margin-bottom: 10px; }
+  .spec-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+  .spec-item { background: #fff; border: 1px solid #c7d2fe; border-radius: 6px; padding: 6px 10px; text-align: center; flex: 1; min-width: 88px; }
+  .spec-item .s-val { font-size: 14px; font-weight: 800; color: #4338ca; line-height: 1; }
+  .spec-item .s-lbl { font-size: 8px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+  .mec-box { background: linear-gradient(135deg, #312e81 0%, #4338ca 100%); border-radius: 8px; padding: 11px 14px; display: flex; align-items: center; gap: 12px; }
+  .mec-icon { font-size: 28px; flex-shrink: 0; }
+  .mec-content .mec-title { font-size: 10px; font-weight: 800; color: #c7d2fe; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .mec-content .mec-text { font-size: 9.5px; color: #e0e7ff; line-height: 1.6; }
+  .mec-chain { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+  .mec-step { background: rgba(129,140,248,0.18); border: 1px solid rgba(129,140,248,0.38); color: #c7d2fe; font-size: 8px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+  .mec-arrow { color: #818cf8; font-size: 10px; font-weight: 900; }
+
+  .recon-steps { display: flex; flex-direction: column; gap: 6px; }
+  .recon-step { display: flex; align-items: flex-start; gap: 10px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 7px; padding: 8px 10px; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #4338ca, #818cf8); color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-content .step-title { font-size: 10px; font-weight: 700; color: #4338ca; margin-bottom: 2px; }
+  .step-content .step-text { font-size: 9px; color: #374151; line-height: 1.5; }
+
+  .dose-table { width: 100%; border-collapse: collapse; font-size: 9px; }
+  .dose-table th { background: linear-gradient(135deg, #312e81, #4338ca); color: #fff; font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 8px; text-align: left; }
+  .dose-table th:first-child { border-radius: 6px 0 0 0; }
+  .dose-table th:last-child { border-radius: 0 6px 0 0; }
+  .dose-table td { padding: 5px 8px; border-bottom: 1px solid #e0e7ff; color: #1f2937; vertical-align: middle; }
+  .dose-table tr:last-child td { border-bottom: none; }
+  .dose-table tr:nth-child(even) td { background: #eef2ff; }
+  .dose-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 8.5px; font-weight: 700; }
+  .dose-init { background: #e0e7ff; color: #312e81; }
+  .dose-std  { background: #c7d2fe; color: #4338ca; }
+  .dose-adv  { background: #4338ca; color: #fff; }
+  .conv-badge { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 8px; font-weight: 700; }
+
+  .footer { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 8px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .footer-left { display: flex; align-items: center; gap: 8px; }
+  .footer-left img.logo-pharmafit { height: 36px; object-fit: contain; filter: brightness(1.1) drop-shadow(0 0 4px rgba(67,56,202,0.6)); }
+  .footer-text { font-size: 8px; color: #c7d2fe; font-weight: 600; }
+  .footer-right { font-size: 7.5px; color: #e0e7ff; text-align: right; line-height: 1.4; }
+
+  .protocol-card { background: #fff; border: 1px solid #c7d2fe; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+  .protocol-header { background: linear-gradient(135deg, #4338ca, #818cf8); padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .protocol-header.dark { background: linear-gradient(135deg, #312e81, #4338ca); }
+  .protocol-header.mid { background: linear-gradient(135deg, #4338ca, #a5b4fc); }
+  .protocol-num { font-size: 9px; color: rgba(255,255,255,0.65); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+  .protocol-name { font-size: 13px; font-weight: 800; color: #fff; margin-top: 1px; }
+  .protocol-tag { background: rgba(255,255,255,0.15); color: #fff; font-size: 8px; font-weight: 700; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); }
+  .protocol-body { padding: 10px 14px; }
+  .proto-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
+  .proto-cell { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 6px; padding: 6px; text-align: center; }
+  .proto-cell .pc-val { font-size: 12px; font-weight: 800; color: #4338ca; line-height: 1; }
+  .proto-cell .pc-lbl { font-size: 7.5px; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-top: 2px; }
+  .proto-schedule { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+  .ps-block { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 7px 9px; }
+  .ps-block .ps-title { font-size: 8.5px; font-weight: 700; color: #4338ca; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .ps-block .ps-item { font-size: 8.5px; color: #374151; line-height: 1.6; padding-left: 8px; position: relative; }
+  .ps-block .ps-item::before { content: '▸'; position: absolute; left: 0; color: #818cf8; font-size: 8px; }
+  .pr-title { font-size: 9px; font-weight: 700; color: #312e81; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .pr-items { display: flex; flex-wrap: wrap; gap: 4px; }
+  .pr-item { background: #eef2ff; border: 1px solid #a5b4fc; color: #312e81; font-size: 8px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+  .warnings-box { background: #fef3c7; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 8px 12px; }
+  .warn-title { font-size: 9px; font-weight: 800; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+  .warn-items { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+  .warn-item { font-size: 8.5px; color: #78350f; line-height: 1.5; padding-left: 10px; position: relative; }
+  .warn-item::before { content: '⚠'; position: absolute; left: 0; font-size: 7px; }
+  .cta-block { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #1e1b4b 100%); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; border: 1px solid rgba(129,140,248,0.25); }
+  .cta-logo img.logo-pharmafit { height: 70px; object-fit: contain; filter: drop-shadow(0 0 12px rgba(67,56,202,0.7)); }
+  .cta-divider { width: 1px; height: 60px; background: rgba(129,140,248,0.3); }
+  .cta-content { flex: 1; }
+  .cta-label { font-size: 8px; color: #c7d2fe; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 3px; }
+  .cta-title { font-size: 16px; font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 5px; }
+  .cta-title span { color: #818cf8; }
+  .cta-desc { font-size: 9px; color: #e0e7ff; line-height: 1.5; margin-bottom: 8px; }
+  .cta-phone { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #312e81, #4338ca); color: #fff; font-size: 13px; font-weight: 800; padding: 7px 16px; border-radius: 6px; letter-spacing: 0.5px; }
+  .refs-section .refs-title { font-size: 9.5px; font-weight: 800; color: #312e81; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .refs-section ol { padding-left: 14px; }
+  .refs-section li { font-size: 8px; color: #6b7280; line-height: 1.65; margin-bottom: 2px; }
+  .refs-section li b { color: #374151; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-badge">
+        <div class="header-badge-dot"></div>
+        <span>AbobotulinumtoxinA · Ipsen · Alta Difusão · Grandes Áreas</span>
+      </div>
+      <div class="header-title">Dysport <span>500UI</span></div>
+      <div class="header-subtitle">AbobotulinumtoxinA · Ipsen · Alta Difusão · Grandes Grupos Musculares · Hiperhidrose</div>
+      <div class="header-tags">
+        <span class="tag">AbobotulinumtoxinA</span>
+        <span class="tag">Ipsen</span>
+        <span class="tag">Grandes Áreas</span>
+        <span class="tag">Alta Difusão</span>
+        <span class="tag">Hiperhidrose</span>
+      </div>
+    </div>
+    <div class="header-logo">
+      <img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit Logo">
+      <div class="logo-label">Pharmafit</div>
+    </div>
+  </div>
+  <div class="accent-bar"></div>
+  <div class="content">
+
+    <!-- ALERTA CRÍTICO -->
+    <div class="alert-box">
+      <div class="alert-title">🚨 ATENÇÃO CRÍTICA — Unidades NÃO Equivalentes</div>
+      <div class="alert-text"><strong>1UI Botox (OnabotulinumtoxinA) ≠ 1UI Dysport (AbobotulinumtoxinA).</strong> Fator de conversão: 2,5–3UI Dysport ≈ 1UI Botox. Sempre converter as doses ao planejar o procedimento. Confusão de unidades pode resultar em subdosagem ou efeitos adversos graves.</div>
+    </div>
+
+    <div>
+      <div class="section-title">
+        <div class="icon">💉</div>
+        <h2>O que é o Dysport?</h2>
+        <div class="line"></div>
+      </div>
+      <div class="intro-card">
+        <p class="intro-text">
+          Dysport é a <strong>AbobotulinumtoxinA</strong> produzida pela Ipsen (França). Toxina botulínica tipo A com <strong>difusão ligeiramente maior</strong> que a OnabotulinumtoxinA — vantagem em grandes áreas musculares e hiperhidrose. Efeito visível em 3–5 dias, pico em 2 semanas, duração 3–6 meses. Fator de conversão: <strong>500UI Dysport ≈ 150–200UI Botox Allergan</strong>.
+        </p>
+        <div class="spec-grid">
+          <div class="spec-item"><div class="s-val">500UI</div><div class="s-lbl">Por frasco</div></div>
+          <div class="spec-item"><div class="s-val">IM/SC</div><div class="s-lbl">Via</div></div>
+          <div class="spec-item"><div class="s-val">SF 0,9%</div><div class="s-lbl">Diluente</div></div>
+          <div class="spec-item"><div class="s-val">2,5–3:1</div><div class="s-lbl">Ratio vs Botox</div></div>
+          <div class="spec-item"><div class="s-val">3–6 meses</div><div class="s-lbl">Duração</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">
+        <div class="icon">⚡</div>
+        <h2>Mecanismo de Ação</h2>
+        <div class="line"></div>
+      </div>
+      <div class="mec-box">
+        <div class="mec-icon">🧠</div>
+        <div class="mec-content">
+          <div class="mec-title">AbobotulinumtoxinA → Clivagem SNAP-25 → Bloqueio ACh → Maior Difusão</div>
+          <div class="mec-text">
+            O Dysport age pela mesma via da OnabotulinumtoxinA: clivagem da proteína SNAP-25, bloqueio da liberação de ACh e paralisia muscular reversível. A diferença está no perfil molecular: a AbobotulinumtoxinA tem maior tendência à difusão do ponto de injeção, o que a torna ideal para grandes grupos musculares e áreas extensas (hiperhidrose, espasticidade).
+          </div>
+          <div class="mec-chain">
+            <span class="mec-step">AboBotulinumToxA</span>
+            <span class="mec-arrow">→</span>
+            <span class="mec-step">Clivagem SNAP-25</span>
+            <span class="mec-arrow">→</span>
+            <span class="mec-step">Bloqueio ACh</span>
+            <span class="mec-arrow">→</span>
+            <span class="mec-step">Maior difusão</span>
+            <span class="mec-arrow">→</span>
+            <span class="mec-step">Grandes áreas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">
+        <div class="icon">🧪</div>
+        <h2>Reconstituição</h2>
+        <div class="line"></div>
+      </div>
+      <div class="recon-steps">
+        <div class="recon-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Diluição padrão — 500UI</div>
+            <div class="step-text">Adicionar 2,5ml SF 0,9% estéril sem conservante → 200UI/ml (1UI Dysport por 0,005ml). Para maior diluição: 5ml → 100UI/ml.</div>
+          </div>
+        </div>
+        <div class="recon-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Técnica de reconstituição</div>
+            <div class="step-text">SF gelado (refrigerado) reduz desnaturação. Injetar pela parede do frasco suavemente.</div>
+          </div>
+        </div>
+        <div class="recon-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Não agitar</div>
+            <div class="step-text">Girar suavemente. Solução deve ser límpida e incolor. Nunca agitar — desnatura a toxina.</div>
+          </div>
+        </div>
+        <div class="recon-step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Usar em até 4 horas</div>
+            <div class="step-text">Após reconstituição, usar em até 4h mantendo a 2–8°C. Descartar sobras adequadamente.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">
+        <div class="icon">📊</div>
+        <h2>Tabela de Doses em Dysport (com Conversão para Botox)</h2>
+        <div class="line"></div>
+      </div>
+      <table class="dose-table">
+        <thead>
+          <tr>
+            <th>Área</th>
+            <th>Dose Dysport</th>
+            <th>Equiv. Botox</th>
+            <th>Pontos</th>
+            <th>Duração</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="dose-badge dose-init">Glabela</span></td>
+            <td><strong>50–70UI</strong></td>
+            <td><span class="conv-badge">≈20–25UI Btx</span></td>
+            <td>5 pontos</td>
+            <td>3–4 meses</td>
+          </tr>
+          <tr>
+            <td><span class="dose-badge dose-init">Testa</span></td>
+            <td><strong>30–50UI</strong></td>
+            <td><span class="conv-badge">≈12–18UI Btx</span></td>
+            <td>4–6 pontos</td>
+            <td>3–4 meses</td>
+          </tr>
+          <tr>
+            <td><span class="dose-badge dose-std">Pés de galinha</span></td>
+            <td><strong>30–60UI</strong></td>
+            <td><span class="conv-badge">≈12–20UI Btx</span></td>
+            <td>3–4/lado</td>
+            <td>3–4 meses</td>
+          </tr>
+          <tr>
+            <td><span class="dose-badge dose-std">Axilas (hiperhidrose)</span></td>
+            <td><strong>150UI/axila</strong></td>
+            <td><span class="conv-badge">≈50UI Btx</span></td>
+            <td>15 pontos × 10UI</td>
+            <td>6–9 meses</td>
+          </tr>
+          <tr>
+            <td><span class="dose-badge dose-adv">Espasticidade</span></td>
+            <td><strong>500UI total</strong></td>
+            <td><span class="conv-badge">≈150–200UI Btx</span></td>
+            <td>Múltiplos</td>
+            <td>3–6 meses</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  <div class="accent-bar"></div>
+  <div class="footer">
+    <div class="footer-left">
+      <img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit">
+      <div class="footer-text">Pharmafit · Informativo Técnico</div>
+    </div>
+    <div class="footer-right">Dysport 500UI · AbobotulinumtoxinA · Ipsen<br>Aplicação exclusiva por profissional habilitado</div>
+  </div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-badge">
+        <div class="header-badge-dot"></div>
+        <span>Protocolos Clínicos · Dysport 500UI</span>
+      </div>
+      <div class="header-title">Protocolos <span>de Aplicação</span></div>
+      <div class="header-subtitle">Face completa, hiperhidrose axilar e espasticidade com alta difusão</div>
+    </div>
+    <div class="header-logo">
+      <img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit Logo">
+      <div class="logo-label">Pharmafit</div>
+    </div>
+  </div>
+  <div class="accent-bar"></div>
+  <div class="content">
+
+    <div class="protocol-card">
+      <div class="protocol-header">
+        <div>
+          <div class="protocol-num">Protocolo 01</div>
+          <div class="protocol-name">Face Completa Anti-rugas</div>
+        </div>
+        <span class="protocol-tag">150–200UI Dysport</span>
+      </div>
+      <div class="protocol-body">
+        <div class="proto-grid">
+          <div class="proto-cell"><div class="pc-val">50–70UI</div><div class="pc-lbl">Glabela</div></div>
+          <div class="proto-cell"><div class="pc-val">30–50UI</div><div class="pc-lbl">Testa</div></div>
+          <div class="proto-cell"><div class="pc-val">30–60UI</div><div class="pc-lbl">Pés de galinha</div></div>
+          <div class="proto-cell"><div class="pc-val">150–200UI</div><div class="pc-lbl">Total Dysport</div></div>
+        </div>
+        <div class="proto-schedule">
+          <div class="ps-block">
+            <div class="ps-title">Conversão e Cálculo</div>
+            <div class="ps-item">Sempre usar ratio 2,5–3:1 vs Botox</div>
+            <div class="ps-item">Ex: 20UI Botox = 50–60UI Dysport</div>
+            <div class="ps-item">Alta difusão: ideal para glabela e testa</div>
+          </div>
+          <div class="ps-block">
+            <div class="ps-title">Cuidados Especiais</div>
+            <div class="ps-item">Reduzir dose 15–20% vs Botox equivalente</div>
+            <div class="ps-item">Difusão maior: evitar área periorbital inferior</div>
+            <div class="ps-item">Retorno em 14 dias para avaliação</div>
+          </div>
+        </div>
+        <div class="pr-title">Resultados Esperados</div>
+        <div class="pr-items">
+          <span class="pr-item">Suavização eficaz das rugas</span>
+          <span class="pr-item">Onset rápido (2–3 dias)</span>
+          <span class="pr-item">Resultado natural</span>
+          <span class="pr-item">Duração 3–4 meses</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="protocol-card">
+      <div class="protocol-header mid">
+        <div>
+          <div class="protocol-num">Protocolo 02</div>
+          <div class="protocol-name">Hiperhidrose Axilar</div>
+        </div>
+        <span class="protocol-tag">150UI por axila</span>
+      </div>
+      <div class="protocol-body">
+        <div class="proto-grid">
+          <div class="proto-cell"><div class="pc-val">150UI</div><div class="pc-lbl">Por axila</div></div>
+          <div class="proto-cell"><div class="pc-val">15 pts</div><div class="pc-lbl">Por axila</div></div>
+          <div class="proto-cell"><div class="pc-val">10UI/pto</div><div class="pc-lbl">Dose/ponto</div></div>
+          <div class="proto-cell"><div class="pc-val">6–9 meses</div><div class="pc-lbl">Duração</div></div>
+        </div>
+        <div class="proto-schedule">
+          <div class="ps-block">
+            <div class="ps-title">Técnica</div>
+            <div class="ps-item">Teste Minor para mapear área de sudorese</div>
+            <div class="ps-item">Grade de 15 pontos × 10UI intradérmica</div>
+            <div class="ps-item">Alta difusão Dysport = cobertura ampla com menos pontos</div>
+          </div>
+          <div class="ps-block">
+            <div class="ps-title">Vantagem vs Botox</div>
+            <div class="ps-item">Maior difusão = cobertura mais uniforme</div>
+            <div class="ps-item">Pode reduzir nº de pontos de injeção</div>
+            <div class="ps-item">Resultado duradouro 6–9 meses</div>
+          </div>
+        </div>
+        <div class="pr-title">Resultados Esperados</div>
+        <div class="pr-items">
+          <span class="pr-item">Eliminação da sudorese excessiva</span>
+          <span class="pr-item">Cobertura ampla</span>
+          <span class="pr-item">6–9 meses de efeito</span>
+          <span class="pr-item">Alta satisfação do paciente</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="protocol-card">
+      <div class="protocol-header dark">
+        <div>
+          <div class="protocol-num">Protocolo 03</div>
+          <div class="protocol-name">Espasticidade e Grandes Grupos Musculares</div>
+        </div>
+        <span class="protocol-tag">Até 500UI por sessão</span>
+      </div>
+      <div class="protocol-body">
+        <div class="proto-grid">
+          <div class="proto-cell"><div class="pc-val">500UI</div><div class="pc-lbl">Dose total</div></div>
+          <div class="proto-cell"><div class="pc-val">Múltiplos</div><div class="pc-lbl">Músculos</div></div>
+          <div class="proto-cell"><div class="pc-val">EMG/US</div><div class="pc-lbl">Guia</div></div>
+          <div class="proto-cell"><div class="pc-val">3–6 meses</div><div class="pc-lbl">Duração</div></div>
+        </div>
+        <div class="proto-schedule">
+          <div class="ps-block">
+            <div class="ps-title">Indicações</div>
+            <div class="ps-item">Espasticidade pós-AVC ou neurológica</div>
+            <div class="ps-item">Distonia cervical e torcicolo</div>
+            <div class="ps-item">Hipertrofia de grandes grupos (ex: panturrilha)</div>
+          </div>
+          <div class="ps-block">
+            <div class="ps-title">Guiagem</div>
+            <div class="ps-item">EMG ou ultrassom guiado recomendado</div>
+            <div class="ps-item">Distribuir doses entre múltiplos sítios</div>
+            <div class="ps-item">Alta difusão favorece grandes músculos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="warnings-box">
+      <div class="warn-title">⚠ Advertências e Contraindicações</div>
+      <div class="warn-items">
+        <div class="warn-item">CRÍTICO: Fator de conversão 2,5–3:1 vs Botox — sempre calcular</div>
+        <div class="warn-item">Alta difusão: cuidado em áreas com músculos ptóticos ou delicados</div>
+        <div class="warn-item">Conservar a 2–8°C; usar em até 4h após reconstituição</div>
+        <div class="warn-item">Contraindicado em gestação, amamentação e doenças neuromusculares</div>
+        <div class="warn-item">Profissional habilitado obrigatório — dose única frasco 500UI</div>
+        <div class="warn-item">Hipersensibilidade à toxina botulínica ou proteínas do leite bovino</div>
+      </div>
+    </div>
+
+    <div class="refs-section">
+      <div class="refs-title">Referências Científicas</div>
+      <ol>
+        <li><b>Ascher B et al.</b> "Efficacy and safety of AbobotulinumtoxinA (Dysport) for glabellar lines." <i>Dermatol Surg.</i> 2010; 36(s4):2051–2060.</li>
+        <li><b>Lowe NJ et al.</b> "AbobotulinumtoxinA (Dysport) for the frown lines: review." <i>Dermatol Surg.</i> 2009; 35(s1):562–571.</li>
+        <li><b>Naumann M et al.</b> "Botulinum toxin type A for axillary hyperhidrose: randomized trial." <i>NEJM.</i> 2001; 344(7):488–493.</li>
+        <li><b>Montecucco C, Molgo J.</b> "Botulinal neurotoxins: revival of an old killer." <i>Curr Opin Pharmacol.</i> 2005; 5(3):274–279.</li>
+        <li><b>Bhidayasiri R, Truong DD.</b> "Expanding use of botulinum toxin." <i>J Neurol Sci.</i> 2005; 235(1–2):1–9.</li>
+        <li><b>Ranoux D et al.</b> "Botulinum toxin type A induces direct analgesic effects in chronic neuropathic pain." <i>Ann Neurol.</i> 2008; 64(3):274–283.</li>
+      </ol>
+    </div>
+
+    <div class="cta-block">
+      <div class="cta-logo"><img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit"></div>
+      <div class="cta-divider"></div>
+      <div class="cta-content">
+        <div class="cta-label">Pharmafit · Toxinas Botulínicas</div>
+        <div class="cta-title">Dysport <span>500UI</span></div>
+        <div class="cta-desc">AbobotulinumtoxinA Ipsen. Alta difusão para grandes áreas, hiperhidrose e espasticidade. Ratio 2,5–3:1 vs Botox.</div>
+        <div class="cta-phone">📲 Consultar Disponibilidade</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="accent-bar"></div>
+  <div class="footer">
+    <div class="footer-left">
+      <img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit">
+      <div class="footer-text">Pharmafit · Informativo Técnico</div>
+    </div>
+    <div class="footer-right">Dysport 500UI · AbobotulinumtoxinA · Ipsen<br>Aplicação exclusiva por profissional habilitado</div>
+  </div>
+</div>
+
+</body>
+</html>
