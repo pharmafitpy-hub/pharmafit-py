@@ -1679,7 +1679,7 @@ function renderProducts() {
         </div>
         <div class="pc-name">${p.name}</div>
         <div class="pc-conc">${p.conc}</div>
-        <div class="pc-tags">${labBadge}${p.tags.map(t=>`<span class="pc-tag">${t}</span>`).join('')}</div>
+        <div class="pc-tags">${labBadge}${(p.tags||[]).map(t=>`<span class="pc-tag">${t}</span>`).join('')}</div>
         ${!temVariantes ? `<div style="margin:6px 0" id="stock-${p.id}">${estoqueLabel}</div>` : ''}
         ${!temVariantes ? `<div class="pc-price-row" style="flex-direction:column;align-items:flex-start;gap:2px">
           ${promoPrecoHtml}<div style="display:flex;align-items:baseline;gap:4px">
