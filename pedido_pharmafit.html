@@ -606,6 +606,30 @@
   .filter-group-header:hover .filter-arrow { background: var(--accent); color: var(--dark); }
   .filter-arrow.open { transform: rotate(180deg); }
   .lab-filters { display:flex; flex-wrap:wrap; gap:8px; padding: 10px 0 4px; }
+
+  /* ── HIGHLIGHT SECTIONS ── */
+  .hl-section { margin-bottom: 18px; }
+  .hl-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  .hl-title { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--white); }
+  .hl-sub { font-size:.62rem; color:var(--gray); margin-left:auto; }
+  .hl-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .hl-card { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:12px; cursor:pointer; transition:border-color .2s, transform .15s; display:flex; flex-direction:column; gap:3px; }
+  .hl-card:hover { transform:translateY(-2px); }
+  .hl-card.card-destaque { border-color:rgba(243,156,18,.3); }
+  .hl-card.card-destaque:hover { border-color:rgba(243,156,18,.7); }
+  .hl-card.card-recomendado { border-color:rgba(142,68,173,.3); }
+  .hl-card.card-recomendado:hover { border-color:rgba(142,68,173,.7); }
+  .hl-badge-destaque { display:inline-block; background:linear-gradient(135deg,#f39c12,#e67e22); color:#fff; font-size:.55rem; font-weight:700; padding:2px 7px; border-radius:20px; text-transform:uppercase; letter-spacing:.5px; width:fit-content; }
+  .hl-badge-recomendado { display:inline-block; background:linear-gradient(135deg,#8e44ad,#6c3483); color:#fff; font-size:.55rem; font-weight:700; padding:2px 7px; border-radius:20px; text-transform:uppercase; letter-spacing:.5px; width:fit-content; }
+  .hl-card-icon { font-size:1.3rem; margin-top:4px; }
+  .hl-card-name { font-size:.78rem; font-weight:700; color:var(--white); margin-top:2px; }
+  .hl-card-conc { font-size:.62rem; color:var(--gray); }
+  .hl-card-price { font-size:.82rem; font-weight:700; color:var(--accent); margin-top:4px; }
+  .hl-card-hint { font-size:.58rem; color:var(--gray); margin-top:2px; }
+  .catalog-divider { display:flex; align-items:center; gap:10px; margin:4px 0 14px; color:var(--gray); font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+  .catalog-divider::before, .catalog-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+  @keyframes cardPulse { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 0 3px var(--accent)} }
+  .card-pulse { animation:cardPulse .5s ease 3; }
   .lab-filters { display:flex; flex-wrap:wrap; gap:8px; }
   .lab-btn {
     background: var(--card-bg); border: 1px solid var(--border);
@@ -948,6 +972,28 @@
         <button class="sort-btn" data-sort="price-desc" onclick="setSort('price-desc')">↓ Maior preço</button>
       </div>
     </div>
+    <!-- ⭐ Em Destaque -->
+    <div class="hl-section" id="section-destaque" style="display:none">
+      <div class="hl-header">
+        <span>⭐</span>
+        <span class="hl-title">Em Destaque</span>
+        <span class="hl-sub">Os mais vendidos</span>
+      </div>
+      <div class="hl-grid" id="grid-destaque"></div>
+    </div>
+
+    <!-- 💡 Você também pode gostar -->
+    <div class="hl-section" id="section-recomendado" style="display:none">
+      <div class="hl-header">
+        <span>💡</span>
+        <span class="hl-title">Você também pode gostar</span>
+        <span class="hl-sub">Selecionados para você</span>
+      </div>
+      <div class="hl-grid" id="grid-recomendado"></div>
+    </div>
+
+    <div class="catalog-divider" id="catalog-divider" style="display:none">📦 Catálogo Completo</div>
+
     <div class="products-grid" id="products-grid">
       <!-- cards gerados via JS -->
     </div>
@@ -1287,6 +1333,7 @@ async function carregarProdutos() {
       stock:       parseInt(p.estoque) || 0,
       tags:        Array.isArray(p.tags) ? p.tags : [],
       categoria:   p.categoria ? String(p.categoria).trim().toLowerCase() : '',
+      destaque:    p.destaque || '',
       lab:         p.lab || '',
       variantes:   (Array.isArray(p.variantes) && p.variantes.length > 0 && p.variantes[0].dose)
                      ? p.variantes : null,
@@ -1297,6 +1344,7 @@ async function carregarProdutos() {
     }));
     renderFilters();
     renderProducts();
+    renderHighlights();
   } catch(e) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#e74c3c">⚠️ Erro ao carregar produtos. Recarregue a página.</div>';
   }
@@ -1701,6 +1749,40 @@ function renderProducts() {
   });
   updateTotal();
   startCountdowns();
+}
+
+function renderHighlights() {
+  const destaques    = CATALOG.filter(p => p.destaque === 'destaque');
+  const recomendados = CATALOG.filter(p => p.destaque === 'recomendado');
+  const secDest  = document.getElementById('section-destaque');
+  const secRec   = document.getElementById('section-recomendado');
+  const divider  = document.getElementById('catalog-divider');
+  secDest.style.display  = destaques.length    ? '' : 'none';
+  secRec.style.display   = recomendados.length ? '' : 'none';
+  divider.style.display  = (destaques.length || recomendados.length) ? '' : 'none';
+  function buildTile(p, badgeClass, badgeLabel, cardClass) {
+    const price = getEffectivePrice(p);
+    return `<div class="hl-card ${cardClass}" onclick="scrollToCard('${p.id}')">
+      <span class="${badgeClass}">${badgeLabel}</span>
+      <span class="hl-card-icon">${p.icon}</span>
+      <div class="hl-card-name">${p.name}</div>
+      <div class="hl-card-conc">${p.conc}</div>
+      <div class="hl-card-price">R$ ${price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+      <div class="hl-card-hint">Toque para ver no catálogo →</div>
+    </div>`;
+  }
+  document.getElementById('grid-destaque').innerHTML =
+    destaques.map(p => buildTile(p,'hl-badge-destaque','⭐ Destaque','card-destaque')).join('');
+  document.getElementById('grid-recomendado').innerHTML =
+    recomendados.map(p => buildTile(p,'hl-badge-recomendado','💡 Recomendado','card-recomendado')).join('');
+}
+
+function scrollToCard(id) {
+  const el = document.getElementById('pc-' + id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.add('card-pulse');
+  setTimeout(() => el.classList.remove('card-pulse'), 2000);
 }
 
 function toggleProduct(id) {
