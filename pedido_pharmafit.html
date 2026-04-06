@@ -596,7 +596,14 @@
     font-size: .65rem; text-transform: uppercase; letter-spacing: 1px;
     color: var(--gray); font-weight: 700; transition: color .15s;
   }
-  .filter-arrow { font-size: .65rem; color: var(--gray); transition: transform .2s; }
+  .filter-arrow {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--border); color: var(--gray);
+    font-size: .6rem; font-weight: 700; transition: transform .2s, background .2s;
+    flex-shrink: 0;
+  }
+  .filter-group-header:hover .filter-arrow { background: var(--accent); color: var(--dark); }
   .filter-arrow.open { transform: rotate(180deg); }
   .lab-filters { display:flex; flex-wrap:wrap; gap:8px; padding: 10px 0 4px; }
   .lab-filters { display:flex; flex-wrap:wrap; gap:8px; }
@@ -930,9 +937,9 @@
       <div class="filter-group">
         <div class="filter-group-header" onclick="toggleFilterGroup('tag-filters','arrow-tag')">
           <span class="filter-group-label">Propriedades</span>
-          <span class="filter-arrow" id="arrow-tag">▼</span>
+          <span class="filter-arrow open" id="arrow-tag">▼</span>
         </div>
-        <div class="lab-filters" id="tag-filters" style="display:none"></div>
+        <div class="lab-filters" id="tag-filters"></div>
       </div>
       <div class="sort-bar">
         <span class="sort-label">Ordenar:</span>
