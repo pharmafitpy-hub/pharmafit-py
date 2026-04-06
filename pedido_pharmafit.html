@@ -1278,7 +1278,7 @@ async function carregarProdutos() {
       conc:        p.conc,
       price:       parseFloat(p.preco) || 0,
       stock:       parseInt(p.estoque) || 0,
-      tags:        Array.isArray(p.tags) ? p.tags : (p.tags ? String(p.tags).split(',').map(t=>t.trim()).filter(Boolean) : []),
+      categoria:   p.categoria ? String(p.categoria).trim().toLowerCase() : '',
       lab:         p.lab || '',
       variantes:   (Array.isArray(p.variantes) && p.variantes.length > 0 && p.variantes[0].dose)
                      ? p.variantes : null,
@@ -1295,20 +1295,12 @@ async function carregarProdutos() {
 }
 
 // ─── FILTERS & SORT ─────────────────────────────────────────────────────────
-const TAG_LABELS = {
-  peptideo:'Peptídeo', emagrecimento:'Emagrecimento', recuperacao:'Recuperação',
-  reparo:'Reparo', muscular:'Muscular', imunidade:'Imunidade',
-  longevidade:'Longevidade', cognicao:'Cognição', hormonal:'Hormonal',
-  pele:'Pele', blend:'Blend', antiaging:'Anti-aging', sexual:'Sexual',
-  vitalidade:'Vitalidade', mitocondria:'Mitocôndria', energia:'Energia',
-  neuroprotetor:'Neuroprotetor', ansiedade:'Ansiedade', gh:'GH',
-  performance:'Performance', massa:'Massa', sono:'Sono', foco:'Foco',
-  cicatrizacao:'Cicatrização', antimicrobiano:'Antimicrobiano',
-  regeneracao:'Regeneração', estetico:'Estético'
-};
-function displayTag(t) {
-  return TAG_LABELS[t] || (t.charAt(0).toUpperCase() + t.slice(1));
-}
+const CATEGORIAS = [
+  { val: 'todos',          label: 'Todos' },
+  { val: 'emagrecimento',  label: '⚡ Emagrecimento' },
+  { val: 'peptideo',       label: '🧬 Peptídeo' },
+  { val: 'estetica',       label: '✨ Estética' },
+];
 
 function renderFilters() {
   const labs = [...new Set(CATALOG.filter(p => p.lab).map(p => p.lab))].sort();
@@ -1317,11 +1309,9 @@ function renderFilters() {
     return `<button class="lab-btn ${val === activeLabFilter ? 'active' : ''}" onclick="setLabFilter('${val}')">${l}</button>`;
   }).join('');
 
-  const allTags = [...new Set(CATALOG.flatMap(p => p.tags))].sort();
-  document.getElementById('tag-filters').innerHTML = ['todos', ...allTags].map(tag => {
-    const label = tag === 'todos' ? 'Todos' : displayTag(tag);
-    return `<button class="lab-btn ${tag === activeTagFilter ? 'active' : ''}" onclick="setTagFilter('${tag}')">${label}</button>`;
-  }).join('');
+  document.getElementById('tag-filters').innerHTML = CATEGORIAS.map(c =>
+    `<button class="lab-btn ${c.val === activeTagFilter ? 'active' : ''}" onclick="setTagFilter('${c.val}')">${c.label}</button>`
+  ).join('');
 }
 
 function toggleFilterGroup(filterId, arrowId) {
@@ -1583,7 +1573,7 @@ function renderProducts() {
   grid.innerHTML = '';
   let list = CATALOG.filter(p =>
     (activeLabFilter === 'todos' || p.lab === activeLabFilter) &&
-    (activeTagFilter === 'todos' || p.tags.includes(activeTagFilter))
+    (activeTagFilter === 'todos' || p.categoria === activeTagFilter)
   );
   if (activeSort === 'alpha') {
     list.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
