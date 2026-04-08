@@ -1001,9 +1001,8 @@
         <div class="lab-filters" id="lab-filters" style="display:none"></div>
       </div>
       <div class="filter-group">
-        <div class="filter-group-header" onclick="toggleFilterGroup('tag-filters','arrow-tag')">
-          <span class="filter-group-label">Propriedades</span>
-          <span class="filter-arrow open" id="arrow-tag">▼</span>
+        <div class="filter-group-header">
+          <span class="filter-group-label">Categoria</span>
         </div>
         <div class="lab-filters" id="tag-filters"></div>
       </div>
@@ -1608,8 +1607,13 @@ function startCountdowns() {
   countdownInterval = setInterval(() => {
     CATALOG.forEach(p => {
       if (!isPromoAtiva(p)) return;
+      const txt = getCountdown(p.promo_fim);
+      // card do catálogo principal
       const el = document.getElementById('countdown-' + p.id);
-      if (el) el.textContent = getCountdown(p.promo_fim);
+      if (el) el.textContent = txt;
+      // tile dos destaques
+      const hl = document.getElementById('hl-countdown-' + p.id);
+      if (hl) hl.textContent = '⏱ ' + txt;
     });
   }, 1000);
 }
@@ -1821,13 +1825,50 @@ function renderHighlights() {
   secRec.style.display   = recomendados.length ? '' : 'none';
   divider.style.display  = (destaques.length || recomendados.length) ? '' : 'none';
   function buildTile(p, badgeClass, badgeLabel, cardClass) {
-    const price = getEffectivePrice(p);
-    return `<div class="hl-card ${cardClass}" onclick="scrollToCard('${p.id}')">
+    const temVariantes = p.variantes && p.variantes.length > 0;
+    let promoRibbon = '', promoClass = '', priceHtml;
+
+    if (temVariantes) {
+      const precos = p.variantes.map(v => parseFloat(v.preco) || 0).filter(v => v > 0);
+      const minPreco = precos.length ? Math.min(...precos) : 0;
+      const varPromos = p.variantes.filter(v => parseFloat(v.promo_preco) > 0 && isPromoDentroData(p));
+      if (varPromos.length > 0) {
+        const minPromo = Math.min(...varPromos.map(v => parseFloat(v.promo_preco)));
+        const varOriginal = Math.min(...varPromos.map(v => parseFloat(v.preco)));
+        promoRibbon = `<div class="promo-ribbon">🔥 Promoção</div>`;
+        promoClass  = 'promo-ativa';
+        priceHtml   = `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-top:4px">
+           <span style="font-size:.65rem;color:var(--gray)">A partir de</span>
+           <span style="font-size:.7rem;color:var(--gray);text-decoration:line-through">R$ ${varOriginal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+           <span class="hl-card-price" style="color:#F59E0B">R$ ${minPromo.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+           <span id="hl-countdown-${p.id}" style="font-size:.63rem;color:#F59E0B;font-weight:600">⏱ ${getCountdown(p.promo_fim)}</span>
+         </div>`;
+      } else {
+        priceHtml = `<div style="margin-top:4px">
+          <span style="font-size:.62rem;color:var(--gray)">A partir de</span>
+          <div class="hl-card-price">R$ ${minPreco.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        </div>`;
+      }
+    } else {
+      const price = getEffectivePrice(p);
+      const promo = isPromoAtiva(p);
+      promoRibbon = promo ? `<div class="promo-ribbon">🔥 Promoção</div>` : '';
+      promoClass  = promo ? 'promo-ativa' : '';
+      priceHtml   = promo
+        ? `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-top:4px">
+             <span style="font-size:.7rem;color:var(--gray);text-decoration:line-through">R$ ${p.price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+             <span class="hl-card-price" style="color:#F59E0B">R$ ${price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+             <span id="hl-countdown-${p.id}" style="font-size:.63rem;color:#F59E0B;font-weight:600">⏱ ${getCountdown(p.promo_fim)}</span>
+           </div>`
+        : `<div class="hl-card-price">R$ ${price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>`;
+    }
+    return `<div class="hl-card ${cardClass} ${promoClass}" onclick="scrollToCard('${p.id}')">
+      ${promoRibbon}
       <span class="${badgeClass}">${badgeLabel}</span>
       <span class="hl-card-icon">${p.icon}</span>
       <div class="hl-card-name">${p.name}</div>
       <div class="hl-card-conc">${p.conc}</div>
-      <div class="hl-card-price">R$ ${price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+      ${priceHtml}
       <div class="hl-card-hint">Toque para ver no catálogo →</div>
     </div>`;
   }
