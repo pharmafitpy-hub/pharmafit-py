@@ -6,18 +6,18 @@
 <title>Catálogo Pharmafit</title>
 <style>
   :root {
-    --bg:      #0a0f1e;
-    --surface: #111827;
-    --card:    #1a2235;
-    --border:  #1e2d45;
+    --bg:      #0F0B1A;
+    --surface: #1A1428;
+    --card:    #1A1428;
+    --border:  #2D2440;
     --accent:  #f59e0b;
     --green:   #10b981;
-    --blue:    #3b82f6;
-    --purple:  #8b5cf6;
+    --blue:    #7C3AED;
+    --purple:  #7C3AED;
     --red:     #ef4444;
-    --text:    #e2e8f0;
-    --gray:    #64748b;
-    --light:   #94a3b8;
+    --text:    #ffffff;
+    --gray:    #7B6E9A;
+    --light:   #A89EC0;
   }
   * { box-sizing:border-box; margin:0; padding:0 }
   body { background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; min-height:100vh }
@@ -49,7 +49,7 @@
   .search-box {
     flex:1; min-width:200px; max-width:340px;
     padding:9px 14px; border-radius:8px;
-    border:1px solid var(--border); background:#0d1526;
+    border:1px solid var(--border); background:#0F0B1A;
     color:var(--text); font-size:.9rem; outline:none;
   }
   .search-box:focus { border-color:var(--accent) }
@@ -101,7 +101,7 @@
   }
   .tag {
     font-size:.65rem; padding:2px 8px; border-radius:10px;
-    background:rgba(59,130,246,.12); color:var(--blue); border:1px solid rgba(59,130,246,.2);
+    background:rgba(124,58,237,.15); color:var(--blue); border:1px solid rgba(124,58,237,.3);
   }
 
   .card-price-area {
@@ -114,6 +114,7 @@
   .price-old    { font-size:.75rem; color:var(--gray); text-decoration:line-through }
   .price-new    { font-size:1.15rem; font-weight:800; color:var(--accent) }
   .price-normal { font-size:1.1rem; font-weight:700; color:var(--text) }
+  .price-variante { font-size:.72rem; color:var(--light); margin-top:3px }
 
   .promo-badge {
     background:var(--accent); color:#000;
@@ -147,12 +148,12 @@
 
   /* ── SCROLL TOP ── */
   .scroll-top {
-    position:fixed; bottom:80px; right:24px;
+    position:fixed; bottom:24px; right:24px;
     width:44px; height:44px; border-radius:50%;
     background:var(--accent); color:#000;
     border:none; font-size:1.1rem; cursor:pointer;
     display:none; align-items:center; justify-content:center;
-    box-shadow:0 4px 14px rgba(0,0,0,.4); z-index:199;
+    box-shadow:0 4px 14px rgba(0,0,0,.4);
   }
   .scroll-top.show { display:flex }
 
@@ -245,7 +246,7 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwSM2eVjBp0sbddf3CL70loX0OWqh5hSrO3SzL1uj9z54lN9i7G1PTON67rWD5CkTWA/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyRztbTEL6ko4Cg2g1MlE_3hzXV43oNbeuz_861mta5qSk-iqC2rrkpSFmpBqF4dH1Y2g/exec';
 
 // ── ESTADO ───────────────────────────────────────────────────────────────────
 let CATALOG   = [];
