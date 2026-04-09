@@ -200,11 +200,14 @@
 <div class="header">
   <img src="logo_pharmafit.png" class="header-logo" alt="Pharmafit" onerror="this.style.display='none'"/>
   <div>
-    <div class="header-title">Catálogo de Produtos</div>
-    <div class="header-sub">Pharmafit — Atualizado em tempo real</div>
+    <button onclick="history.back()" style="background:transparent;border:1px solid var(--border);color:var(--light);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:.82rem;display:flex;align-items:center;gap:6px;flex-shrink:0">← Voltar</button>
+    <div>
+      <div class="header-title">Catálogo de Produtos</div>
+      <div class="header-sub">Pharmafit — Atualizado em tempo real</div>
+    </div>
   </div>
   <div class="header-spacer"></div>
-  <div class="badge-count" id="badgeCount">0 produtos</div>
+  <div class="badge-count" id="badgeCount">Carregando…</div>
 </div>
 
 <!-- FILTROS -->
@@ -217,7 +220,12 @@
 
 <!-- CATÁLOGO -->
 <div class="catalog-wrap">
-  <div id="catalogGrid" class="products-grid"></div>
+  <div id="loadingMsg" class="empty">
+    <div class="empty-icon">⏳</div>
+    <div style="font-size:1rem;font-weight:700">Carregando produtos…</div>
+    <div style="font-size:.8rem;margin-top:6px;color:var(--gray)">Isso pode levar alguns segundos.</div>
+  </div>
+  <div id="catalogGrid" class="products-grid" style="display:none"></div>
   <div id="emptyMsg" class="empty" style="display:none">
     <div class="empty-icon">🔍</div>
     <div>Nenhum produto encontrado</div>
@@ -251,11 +259,13 @@ async function init() {
   try {
     const res  = await fetch(`${SHEETS_URL}?action=produtos`);
     CATALOG    = await res.json();
+    document.getElementById('loadingMsg').style.display = 'none';
+    document.getElementById('catalogGrid').style.display = '';
     buildChips();
     render();
   } catch(e) {
-    document.getElementById('catalogGrid').innerHTML =
-      '<div class="empty"><div class="empty-icon">⚠️</div><div>Erro ao carregar produtos. Verifique sua conexão.</div></div>';
+    document.getElementById('loadingMsg').innerHTML =
+      '<div class="empty-icon">⚠️</div><div style="font-size:1rem;font-weight:700;margin-bottom:8px">Falha ao carregar</div><div style="font-size:.82rem">Verifique sua conexão e recarregue a página.</div>';
   }
 }
 
