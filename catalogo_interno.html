@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Catálogo Pharmafit</title>
+<style>
+  :root {
+    --bg:      #0a0f1e;
+    --surface: #111827;
+    --card:    #1a2235;
+    --border:  #1e2d45;
+    --accent:  #f59e0b;
+    --green:   #10b981;
+    --blue:    #3b82f6;
+    --purple:  #8b5cf6;
+    --red:     #ef4444;
+    --text:    #e2e8f0;
+    --gray:    #64748b;
+    --light:   #94a3b8;
+  }
+  * { box-sizing:border-box; margin:0; padding:0 }
+  body { background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; min-height:100vh }
+
+  /* ── HEADER ── */
+  .header {
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+    padding:16px 24px;
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    position:sticky; top:0; z-index:100;
+  }
+  .header-logo { height:36px; object-fit:contain }
+  .header-title { font-size:1.1rem; font-weight:700; color:var(--accent) }
+  .header-sub   { font-size:.75rem; color:var(--gray); margin-top:2px }
+  .header-spacer { flex:1 }
+  .badge-count {
+    background:var(--accent); color:#000;
+    font-size:.7rem; font-weight:700;
+    padding:3px 10px; border-radius:20px;
+  }
+
+  /* ── FILTROS ── */
+  .filters-wrap {
+    padding:16px 24px; background:var(--surface);
+    border-bottom:1px solid var(--border);
+    display:flex; gap:12px; flex-wrap:wrap; align-items:center;
+  }
+  .search-box {
+    flex:1; min-width:200px; max-width:340px;
+    padding:9px 14px; border-radius:8px;
+    border:1px solid var(--border); background:#0d1526;
+    color:var(--text); font-size:.9rem; outline:none;
+  }
+  .search-box:focus { border-color:var(--accent) }
+  .filter-chips { display:flex; gap:8px; flex-wrap:wrap }
+  .chip {
+    padding:5px 14px; border-radius:20px; border:1px solid var(--border);
+    background:transparent; color:var(--light); font-size:.78rem; cursor:pointer;
+    transition:.15s;
+  }
+  .chip:hover  { border-color:var(--accent); color:var(--accent) }
+  .chip.active { background:var(--accent); border-color:var(--accent); color:#000; font-weight:600 }
+
+  /* ── GRID ── */
+  .catalog-wrap { padding:24px; max-width:1400px; margin:0 auto }
+  .section-label {
+    font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--gray); padding:8px 0 12px; border-bottom:1px solid var(--border);
+    margin-bottom:16px;
+  }
+  .products-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px,1fr));
+    gap:16px; margin-bottom:40px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:14px; overflow:hidden;
+    display:flex; flex-direction:column;
+    transition:transform .2s, box-shadow .2s;
+  }
+  .card:hover { transform:translateY(-3px); box-shadow:0 8px 30px rgba(0,0,0,.4) }
+  .card.em-promo { border-color: rgba(245,158,11,.35) }
+
+  .card-head {
+    padding:16px 16px 12px;
+    display:flex; align-items:flex-start; gap:10px;
+  }
+  .card-icon { font-size:2rem; flex-shrink:0; line-height:1 }
+  .card-info { flex:1 }
+  .card-name { font-size:.95rem; font-weight:700; line-height:1.3; margin-bottom:3px }
+  .card-conc { font-size:.72rem; color:var(--gray) }
+  .card-lab  { font-size:.68rem; color:var(--blue); margin-top:4px; font-weight:600 }
+
+  .card-tags {
+    padding:0 16px 10px;
+    display:flex; gap:5px; flex-wrap:wrap;
+  }
+  .tag {
+    font-size:.65rem; padding:2px 8px; border-radius:10px;
+    background:rgba(59,130,246,.12); color:var(--blue); border:1px solid rgba(59,130,246,.2);
+  }
+
+  .card-price-area {
+    margin-top:auto; padding:12px 16px;
+    border-top:1px solid var(--border);
+    display:flex; align-items:flex-end; justify-content:space-between; gap:8px;
+  }
+  .price-block {}
+  .price-from   { font-size:.65rem; color:var(--gray); margin-bottom:1px }
+  .price-old    { font-size:.75rem; color:var(--gray); text-decoration:line-through }
+  .price-new    { font-size:1.15rem; font-weight:800; color:var(--accent) }
+  .price-normal { font-size:1.1rem; font-weight:700; color:var(--text) }
+
+  .promo-badge {
+    background:var(--accent); color:#000;
+    font-size:.68rem; font-weight:800;
+    padding:4px 9px; border-radius:6px; white-space:nowrap;
+  }
+
+  /* ── VARIANTES EXPAND ── */
+  .variants-toggle {
+    padding:8px 16px;
+    font-size:.72rem; color:var(--accent); cursor:pointer;
+    border-top:1px solid var(--border);
+    display:flex; align-items:center; gap:4px;
+  }
+  .variants-toggle:hover { background:rgba(245,158,11,.05) }
+  .variants-list { display:none; padding:0 16px 12px; }
+  .variants-list.open { display:block }
+  .variant-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:5px 0; border-bottom:1px solid rgba(255,255,255,.05);
+    font-size:.78rem;
+  }
+  .variant-row:last-child { border:none }
+  .variant-dose { color:var(--light) }
+  .variant-price { font-weight:700; color:var(--text) }
+  .variant-promo { color:var(--accent); font-weight:700 }
+
+  /* ── EMPTY ── */
+  .empty { text-align:center; padding:60px 20px; color:var(--gray) }
+  .empty-icon { font-size:3rem; margin-bottom:12px }
+
+  /* ── SCROLL TOP ── */
+  .scroll-top {
+    position:fixed; bottom:80px; right:24px;
+    width:44px; height:44px; border-radius:50%;
+    background:var(--accent); color:#000;
+    border:none; font-size:1.1rem; cursor:pointer;
+    display:none; align-items:center; justify-content:center;
+    box-shadow:0 4px 14px rgba(0,0,0,.4); z-index:199;
+  }
+  .scroll-top.show { display:flex }
+
+  /* ── CTA BAR ── */
+  .cta-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    padding: 14px 24px;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    box-shadow: 0 -4px 24px rgba(245,158,11,.4);
+  }
+  .cta-bar-text {
+    font-size: .95rem; font-weight: 700; color: #000;
+    text-align: center; line-height: 1.3;
+  }
+  .cta-bar-text span { font-size: .78rem; font-weight: 500; opacity: .75; display: block }
+  .cta-bar-btn {
+    background: #000; color: #f59e0b;
+    font-size: .88rem; font-weight: 800;
+    padding: 10px 22px; border-radius: 8px;
+    text-decoration: none; white-space: nowrap;
+    transition: .15s; flex-shrink: 0;
+  }
+  .cta-bar-btn:hover { background: #1a1a1a; transform: translateY(-1px) }
+  .catalog-wrap { padding-bottom: 80px }
+
+  @media(max-width:600px) {
+    .header { padding:12px 16px }
+    .filters-wrap { padding:12px 16px }
+    .catalog-wrap { padding:16px; padding-bottom:90px }
+    .products-grid { grid-template-columns:1fr 1fr; gap:10px }
+    .card-name { font-size:.85rem }
+    .price-new, .price-normal { font-size:1rem }
+    .cta-bar { flex-direction: column; gap: 8px; padding: 12px 16px }
+    .cta-bar-btn { width: 100%; text-align: center }
+  }
+  @media(max-width:400px) {
+    .products-grid { grid-template-columns:1fr }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <img src="logo_pharmafit.png" class="header-logo" alt="Pharmafit" onerror="this.style.display='none'"/>
+  <div>
+    <div class="header-title">Catálogo de Produtos</div>
+    <div class="header-sub">Pharmafit — Atualizado em tempo real</div>
+  </div>
+  <div class="header-spacer"></div>
+  <div class="badge-count" id="badgeCount">0 produtos</div>
+</div>
+
+<!-- FILTROS -->
+<div class="filters-wrap">
+  <input class="search-box" id="searchInput" placeholder="🔍 Buscar produto..." oninput="filtrar()"/>
+  <div class="filter-chips" id="chipsCat">
+    <button class="chip active" data-cat="" onclick="setCategoria(this)">Todos</button>
+  </div>
+</div>
+
+<!-- CATÁLOGO -->
+<div class="catalog-wrap">
+  <div id="catalogGrid" class="products-grid"></div>
+  <div id="emptyMsg" class="empty" style="display:none">
+    <div class="empty-icon">🔍</div>
+    <div>Nenhum produto encontrado</div>
+  </div>
+</div>
+
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- CTA COMPRA -->
+<div class="cta-bar">
+  <div class="cta-bar-text">
+    🛒 Gostou do que viu?
+    <span>Para fazer seu pedido acesse a página de compras</span>
+  </div>
+  <a href="pedido_pharmafit.html" class="cta-bar-btn">Fazer Pedido →</a>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwSM2eVjBp0sbddf3CL70loX0OWqh5hSrO3SzL1uj9z54lN9i7G1PTON67rWD5CkTWA/exec';
+
+// ── ESTADO ───────────────────────────────────────────────────────────────────
+let CATALOG   = [];
+let catAtiva  = '';
+let queryAtiva = '';
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+window.onload = init;
+
+async function init() {
+  try {
+    const res  = await fetch(`${SHEETS_URL}?action=produtos`);
+    CATALOG    = await res.json();
+    buildChips();
+    render();
+  } catch(e) {
+    document.getElementById('catalogGrid').innerHTML =
+      '<div class="empty"><div class="empty-icon">⚠️</div><div>Erro ao carregar produtos. Verifique sua conexão.</div></div>';
+  }
+}
+
+// ── CHIPS DE CATEGORIA ────────────────────────────────────────────────────────
+function buildChips() {
+  const cats = [...new Set(CATALOG.map(p => p.categoria).filter(Boolean))].sort();
+  const wrap = document.getElementById('chipsCat');
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.dataset.cat = cat;
+    btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+    btn.onclick = function(){ setCategoria(this); };
+    wrap.appendChild(btn);
+  });
+}
+
+function setCategoria(el) {
+  document.querySelectorAll('#chipsCat .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  catAtiva = el.dataset.cat;
+  filtrar();
+}
+
+function filtrar() {
+  queryAtiva = document.getElementById('searchInput').value.toLowerCase().trim();
+  render();
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function isPromoAtiva(p) {
+  if (!p.promo_preco || parseFloat(p.promo_preco) <= 0) return false;
+  const agora = new Date();
+  if (p.promo_inicio) {
+    const ini = new Date(p.promo_inicio.split(' ')[0].split('/').reverse().join('-'));
+    if (agora < ini) return false;
+  }
+  if (p.promo_fim) {
+    const fim = new Date(p.promo_fim.split(' ')[0].split('/').reverse().join('-') + 'T23:59:59');
+    if (agora > fim) return false;
+  }
+  return true;
+}
+
+function fmt(v) {
+  return parseFloat(v || 0).toLocaleString('pt-BR', { minimumFractionDigits:2 });
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render() {
+  const lista = CATALOG.filter(p => {
+    if (catAtiva && p.categoria !== catAtiva) return false;
+    if (queryAtiva) {
+      const hay = [p.nome, p.conc, p.lab, ...(p.tags||[])].join(' ').toLowerCase();
+      if (!hay.includes(queryAtiva)) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('badgeCount').textContent = `${lista.length} produto${lista.length !== 1 ? 's' : ''}`;
+  const grid = document.getElementById('catalogGrid');
+  const emp  = document.getElementById('emptyMsg');
+
+  if (!lista.length) {
+    grid.innerHTML = '';
+    emp.style.display = 'block';
+    return;
+  }
+  emp.style.display = 'none';
+  grid.innerHTML = lista.map(buildCard).join('');
+}
+
+function buildCard(p) {
+  const temVariantes = p.variantes && p.variantes.length > 0;
+  const promo        = isPromoAtiva(p);
+  let priceHtml = '';
+  let badgeHtml = '';
+
+  if (temVariantes) {
+    const precos = p.variantes.map(v => parseFloat(v.preco)||0).filter(v => v > 0);
+    const min    = precos.length ? Math.min(...precos) : 0;
+    const varPromo = p.variantes.find(v => parseFloat(v.promo_preco) > 0 && promo);
+    if (varPromo) {
+      const pct = Math.round((1 - parseFloat(varPromo.promo_preco)/parseFloat(varPromo.preco))*100);
+      badgeHtml  = `<span class="promo-badge">-${pct}%</span>`;
+      priceHtml  = `
+        <div class="price-block">
+          <div class="price-from">A partir de</div>
+          <div class="price-old">R$ ${fmt(min)}</div>
+          <div class="price-new">R$ ${fmt(varPromo.promo_preco)}</div>
+        </div>`;
+    } else {
+      priceHtml = `
+        <div class="price-block">
+          <div class="price-from">A partir de</div>
+          <div class="price-normal">R$ ${fmt(min)}</div>
+        </div>`;
+    }
+  } else if (promo) {
+    const pct  = p.promo_pct ? Math.round(p.promo_pct) : Math.round((1 - parseFloat(p.promo_preco)/parseFloat(p.preco))*100);
+    badgeHtml  = `<span class="promo-badge">-${pct}%</span>`;
+    priceHtml  = `
+      <div class="price-block">
+        <div class="price-old">R$ ${fmt(p.preco)}</div>
+        <div class="price-new">R$ ${fmt(p.promo_preco)}</div>
+      </div>`;
+  } else {
+    priceHtml = `
+      <div class="price-block">
+        <div class="price-normal">R$ ${fmt(p.preco)}</div>
+      </div>`;
+  }
+
+  const tagsHtml = p.tags && p.tags.length
+    ? `<div class="card-tags">${p.tags.slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}</div>`
+    : '';
+
+  let variantesHtml = '';
+  if (temVariantes && p.variantes.length > 1) {
+    const rows = p.variantes.map(v => {
+      const vPromo = promo && parseFloat(v.promo_preco) > 0;
+      return `<div class="variant-row">
+        <span class="variant-dose">${v.dose}</span>
+        ${vPromo
+          ? `<span><span class="variant-price" style="text-decoration:line-through;color:var(--gray);font-weight:400">R$ ${fmt(v.preco)}</span> <span class="variant-promo">R$ ${fmt(v.promo_preco)}</span></span>`
+          : `<span class="variant-price">R$ ${fmt(v.preco)}</span>`}
+      </div>`;
+    }).join('');
+    variantesHtml = `
+      <div class="variants-toggle" onclick="toggleVariants(this)">
+        📋 Ver doses e preços <span style="margin-left:auto">▼</span>
+      </div>
+      <div class="variants-list">${rows}</div>`;
+  }
+
+  return `
+    <div class="card${promo ? ' em-promo' : ''}">
+      <div class="card-head">
+        <div class="card-icon">${p.icone || '💊'}</div>
+        <div class="card-info">
+          <div class="card-name">${p.nome}</div>
+          ${p.conc ? `<div class="card-conc">${p.conc}</div>` : ''}
+          ${p.lab  ? `<div class="card-lab">${p.lab}</div>`   : ''}
+        </div>
+      </div>
+      ${tagsHtml}
+      ${variantesHtml}
+      <div class="card-price-area">
+        ${priceHtml}
+        ${badgeHtml}
+      </div>
+    </div>`;
+}
+
+function toggleVariants(el) {
+  const list = el.nextElementSibling;
+  const isOpen = list.classList.toggle('open');
+  el.querySelector('span:last-child').textContent = isOpen ? '▲' : '▼';
+}
+
+// ── SCROLL TOP ────────────────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTop').classList.toggle('show', window.scrollY > 300);
+});
+</script>
+</body>
+</html>
