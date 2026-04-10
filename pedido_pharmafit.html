@@ -1419,6 +1419,7 @@ let PARCELAS_CONFIG = []; // carregado do Sheets (aba "Parcelas")
 let cupomAplicado  = false;
 let cupomDesconto  = 0;
 let cupomCodigo    = '';
+let cupomData      = null; // objeto {tipo, valor, produtos, precos}
 
 // ─── INIT ───────────────────────────────────────────────────────────────────
 window.onload = () => {
@@ -1619,20 +1620,68 @@ function aplicarCupom() {
     msg.innerHTML = `<div class="cupom-err">⚠️ Digite um código de bonificação.</div>`;
     return;
   }
-  if (CUPONS_VALIDOS[codigo] !== undefined) {
+  const c = CUPONS_VALIDOS[codigo];
+  if (c !== undefined) {
     cupomAplicado = true;
-    cupomDesconto = CUPONS_VALIDOS[codigo];
     cupomCodigo   = codigo;
-    document.getElementById('f_cupom').disabled = true;
+    // Suporte ao formato antigo (número) e novo (objeto)
+    if (typeof c === 'number') {
+      cupomData     = { tipo: '%', valor: c * 100, produtos: 'todos' };
+      cupomDesconto = c;
+    } else {
+      cupomData     = c;
+      cupomDesconto = c.tipo === '%' ? c.valor / 100 : 0;
+    }
+    document.getElementById('f_cupom').disabled   = true;
     document.getElementById('btn-cupom').disabled = true;
-    const pct = (cupomDesconto * 100).toFixed(0);
-    msg.innerHTML = `<div class="cupom-ok">✅ Cupom <strong>${codigo}</strong> aplicado! ${pct}% de desconto sobre o total.</div>`;
-    buildReview(); // atualiza o total na tela
+    let msgTxt = '';
+    if (cupomData.tipo === '%') {
+      if (cupomData.produtos === 'todos') {
+        msgTxt = `✅ Cupom <strong>${codigo}</strong> aplicado! ${cupomData.valor}% de desconto em todos os produtos.`;
+      } else {
+        const prods = Array.isArray(cupomData.produtos) ? cupomData.produtos : [];
+        const n = Object.keys(cart).filter(id => prods.includes(id)).length;
+        msgTxt = `✅ Cupom <strong>${codigo}</strong> aplicado! ${cupomData.valor}% de desconto em ${n || prods.length} produto(s).`;
+      }
+    } else {
+      const precos = cupomData.precos || {};
+      const n = Object.keys(cart).filter(id => precos[id] !== undefined).length;
+      msgTxt = `✅ Cupom <strong>${codigo}</strong> aplicado! Preço especial em ${n || Object.keys(precos).length} produto(s).`;
+    }
+    msg.innerHTML = `<div class="cupom-ok">${msgTxt}</div>`;
+    buildReview();
   } else {
     cupomAplicado = false;
     cupomDesconto = 0;
+    cupomData     = null;
     msg.innerHTML = `<div class="cupom-err">❌ Código inválido. Verifique e tente novamente.</div>`;
   }
+}
+
+function calcularDescontoCupom() {
+  if (!cupomAplicado || !cupomData) return 0;
+  if (cupomData.tipo === '%') {
+    if (cupomData.produtos === 'todos') {
+      return (getTotal() + freteValor) * (cupomData.valor / 100);
+    }
+    let base = 0;
+    const prods = Array.isArray(cupomData.produtos) ? cupomData.produtos : [];
+    Object.entries(cart).forEach(([id, qty]) => {
+      if (prods.includes(id)) base += getPriceByKey(id) * qty;
+    });
+    return base * (cupomData.valor / 100);
+  }
+  if (cupomData.tipo === 'fixo') {
+    let desc = 0;
+    const precos = cupomData.precos || {};
+    Object.entries(cart).forEach(([id, qty]) => {
+      if (precos[id] !== undefined) {
+        desc += Math.max(0, getPriceByKey(id) - precos[id]) * qty;
+      }
+    });
+    return desc;
+  }
+  return 0;
 }
 
 function parseBrDate(str) {
@@ -2360,10 +2409,13 @@ function buildReview() {
   // Total box
   const subtotalBruto = getTotal();
   const totalFinal    = getFinalTotal();
-  const descontoValor = cupomAplicado ? (subtotalBruto + freteValor) * cupomDesconto : 0;
+  const descontoValor = cupomAplicado ? calcularDescontoCupom() : 0;
+  const descontoLabel = cupomAplicado && cupomData
+    ? (cupomData.tipo === '%' ? `${cupomData.valor}%` : 'Preço especial')
+    : '';
   const descontoHtml  = cupomAplicado ? `
     <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.85rem;color:var(--accent);font-weight:700">
-      <span>🎟️ Desconto (${(cupomDesconto*100).toFixed(0)}% — ${cupomCodigo})</span>
+      <span>🎟️ Desconto (${descontoLabel} — ${cupomCodigo})</span>
       <span>− R$ ${descontoValor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
     </div>` : '';
   document.getElementById('review-total-box').innerHTML = `
@@ -2427,8 +2479,9 @@ function sendWhatsApp() {
   msg += `\n━━━━━━━━━━━━━━━━━━━━━━\n`;
   msg += `📦 Frete: ${freteValor === 0 ? 'GRÁTIS' : 'R$ ' + freteValor.toFixed(2).replace('.',',')}\n`;
   if (cupomAplicado) {
-    const desc = (getTotal() + freteValor) * cupomDesconto;
-    msg += `🎟️ Desconto (${(cupomDesconto*100).toFixed(0)}% — ${cupomCodigo}): − R$ ${desc.toLocaleString('pt-BR',{minimumFractionDigits:2})}\n`;
+    const desc = calcularDescontoCupom();
+    const dLabel = cupomData && cupomData.tipo === '%' ? `${cupomData.valor}%` : 'Preço especial';
+    msg += `🎟️ Desconto (${dLabel} — ${cupomCodigo}): − R$ ${desc.toLocaleString('pt-BR',{minimumFractionDigits:2})}\n`;
   }
   msg += `💰 *TOTAL: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}*\n`;
   msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
@@ -2469,8 +2522,8 @@ function sendWhatsApp() {
     obs:           v('f_obs'),
     obs_pagamento: v('f_obs_pag'),
     cupom_codigo:  cupomCodigo || '',
-    cupom_pct:     cupomAplicado ? (cupomDesconto * 100).toFixed(0) : '0',
-    cupom_valor:   cupomAplicado ? ((getTotal() + freteValor) * cupomDesconto).toFixed(2) : '0',
+    cupom_pct:     cupomAplicado && cupomData?.tipo === '%' ? (cupomData.valor).toFixed(0) : '0',
+    cupom_valor:   cupomAplicado ? calcularDescontoCupom().toFixed(2) : '0',
     carrinho:      JSON.stringify(cart)
   });
   fetch(`${SHEETS_URL}?${params.toString()}`, { method: 'GET', mode: 'no-cors' }).catch(() => {});
@@ -2491,7 +2544,11 @@ function getFinalTotal() {
     const juros  = config ? config.juros : 0;
     if (juros > 0) total *= (1 + juros / 100);
   }
-  if (cupomAplicado && cupomDesconto > 0) total *= (1 - cupomDesconto);
+  if (cupomAplicado) {
+    const desc = calcularDescontoCupom();
+    total -= desc;
+    if (total < 0) total = 0;
+  }
   return total;
 }
 
@@ -2509,6 +2566,7 @@ function newOrder() {
   cupomAplicado    = false;
   cupomDesconto    = 0;
   cupomCodigo      = '';
+  cupomData        = null;
   const fc = document.getElementById('f_cupom');
   const bc = document.getElementById('btn-cupom');
   const mc = document.getElementById('cupom-msg');
