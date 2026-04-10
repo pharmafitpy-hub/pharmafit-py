@@ -1636,7 +1636,7 @@ function aplicarCupom() {
     document.getElementById('btn-cupom').disabled = true;
     const descValor = calcularDescontoCupom();
     const descStr   = descValor > 0
-      ? ` — <strong>− R$ ${descValor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong>`
+      ? ` — <strong>R$ ${descValor.toLocaleString('pt-BR',{minimumFractionDigits:2})} de desconto</strong>`
       : '';
     let msgTxt = '';
     if (cupomData.tipo === '%') {
