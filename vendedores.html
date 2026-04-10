@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Sistema de Cupons — Pharmafit B2B</title>
+<style>
+  :root {
+    --bg:      #0a0f1e;
+    --surface: #111827;
+    --card:    #111827;
+    --border:  #1e2a3a;
+    --accent:  #f59e0b;
+    --blue:    #3b82f6;
+    --green:   #10b981;
+    --red:     #ef4444;
+    --text:    #ffffff;
+    --gray:    #6b7280;
+    --light:   #9ca3af;
+  }
+  * { box-sizing:border-box; margin:0; padding:0 }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh }
+
+  /* ── PIN OVERLAY ── */
+  #pin-overlay {
+    position:fixed; inset:0; background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    z-index:999; flex-direction:column; gap:24px;
+  }
+  .pin-box { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:36px 40px; text-align:center; max-width:340px; width:100% }
+  .pin-title { font-size:1.2rem; font-weight:700; color:var(--accent); margin-bottom:6px }
+  .pin-sub { font-size:.8rem; color:var(--gray); margin-bottom:24px }
+  .pin-input {
+    width:100%; padding:14px; text-align:center; font-size:1.6rem;
+    letter-spacing:12px; font-weight:700; color:var(--text);
+    background:#0a0f1e; border:2px solid var(--border);
+    border-radius:10px; outline:none; font-family:monospace;
+    -webkit-text-security:disc;
+    transition:border .2s;
+  }
+  .pin-input:focus { border-color:var(--accent) }
+  .pin-btn {
+    width:100%; margin-top:16px; padding:13px;
+    background:var(--accent); color:#000; font-weight:800;
+    font-size:.95rem; border:none; border-radius:10px; cursor:pointer;
+    transition:opacity .2s;
+  }
+  .pin-btn:hover { opacity:.85 }
+  .pin-err { color:var(--red); font-size:.82rem; margin-top:10px }
+
+  /* ── HEADER ── */
+  .header {
+    background:var(--surface); border-bottom:2px solid var(--accent);
+    padding:14px 28px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:0; z-index:100;
+  }
+  .header-title { font-size:1.05rem; font-weight:700; color:var(--accent) }
+  .header-sub { font-size:.72rem; color:var(--gray); margin-top:2px }
+  .header-spacer { flex:1 }
+  .btn-logout {
+    background:transparent; border:1px solid var(--border);
+    color:var(--gray); padding:6px 14px; border-radius:8px;
+    font-size:.78rem; cursor:pointer;
+  }
+  .btn-logout:hover { border-color:var(--red); color:var(--red) }
+
+  /* ── WRAP ── */
+  .wrap { max-width:860px; margin:0 auto; padding:28px 20px }
+
+  /* ── CARD SEÇÃO ── */
+  .sec {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:22px; margin-bottom:20px;
+  }
+  .sec-title {
+    font-size:.72rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:.08em; color:var(--accent); margin-bottom:16px;
+    display:flex; align-items:center; gap:8px;
+  }
+
+  /* ── INPUTS ── */
+  label { font-size:.8rem; color:var(--light); display:block; margin-bottom:5px }
+  input[type=text], input[type=date], input[type=number] {
+    width:100%; padding:10px 14px; background:#0a0f1e;
+    border:1px solid var(--border); border-radius:8px;
+    color:var(--text); font-size:.9rem; outline:none;
+    font-family:inherit; transition:border .2s;
+  }
+  input:focus { border-color:var(--accent) }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:14px }
+
+  /* ── BUSCA PRODUTOS ── */
+  .search-prod {
+    width:100%; padding:9px 14px; background:#0a0f1e;
+    border:1px solid var(--border); border-radius:8px;
+    color:var(--text); font-size:.88rem; outline:none;
+    margin-bottom:14px; font-family:inherit;
+  }
+  .search-prod:focus { border-color:var(--blue) }
+
+  /* ── GRID DE PRODUTOS ── */
+  .prod-grid {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:10px; max-height:320px; overflow-y:auto;
+    padding-right:4px;
+  }
+  .prod-grid::-webkit-scrollbar { width:4px }
+  .prod-grid::-webkit-scrollbar-track { background:transparent }
+  .prod-grid::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px }
+
+  .prod-card {
+    border:1px solid var(--border); border-radius:10px; padding:12px;
+    cursor:pointer; transition:.15s; user-select:none;
+    display:flex; align-items:flex-start; gap:10px;
+  }
+  .prod-card:hover { border-color:var(--blue) }
+  .prod-card.selected { border-color:var(--accent); background:rgba(245,158,11,.07) }
+  .prod-check {
+    width:18px; height:18px; border-radius:5px; flex-shrink:0;
+    border:2px solid var(--border); display:flex; align-items:center; justify-content:center;
+    font-size:.7rem; margin-top:2px; transition:.15s;
+  }
+  .prod-card.selected .prod-check { background:var(--accent); border-color:var(--accent); color:#000 }
+  .prod-name { font-size:.82rem; font-weight:600; line-height:1.3 }
+  .prod-conc { font-size:.7rem; color:var(--gray) }
+  .prod-price { font-size:.78rem; color:var(--accent); font-weight:700; margin-top:4px }
+  .sel-all-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px }
+  .sel-count { font-size:.78rem; color:var(--gray) }
+  .btn-sel-all {
+    font-size:.75rem; color:var(--blue); background:transparent;
+    border:1px solid var(--blue); padding:4px 12px; border-radius:6px; cursor:pointer;
+  }
+  .btn-sel-all:hover { background:rgba(59,130,246,.1) }
+
+  /* ── TIPO DESCONTO ── */
+  .tipo-toggle { display:flex; gap:0; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:18px }
+  .tipo-btn {
+    flex:1; padding:11px; text-align:center; cursor:pointer;
+    font-size:.85rem; font-weight:700; transition:.15s;
+    background:transparent; color:var(--gray); border:none;
+  }
+  .tipo-btn.active { background:var(--accent); color:#000 }
+
+  /* ── TABELA DE PREÇOS ── */
+  .preco-table { width:100%; border-collapse:collapse }
+  .preco-table th {
+    font-size:.68rem; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--gray); padding:6px 10px; text-align:left;
+    border-bottom:1px solid var(--border);
+  }
+  .preco-table td { padding:8px 10px; border-bottom:1px solid rgba(255,255,255,.04) }
+  .preco-table tr:last-child td { border-bottom:none }
+  .td-nome { font-size:.84rem; font-weight:600 }
+  .td-orig { font-size:.8rem; color:var(--gray); white-space:nowrap }
+  .td-novo input {
+    width:110px; padding:7px 10px; background:#0a0f1e;
+    border:1px solid var(--border); border-radius:7px;
+    color:var(--accent); font-weight:700; font-size:.85rem;
+    text-align:right;
+  }
+  .td-novo input:focus { border-color:var(--accent); outline:none }
+
+  /* ── CUPOM INFO ── */
+  .cupom-code-wrap { display:flex; gap:10px; align-items:flex-end }
+  .cupom-code-wrap input { flex:1; font-family:monospace; font-size:1.1rem; letter-spacing:4px; text-transform:uppercase; font-weight:700 }
+  .btn-regen {
+    background:var(--surface); border:1px solid var(--border); color:var(--light);
+    padding:10px 14px; border-radius:8px; cursor:pointer; font-size:.85rem; white-space:nowrap;
+  }
+  .btn-regen:hover { border-color:var(--accent); color:var(--accent) }
+
+  .valid-btns { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px }
+  .valid-btn {
+    padding:6px 14px; border-radius:20px; border:1px solid var(--border);
+    background:transparent; color:var(--light); font-size:.78rem; cursor:pointer;
+    transition:.15s;
+  }
+  .valid-btn:hover, .valid-btn.active { border-color:var(--accent); color:var(--accent); background:rgba(245,158,11,.08) }
+
+  /* ── SUBMIT ── */
+  .btn-submit {
+    width:100%; padding:15px; background:var(--accent); color:#000;
+    font-weight:800; font-size:1rem; border:none; border-radius:12px;
+    cursor:pointer; transition:opacity .2s; margin-top:8px;
+  }
+  .btn-submit:hover { opacity:.85 }
+  .btn-submit:disabled { opacity:.4; cursor:default }
+
+  /* ── SUCCESS ── */
+  #success-box {
+    display:none; background:var(--surface); border:2px solid var(--green);
+    border-radius:14px; padding:28px; text-align:center; margin-top:20px;
+  }
+  #success-box.show { display:block }
+  .suc-icon { font-size:2.5rem; margin-bottom:10px }
+  .suc-title { font-size:1.1rem; font-weight:700; color:var(--green); margin-bottom:16px }
+  .suc-code {
+    font-family:monospace; font-size:2rem; font-weight:800; letter-spacing:8px;
+    color:var(--accent); background:#0a0f1e; padding:14px 20px; border-radius:10px;
+    display:inline-block; margin-bottom:14px;
+  }
+  .btn-copy {
+    background:var(--green); color:#fff; border:none; padding:10px 24px;
+    border-radius:8px; font-weight:700; cursor:pointer; font-size:.9rem;
+    transition:opacity .2s;
+  }
+  .btn-copy:hover { opacity:.82 }
+  .btn-novo {
+    background:transparent; color:var(--light); border:1px solid var(--border);
+    padding:10px 24px; border-radius:8px; font-size:.85rem; cursor:pointer;
+    margin-left:10px;
+  }
+  .btn-novo:hover { border-color:var(--accent); color:var(--accent) }
+
+  /* ── ALERT ── */
+  .alert { background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.3); color:#fca5a5; border-radius:8px; padding:10px 14px; font-size:.82rem; margin-top:12px; display:none }
+  .alert.show { display:block }
+
+  @media(max-width:600px) {
+    .row2 { grid-template-columns:1fr }
+    .prod-grid { grid-template-columns:1fr 1fr }
+    .wrap { padding:16px }
+  }
+</style>
+</head>
+<body>
+
+<!-- PIN OVERLAY -->
+<div id="pin-overlay">
+  <div class="pin-box">
+    <div class="pin-title">🔐 Acesso Restrito</div>
+    <div class="pin-sub">Digite seu PIN para acessar o sistema de cupons</div>
+    <input type="password" id="pin-input" class="pin-input" maxlength="8"
+           placeholder="••••" onkeydown="if(event.key==='Enter')checkPin()"/>
+    <button class="pin-btn" onclick="checkPin()">Entrar</button>
+    <div id="pin-err" class="pin-err"></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="header-title">🎟️ Sistema de Cupons B2B</div>
+    <div class="header-sub">Pharmafit — Área das Vendedoras</div>
+  </div>
+  <div class="header-spacer"></div>
+  <button class="btn-logout" onclick="logout()">Sair</button>
+</div>
+
+<div class="wrap">
+
+  <!-- VENDEDORA -->
+  <div class="sec">
+    <div class="sec-title">👤 Identificação</div>
+    <label>Seu nome</label>
+    <input type="text" id="f_vendedora" placeholder="Ex: Ana Silva"/>
+  </div>
+
+  <!-- PRODUTOS -->
+  <div class="sec">
+    <div class="sec-title">📦 Selecionar Produtos</div>
+    <input type="search" class="search-prod" id="prod-search"
+           placeholder="🔍 Buscar produto..." oninput="filtrarProdutos()"/>
+    <div class="sel-all-row">
+      <span class="sel-count" id="sel-count">0 selecionados</span>
+      <button class="btn-sel-all" onclick="toggleTodos()">Selecionar todos</button>
+    </div>
+    <div class="prod-grid" id="prod-grid">
+      <div style="color:var(--gray);font-size:.85rem;padding:20px">Carregando produtos…</div>
+    </div>
+  </div>
+
+  <!-- TIPO DE DESCONTO -->
+  <div class="sec">
+    <div class="sec-title">💰 Tipo de Desconto</div>
+    <div class="tipo-toggle">
+      <button class="tipo-btn active" id="btn-pct" onclick="setTipo('pct')">% Percentual</button>
+      <button class="tipo-btn"        id="btn-fixo" onclick="setTipo('fixo')">R$ Preço Fixo por Produto</button>
+    </div>
+
+    <!-- % modo -->
+    <div id="modo-pct">
+      <label>Desconto (%)</label>
+      <input type="number" id="f_pct" min="1" max="99" placeholder="Ex: 20"/>
+    </div>
+
+    <!-- Fixo modo -->
+    <div id="modo-fixo" style="display:none">
+      <div id="tabela-precos-wrap">
+        <p style="color:var(--gray);font-size:.82rem">Selecione os produtos acima para definir os preços.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CÓDIGO + VALIDADE -->
+  <div class="sec">
+    <div class="sec-title">🏷️ Código do Cupom</div>
+    <label>Código (editável)</label>
+    <div class="cupom-code-wrap">
+      <input type="text" id="f_codigo" placeholder="Ex: ANA20"
+             oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"/>
+      <button class="btn-regen" onclick="gerarCodigo()">🔀 Gerar</button>
+    </div>
+
+    <div style="margin-top:18px">
+      <label>Validade</label>
+      <div class="valid-btns" id="valid-btns">
+        <button class="valid-btn" data-dias="1"  onclick="setValidade(this,1)">1 dia</button>
+        <button class="valid-btn" data-dias="3"  onclick="setValidade(this,3)">3 dias</button>
+        <button class="valid-btn" data-dias="7"  onclick="setValidade(this,7)">7 dias</button>
+        <button class="valid-btn" data-dias="15" onclick="setValidade(this,15)">15 dias</button>
+        <button class="valid-btn" data-dias="30" onclick="setValidade(this,30)">30 dias</button>
+      </div>
+      <input type="date" id="f_validade" style="margin-top:10px"/>
+    </div>
+  </div>
+
+  <div id="alert-main" class="alert"></div>
+
+  <button class="btn-submit" id="btn-submit" onclick="criarCupom()">
+    ✅ Gerar Cupom
+  </button>
+
+  <!-- SUCESSO -->
+  <div id="success-box">
+    <div class="suc-icon">🎉</div>
+    <div class="suc-title">Cupom criado com sucesso!</div>
+    <div class="suc-code" id="suc-code"></div>
+    <br/>
+    <button class="btn-copy" onclick="copiarCodigo()">📋 Copiar Código</button>
+    <button class="btn-novo" onclick="novoCupom()">+ Criar Outro</button>
+  </div>
+
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbwSM2eVjBp0sbddf3CL70loX0OWqh5hSrO3SzL1uj9z54lN9i7G1PTON67rWD5CkTWA/exec';
+const PIN         = '5689';          // PIN para acessar esta página
+const SERVER_PIN  = 'Pharma@5689';   // deve bater com CUPOM_PIN no Apps Script B2B
+
+// ── ESTADO ───────────────────────────────────────────────────────────────────
+let PRODUTOS = [];
+let selecionados = new Set();
+let tipoAtual = 'pct';
+
+// ── PIN ───────────────────────────────────────────────────────────────────────
+function checkPin() {
+  const val = document.getElementById('pin-input').value;
+  if (val === PIN) {
+    document.getElementById('pin-overlay').style.display = 'none';
+    carregarProdutos();
+  } else {
+    document.getElementById('pin-err').textContent = '❌ PIN incorreto. Tente novamente.';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
+function logout() {
+  document.getElementById('pin-overlay').style.display = 'flex';
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-err').textContent = '';
+}
+
+// ── PRODUTOS ──────────────────────────────────────────────────────────────────
+async function carregarProdutos() {
+  try {
+    const res = await fetch(`${SHEETS_URL}?action=produtos`);
+    const raw = await res.json();
+    // Expande produtos com variantes em entradas separadas (ID: prodId__varIdx)
+    // para bater com as chaves do carrinho no formulário de pedido
+    PRODUTOS = [];
+    for (const p of raw) {
+      if (p.variantes && p.variantes.length > 0) {
+        p.variantes.forEach((v, i) => {
+          PRODUTOS.push({
+            id:    `${p.id}__${i}`,
+            icone: p.icone || '💊',
+            nome:  p.nome,
+            conc:  v.dose || p.conc,
+            preco: v.preco || 0,
+            lab:   p.lab,
+            tags:  p.tags || [],
+          });
+        });
+      } else {
+        PRODUTOS.push(p);
+      }
+    }
+    filtrarProdutos();
+  } catch(e) {
+    document.getElementById('prod-grid').innerHTML = '<div style="color:var(--red);font-size:.85rem">Erro ao carregar produtos.</div>';
+  }
+}
+
+function filtrarProdutos() {
+  const q = document.getElementById('prod-search').value.toLowerCase().trim();
+  const lista = PRODUTOS.filter(p => {
+    if (!q) return true;
+    return [p.nome, p.conc, p.lab, ...(p.tags||[])].join(' ').toLowerCase().includes(q);
+  });
+  renderProdutos(lista);
+}
+
+function renderProdutos(lista) {
+  const grid = document.getElementById('prod-grid');
+  if (!lista.length) {
+    grid.innerHTML = '<div style="color:var(--gray);font-size:.85rem;padding:20px">Nenhum produto encontrado.</div>';
+    return;
+  }
+  grid.innerHTML = lista.map(p => {
+    const sel = selecionados.has(p.id);
+    const preco = p.preco > 0 ? `R$ ${p.preco.toLocaleString('pt-BR',{minimumFractionDigits:2})}` : '—';
+    return `<div class="prod-card${sel?' selected':''}" onclick="toggleProd('${p.id}')">
+      <div class="prod-check">${sel ? '✓' : ''}</div>
+      <div>
+        <div class="prod-name">${p.icone||'💊'} ${p.nome}</div>
+        ${p.conc ? `<div class="prod-conc">${p.conc}</div>` : ''}
+        <div class="prod-price">${preco}</div>
+      </div>
+    </div>`;
+  }).join('');
+  atualizarContagem();
+}
+
+function toggleProd(id) {
+  if (selecionados.has(id)) {
+    selecionados.delete(id);
+  } else {
+    selecionados.add(id);
+  }
+  filtrarProdutos();
+  if (tipoAtual === 'fixo') renderTabelaPrecos();
+}
+
+function toggleTodos() {
+  const lista = PRODUTOS.filter(p => {
+    const q = document.getElementById('prod-search').value.toLowerCase().trim();
+    if (!q) return true;
+    return [p.nome, p.conc, p.lab, ...(p.tags||[])].join(' ').toLowerCase().includes(q);
+  });
+  const todosVisiveis = lista.map(p => p.id);
+  const todosSel = todosVisiveis.every(id => selecionados.has(id));
+  if (todosSel) {
+    todosVisiveis.forEach(id => selecionados.delete(id));
+  } else {
+    todosVisiveis.forEach(id => selecionados.add(id));
+  }
+  filtrarProdutos();
+  if (tipoAtual === 'fixo') renderTabelaPrecos();
+}
+
+function atualizarContagem() {
+  document.getElementById('sel-count').textContent = `${selecionados.size} selecionado${selecionados.size !== 1 ? 's' : ''}`;
+}
+
+// ── TIPO DE DESCONTO ──────────────────────────────────────────────────────────
+function setTipo(tipo) {
+  tipoAtual = tipo;
+  document.getElementById('btn-pct').classList.toggle('active', tipo === 'pct');
+  document.getElementById('btn-fixo').classList.toggle('active', tipo === 'fixo');
+  document.getElementById('modo-pct').style.display  = tipo === 'pct'  ? '' : 'none';
+  document.getElementById('modo-fixo').style.display = tipo === 'fixo' ? '' : 'none';
+  if (tipo === 'fixo') renderTabelaPrecos();
+}
+
+function renderTabelaPrecos() {
+  const wrap = document.getElementById('tabela-precos-wrap');
+  const prods = PRODUTOS.filter(p => selecionados.has(p.id));
+  if (!prods.length) {
+    wrap.innerHTML = '<p style="color:var(--gray);font-size:.82rem">Selecione os produtos acima para definir os preços.</p>';
+    return;
+  }
+  wrap.innerHTML = `
+    <table class="preco-table">
+      <thead><tr>
+        <th>Produto</th>
+        <th>Preço atual</th>
+        <th>Novo preço (R$)</th>
+      </tr></thead>
+      <tbody>
+        ${prods.map(p => `
+          <tr>
+            <td class="td-nome">${p.icone||'💊'} ${p.nome}${p.conc ? ` <span style="color:var(--gray);font-weight:400">${p.conc}</span>` : ''}</td>
+            <td class="td-orig">R$ ${(p.preco||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+            <td class="td-novo"><input type="number" id="novo-preco-${p.id}" min="0" step="0.01"
+              placeholder="${(p.preco||0).toFixed(2)}" style="width:110px"/></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+// ── CÓDIGO E VALIDADE ─────────────────────────────────────────────────────────
+function gerarCodigo() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('f_codigo').value = code;
+}
+
+function setValidade(btn, dias) {
+  document.querySelectorAll('.valid-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const d = new Date();
+  d.setDate(d.getDate() + dias);
+  document.getElementById('f_validade').valueAsDate = d;
+}
+
+// ── CRIAR CUPOM ───────────────────────────────────────────────────────────────
+async function criarCupom() {
+  const alertEl = document.getElementById('alert-main');
+  alertEl.classList.remove('show');
+
+  const vendedora = document.getElementById('f_vendedora').value.trim();
+  const codigo    = document.getElementById('f_codigo').value.trim().toUpperCase();
+  const validade  = document.getElementById('f_validade').value;
+
+  if (!vendedora) { mostrarAlerta('Informe seu nome.'); return; }
+  if (selecionados.size === 0 && tipoAtual !== 'pct') { mostrarAlerta('Selecione pelo menos 1 produto.'); return; }
+  if (!codigo) { mostrarAlerta('Gere ou digite um código para o cupom.'); return; }
+  if (!validade) { mostrarAlerta('Defina a validade do cupom.'); return; }
+
+  const [y, m, d] = validade.split('-');
+  const validadeFmt = `${d}/${m}/${y}`;
+
+  let produtos, precos, valor;
+
+  if (tipoAtual === 'pct') {
+    valor = parseFloat(document.getElementById('f_pct').value);
+    if (!valor || valor <= 0 || valor >= 100) { mostrarAlerta('Informe um percentual válido (1–99%).'); return; }
+    produtos = selecionados.size === 0 ? 'todos' : [...selecionados].join(',');
+    precos   = '';
+  } else {
+    const prods = PRODUTOS.filter(p => selecionados.has(p.id));
+    if (!prods.length) { mostrarAlerta('Selecione pelo menos 1 produto para preço fixo.'); return; }
+    const precoParts = [];
+    for (const p of prods) {
+      const inp = document.getElementById(`novo-preco-${p.id}`);
+      const val = parseFloat(inp?.value || 0);
+      if (!val || val <= 0) { mostrarAlerta(`Informe o novo preço para: ${p.nome}`); return; }
+      precoParts.push(`${p.id}:${val.toFixed(2)}`);
+    }
+    produtos = prods.map(p => p.id).join(',');
+    precos   = precoParts.join('|');
+    valor    = 0;
+  }
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Salvando…';
+
+  try {
+    const params = new URLSearchParams({
+      action:    'criarcupom',
+      pin:       SERVER_PIN,
+      codigo,
+      vendedora,
+      tipo:      tipoAtual === 'pct' ? '%' : 'fixo',
+      valor:     valor || 0,
+      produtos,
+      precos,
+      validade:  validadeFmt,
+    });
+    const res  = await fetch(`${SHEETS_URL}?${params.toString()}`);
+    const data = await res.json();
+
+    if (data.ok) {
+      document.getElementById('suc-code').textContent = codigo;
+      document.getElementById('success-box').classList.add('show');
+      document.getElementById('success-box').scrollIntoView({ behavior:'smooth', block:'center' });
+    } else {
+      mostrarAlerta(data.erro || 'Erro ao salvar. Tente novamente.');
+    }
+  } catch(e) {
+    mostrarAlerta('Erro de conexão. Verifique sua internet.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✅ Gerar Cupom';
+  }
+}
+
+function mostrarAlerta(msg) {
+  const el = document.getElementById('alert-main');
+  el.textContent = '⚠️ ' + msg;
+  el.classList.add('show');
+  el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function copiarCodigo() {
+  const code = document.getElementById('suc-code').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = '✅ Copiado!';
+    setTimeout(() => btn.textContent = '📋 Copiar Código', 2000);
+  });
+}
+
+function novoCupom() {
+  document.getElementById('success-box').classList.remove('show');
+  document.getElementById('f_codigo').value = '';
+  document.getElementById('f_validade').value = '';
+  document.getElementById('f_pct').value = '';
+  document.querySelectorAll('.valid-btn').forEach(b => b.classList.remove('active'));
+  selecionados.clear();
+  filtrarProdutos();
+  if (tipoAtual === 'fixo') renderTabelaPrecos();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+gerarCodigo();
+</script>
+</body>
+</html>
