@@ -6,20 +6,21 @@
 <title>Pedido PharmaFit-PY</title>
 <style>
   :root {
-    --petrol: #0D2B3E;
-    --petrol2: #1B4F72;
-    --blue: #2471A3;
-    --accent: #1ABC9C;
-    --green: #27AE60;
+    --bg: #0F0B1A;
+    --card-bg: #1A1428;
+    --petrol: #0F0B1A;
+    --petrol2: #1A1428;
+    --blue: #7C3AED;
+    --accent: #F59E0B;
+    --green: #10B981;
     --wa: #25D366;
-    --light: #ECF0F1;
-    --gray: #7F8C8D;
-    --border: #2C3E50;
-    --card-bg: #152535;
-    --input-bg: #1a3348;
+    --light: #F5F3FF;
+    --gray: #9CA3AF;
+    --border: #2D2440;
+    --input-bg: #1F1935;
     --white: #ffffff;
-    --danger: #E74C3C;
-    --warn: #F39C12;
+    --danger: #EF4444;
+    --warn: #F59E0B;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -407,50 +408,6 @@
   .rtb-amount { font-size: 2.2rem; font-weight: 800; color: var(--white); }
   .rtb-method { font-size: 0.8rem; color: var(--accent); margin-top: 4px; }
 
-  /* ── ACESSO RÁPIDO ── */
-  .acesso-rapido {
-    background: linear-gradient(135deg, rgba(26,188,156,.08), rgba(36,113,163,.12));
-    border: 1.5px solid rgba(26,188,156,.3);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 24px;
-  }
-  .ar-titulo {
-    font-size: .8rem; font-weight: 800; color: var(--accent);
-    text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px;
-  }
-  .ar-sub { font-size: .8rem; color: var(--gray); margin-bottom: 14px; }
-  .ar-row { display: flex; gap: 10px; }
-  .ar-row input {
-    flex: 1; background: var(--input-bg); border: 1px solid var(--border);
-    border-radius: 8px; padding: 11px 14px; color: var(--white);
-    font-size: .95rem; font-family: inherit; transition: border .2s;
-  }
-  .ar-row input:focus { border-color: var(--accent); outline: none; }
-  .ar-row button {
-    background: var(--accent); color: var(--petrol); border: none;
-    border-radius: 8px; padding: 11px 20px; font-weight: 800;
-    font-size: .85rem; cursor: pointer; transition: opacity .2s; white-space: nowrap;
-  }
-  .ar-row button:hover { opacity: .85; }
-  .ar-bem-vindo {
-    display: none; margin-top: 12px;
-    background: rgba(39,174,96,.12); border: 1px solid rgba(39,174,96,.3);
-    border-radius: 8px; padding: 10px 14px;
-    font-size: .85rem; color: var(--green); font-weight: 600;
-  }
-  .ar-nao-encontrado {
-    display: none; margin-top: 12px;
-    font-size: .82rem; color: var(--gray);
-  }
-  .ar-loading { display: none; margin-top: 10px; font-size: .82rem; color: var(--gray); }
-  .ar-limpar {
-    background: transparent; border: none; color: var(--gray);
-    font-size: .75rem; cursor: pointer; margin-top: 8px;
-    text-decoration: underline; padding: 0;
-  }
-  .ar-limpar:hover { color: var(--white); }
-
   /* ── CUPOM ── */
   .cupom-section {
     background: var(--card-bg);
@@ -592,10 +549,7 @@
     user-select: none;
   }
   .filter-group-header:hover .filter-group-label { color: var(--white); }
-  .filter-group-label {
-    font-size: .65rem; text-transform: uppercase; letter-spacing: 1px;
-    color: var(--gray); font-weight: 700; transition: color .15s;
-  }
+  .filter-group-label { font-size: .65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); font-weight: 700; transition: color .15s; }
   .filter-arrow {
     display: inline-flex; align-items: center; justify-content: center;
     width: 20px; height: 20px; border-radius: 50%;
@@ -650,7 +604,7 @@
   .rec-add-btn { margin-top:8px; padding:7px; border-radius:7px; border:1px solid var(--accent); background:transparent; color:var(--accent); font-size:.68rem; font-weight:700; cursor:pointer; transition:all .15s; width:100%; font-family:inherit; }
   .rec-add-btn:hover:not([disabled]) { background:var(--accent); color:var(--dark); }
   .rec-add-btn[disabled] { background:rgba(26,188,156,.1); border-color:rgba(26,188,156,.3); color:var(--accent); cursor:default; opacity:.7; }
-  .lab-filters { display:flex; flex-wrap:wrap; gap:8px; }
+
   .lab-btn {
     background: var(--card-bg); border: 1px solid var(--border);
     color: var(--gray); padding: 6px 16px; border-radius: 20px;
@@ -669,6 +623,15 @@
   }
   .sort-btn:hover { border-color: var(--blue); color: var(--white); }
   .sort-btn.active { background: var(--blue); border-color: var(--blue); color: var(--white); font-weight: 700; }
+
+  /* ── VARIANT SELECT ── */
+  .pc-variant { margin: 8px 0 4px; }
+  .pc-variant select {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 10px; color: var(--white);
+    font-size: 0.82rem; cursor: pointer; font-family: inherit;
+  }
+  .pc-variant select:focus { border-color: var(--accent); outline: none; }
 
   /* ── VARIANT ROWS ── */
   .variant-rows { margin: 10px 0 4px; display: flex; flex-direction: column; gap: 6px; }
@@ -694,7 +657,7 @@
     width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
     font-size: 1rem; line-height: 1; font-family: inherit; transition: all .15s;
   }
-  .vr-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .vr-btn:hover { border-color: var(--blue); color: var(--blue); }
   .vr-qty { min-width: 20px; text-align: center; font-size: .88rem; font-weight: 700; }
   .vr-sub { font-size: .72rem; color: var(--accent); white-space: nowrap; min-width: 70px; text-align: right; }
 
@@ -744,11 +707,11 @@
   .pm-aviso {
     margin: 0 24px 16px;
     padding: 12px 16px;
-    background: rgba(243,156,18,.08);
-    border: 1px solid rgba(243,156,18,.3);
+    background: rgba(245,158,11,.08);
+    border: 1px solid rgba(245,158,11,.3);
     border-radius: 10px;
     font-size: .8rem;
-    color: #f5c842;
+    color: #fcd34d;
     line-height: 1.6;
     display: flex;
     gap: 10px;
@@ -762,16 +725,15 @@
   }
   .btn-ver-informativo {
     width: 100%; padding: 11px 16px; border-radius: 10px;
-    background: rgba(26,188,156,.08); border: 1px solid rgba(26,188,156,.3);
+    background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.3);
     color: var(--accent); cursor: pointer; font-size: .88rem; font-weight: 600;
     transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
   }
-  .btn-ver-informativo:hover { background: rgba(26,188,156,.18); border-color: var(--accent); }
-
+  .btn-ver-informativo:hover { background: rgba(245,158,11,.18); border-color: var(--accent); }
   /* ── INFORMATIVO FULLSCREEN ── */
   .info-overlay {
     display: none; position: fixed; inset: 0; z-index: 1100;
-    background: rgba(0,0,0,.9);
+    background: rgba(0,0,0,.85);
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -851,6 +813,56 @@
     main { padding: 20px 14px 80px; }
   }
 
+  /* ── ACESSO RÁPIDO ── */
+  .acesso-rapido {
+    background: linear-gradient(135deg, rgba(124,58,237,.10), rgba(245,158,11,.08));
+    border: 1.5px solid rgba(245,158,11,.35);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .ar-titulo {
+    font-size: .8rem; font-weight: 800; color: var(--accent);
+    text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px;
+  }
+  .ar-sub { font-size: .8rem; color: var(--gray); margin-bottom: 0; }
+  .ar-loading {
+    display: none; font-size: .85rem; color: var(--accent);
+    margin-top: 10px; animation: pulse 1.2s infinite;
+  }
+  .ar-bem-vindo {
+    display: none; margin-top: 10px; font-size: .88rem;
+    color: #4ade80; font-weight: 600;
+  }
+  .ar-nao-encontrado {
+    display: none; margin-top: 10px; font-size: .82rem; color: var(--gray);
+  }
+  .ar-limpar {
+    margin-top: 10px; background: transparent; border: 1px solid var(--gray);
+    border-radius: 8px; padding: 6px 14px; color: var(--gray);
+    font-size: .8rem; cursor: pointer; font-family: inherit; transition: all .2s;
+  }
+  .ar-limpar:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* B2C — gradiente no header */
+  header {
+    background: linear-gradient(135deg, #1A1428, #0F0B1A) !important;
+    border-bottom: 2px solid var(--accent) !important;
+  }
+  /* Cor do stepper ativo */
+  .step.active .step-circle { background: var(--accent) !important; border-color: var(--accent) !important; color: #0F0B1A !important; }
+  .step.done .step-circle { background: var(--green) !important; border-color: var(--green) !important; }
+  /* Botão próximo com accent gold */
+  .btn-next { background: var(--accent) !important; color: #0F0B1A !important; }
+  .btn-next:hover { background: #D97706 !important; }
+  /* Filter & sort ativo */
+  .lab-btn.active { background: var(--accent) !important; color: #0F0B1A !important; border-color: var(--accent) !important; }
+  .sort-btn.active { background: var(--blue) !important; border-color: var(--blue) !important; color: #fff !important; }
+  /* Promo ribbon cor */
+  .promo-ribbon { background: linear-gradient(135deg, #7C3AED, #A855F7) !important; }
+  /* Cupom botão */
+  .cupom-row button { background: var(--accent) !important; color: #0F0B1A !important; }
+
   /* ── LOGIN PANEL ── */
   .lp-wrap {
     background: var(--card-bg);
@@ -912,8 +924,8 @@
        onerror="this.style.display='none'; document.getElementById('logo-text').style.display='block'"/>
   <div id="logo-text" style="display:none; width:44px; height:44px; background:#1B4F72; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">💊</div>
   <div>
-    <h1>PharmaFit-PY</h1>
-    <span>Formulário de Pedido — Peptídeos</span>
+    <h1>PharmaFit</h1>
+    <span>Peptídeos de Alta Performance</span>
   </div>
   <div class="header-right">
     <button class="btn-history" onclick="openHistory()">📋 Histórico</button>
@@ -952,7 +964,7 @@
     <div class="panel-title">💊 Selecione os Produtos</div>
     <div class="panel-subtitle">Clique no produto para selecionar e defina a quantidade</div>
 
-    <div id="alert1" class="alert">⚠️ Selecione pelo menos 1 produto para continuar.</div>
+    <div id="alert1" class="alert">⚠️ Selecione pelo menos um produto para continuar.</div>
 
     <input type="search" id="product-search" placeholder="🔍 Buscar produto pelo nome..."
       oninput="activeSearch=this.value.toLowerCase().trim();renderProducts()"
@@ -1026,10 +1038,10 @@
     </div>
   </div>
 
-  <!-- STEP 2 — DADOS DA CLÍNICA -->
+  <!-- STEP 2 — DADOS CADASTRAIS -->
   <div class="step-panel" id="panel2">
-    <div class="panel-title">📋 Dados da Clínica</div>
-    <div class="panel-subtitle">Preencha os dados do responsável pelo pedido</div>
+    <div class="panel-title">👤 Seus Dados</div>
+    <div class="panel-subtitle">Preencha seus dados para realizarmos o pedido</div>
 
     <!-- ── LOGIN PANEL ── -->
     <div id="lp-logado-bar" class="lp-logado-bar" style="display:none">
@@ -1045,10 +1057,10 @@
 
     <!-- Painel de login (oculto, expande ao clicar) -->
     <div id="lp-panel" class="lp-wrap" style="display:none">
-      <div class="lp-title">🔑 Entre com seu CPF ou CNPJ</div>
-      <div class="lp-sub">Digite seu CPF ou CNPJ para carregar seus dados automaticamente</div>
+      <div class="lp-title">🔑 Entre com seu CPF</div>
+      <div class="lp-sub">Digite seu CPF para carregar seus dados automaticamente</div>
       <div class="lp-input-wrap">
-        <input class="lp-input" id="lp-doc-input" placeholder="CPF, CNPJ ou E-mail" oninput="lpFormatDoc(this)" onkeydown="if(event.key==='Enter')lpEntrar()"/>
+        <input class="lp-input" id="lp-doc-input" placeholder="CPF ou E-mail" oninput="lpFormatDoc(this)" onkeydown="if(event.key==='Enter')lpEntrar()"/>
         <button class="lp-btn-entrar" onclick="lpEntrar()">Entrar</button>
       </div>
       <div class="lp-loading" id="lp-loading">⏳ Buscando dados...</div>
@@ -1062,18 +1074,18 @@
 
     <div class="form-grid">
       <div class="field full">
-        <label>CNPJ / CPF</label>
-        <input type="text" id="f_documento" placeholder="00.000.000/0001-00"/>
+        <label>CPF</label>
+        <input type="text" id="f_documento" placeholder="000.000.000-00"/>
       </div>
       <div class="field full">
-        <label>Nome da Clínica <span class="required-mark">*</span></label>
-        <input type="text" id="f_clinica" placeholder="Ex: Clínica Estética Bella Vida"/>
+        <label>Seu Nome Completo <span class="required-mark">*</span></label>
+        <input type="text" id="f_clinica" placeholder="Ex: João Silva"/>
       </div>
       <div class="field">
-        <label>Responsável <span class="required-mark">*</span></label>
-        <input type="text" id="f_responsavel" placeholder="Nome completo"/>
+        <label>Apelido / Como Prefere Ser Chamado</label>
+        <input type="text" id="f_responsavel" placeholder="Ex: João"/>
       </div>
-      <div class="field">
+      <div class="field" style="display:none">
         <label>Cargo / Especialidade</label>
         <input type="text" id="f_cargo" placeholder="Ex: Médico, Enfermeiro, Proprietário"/>
       </div>
@@ -1098,7 +1110,7 @@
         <input type="text" id="f_endereco" placeholder="Rua, número, bairro, CEP"/>
       </div>
       <div class="field full">
-        <label>Observações Iniciais</label>
+        <label>Observações</label>
         <textarea id="f_obs" placeholder="Alguma informação adicional sobre o pedido?"></textarea>
       </div>
     </div>
@@ -1163,7 +1175,7 @@
 
     <!-- FRETE -->
     <div class="frete-section">
-      <div class="frete-header">🚚 Calcular Frete (Correios)</div>
+      <div class="frete-header">🚚 Calcular Frete</div>
       <div class="frete-body">
         <div style="display:flex; gap:10px; align-items:flex-end">
           <div class="field" style="flex:1">
@@ -1208,7 +1220,7 @@
   <!-- STEP 4 — REVISÃO -->
   <div class="step-panel" id="panel4">
     <div class="panel-title">✅ Revisar e Enviar</div>
-    <div class="panel-subtitle">Confira todos os dados antes de enviar pelo WhatsApp</div>
+    <div class="panel-subtitle">Confira seus dados antes de enviar pelo WhatsApp</div>
 
     <div class="review-card">
       <div class="rc-header">📋 Dados da Clínica</div>
@@ -1229,6 +1241,18 @@
 
     <div class="review-total-box" id="review-total-box"></div>
 
+    <!-- Cupom de Bonificação -->
+    <div class="cupom-section">
+      <div class="cupom-header">🎟️ Código de Bonificação</div>
+      <div class="cupom-row">
+        <input type="text" id="f_cupom" placeholder="EX: BONUS10"
+               oninput="this.value=this.value.toUpperCase()"
+               onkeydown="if(event.key==='Enter') aplicarCupom()"/>
+        <button id="btn-cupom" onclick="aplicarCupom()">Aplicar</button>
+      </div>
+      <div id="cupom-msg"></div>
+    </div>
+
     <!-- Recomendações na revisão -->
     <div class="rec-revisao" id="rec-revisao" style="display:none">
       <div class="rec-rev-header">
@@ -1244,18 +1268,6 @@
         <div class="rec-rev-group-label">🔄 Você costuma levar</div>
         <div class="rec-grid" id="rec-rev-hist-grid"></div>
       </div>
-    </div>
-
-    <!-- Cupom de Bonificação -->
-    <div class="cupom-section">
-      <div class="cupom-header">🎟️ Código de Bonificação</div>
-      <div class="cupom-row">
-        <input type="text" id="f_cupom" placeholder="EX: BONUS10"
-               oninput="this.value=this.value.toUpperCase()"
-               onkeydown="if(event.key==='Enter') aplicarCupom()"/>
-        <button id="btn-cupom" onclick="aplicarCupom()">Aplicar</button>
-      </div>
-      <div id="cupom-msg"></div>
     </div>
 
     <button class="btn-wa" onclick="sendWhatsApp()">
@@ -1340,7 +1352,7 @@
 
 <script>
 // ─── CONFIG ─────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwSM2eVjBp0sbddf3CL70loX0OWqh5hSrO3SzL1uj9z54lN9i7G1PTON67rWD5CkTWA/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyRztbTEL6ko4Cg2g1MlE_3hzXV43oNbeuz_861mta5qSk-iqC2rrkpSFmpBqF4dH1Y2g/exec';
 
 // ─── TABELA DE FRETE POR ESTADO ──────────────────────────────────────────────
 const FRETE_TABELA = {
@@ -1378,7 +1390,6 @@ let freteMetodo = '';
 let freteCep = '';
 let freteEstado = '';
 
-// ─── STATE ──────────────────────────────────────────────────────────────────
 // ─── CORRELAÇÕES ────────────────────────────────────────────────────────────
 const CORRELACOES = {
   '1':  ['32','42','8'],    '2':  ['32','46','7'],    '3':  ['32','46','7'],
@@ -1399,6 +1410,7 @@ const CORRELACOES = {
   '48': ['46','43','12'],   '49': ['46','44','12'],
 };
 
+// ─── STATE ──────────────────────────────────────────────────────────────────
 let CATALOG = [];
 let PROTOCOLS = {};
 let currentStep = 1;
@@ -1419,7 +1431,7 @@ let PARCELAS_CONFIG = []; // carregado do Sheets (aba "Parcelas")
 let cupomAplicado  = false;
 let cupomDesconto  = 0;
 let cupomCodigo    = '';
-let cupomData      = null; // objeto {tipo, valor, produtos, precos}
+let cupomData      = null;
 
 // ─── INIT ───────────────────────────────────────────────────────────────────
 window.onload = () => {
@@ -1548,71 +1560,6 @@ function getEffectivePrice(p) {
 }
 
 // ─── PROMO HELPERS ──────────────────────────────────────────────────────────
-// ─── ACESSO RÁPIDO — CLIENTE RECORRENTE ─────────────────────────────────────
-let _buscaTimer = null;
-
-function agendarBuscaCliente(valor) {
-  clearTimeout(_buscaTimer);
-  const doc = valor.replace(/\D/g,'');
-  // Dispara quando tiver 11 dígitos (CPF) ou 14 dígitos (CNPJ)
-  if (doc.length === 11 || doc.length === 14) {
-    _buscaTimer = setTimeout(() => buscarCliente(doc), 600);
-  }
-}
-
-async function buscarCliente(docParam) {
-  const doc = (docParam || '').replace(/\D/g,'');
-  if (!doc || (doc.length !== 11 && doc.length !== 14)) return;
-
-  const loading       = document.getElementById('ar-loading');
-  const bemVindo      = document.getElementById('ar-bem-vindo');
-  const naoEncontrado = document.getElementById('ar-nao-encontrado');
-  const limpar        = document.getElementById('ar-limpar');
-
-  loading.style.display       = 'block';
-  bemVindo.style.display      = 'none';
-  naoEncontrado.style.display = 'none';
-  limpar.style.display        = 'none';
-
-  try {
-    const res  = await fetch(`${SHEETS_URL}?action=cliente&documento=${encodeURIComponent(doc)}`);
-    const data = await res.json();
-    loading.style.display = 'none';
-
-    if (data && data.clinica) {
-      const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-      set('f_clinica',     data.clinica);
-      set('f_responsavel', data.responsavel);
-      set('f_cargo',       data.cargo);
-      set('f_telefone',    data.telefone);
-      set('f_email',       data.email);
-      set('f_documento',   data.documento);
-      set('f_cidade',      data.cidade);
-      set('f_estado',      data.estado);
-      set('f_endereco',    data.endereco);
-
-      if (Array.isArray(data.historico)) clienteHistorico = data.historico;
-      bemVindo.style.display = 'block';
-      bemVindo.innerHTML = `✅ Bem-vindo de volta, <strong>${data.responsavel || data.clinica}</strong>! Dados preenchidos automaticamente.`;
-      limpar.style.display = 'block';
-    } else {
-      naoEncontrado.innerHTML = '⚠️ Não encontramos seus dados. Preencha o formulário manualmente abaixo.';
-      naoEncontrado.style.display = 'block';
-    }
-  } catch(e) {
-    loading.style.display = 'none';
-  }
-}
-
-function limparAcesso() {
-  document.getElementById('ar-bem-vindo').style.display = 'none';
-  document.getElementById('ar-nao-encontrado').style.display = 'none';
-  document.getElementById('ar-limpar').style.display = 'none';
-  ['f_clinica','f_responsavel','f_cargo','f_telefone','f_email','f_documento','f_cidade','f_estado','f_endereco'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.value = '';
-  });
-}
-
 function aplicarCupom() {
   const codigo = (document.getElementById('f_cupom').value || '').trim().toUpperCase();
   const msg    = document.getElementById('cupom-msg');
@@ -1632,8 +1579,9 @@ function aplicarCupom() {
       cupomData     = c;
       cupomDesconto = c.tipo === '%' ? c.valor / 100 : 0;
     }
-    document.getElementById('f_cupom').disabled   = true;
-    document.getElementById('btn-cupom').disabled = true;
+    document.getElementById('f_cupom').disabled    = true;
+    document.getElementById('btn-cupom').disabled  = true;
+    // calcula desconto já com os itens do carrinho
     const descValor = calcularDescontoCupom();
     const descStr   = descValor > 0
       ? ` — <strong>R$ ${descValor.toLocaleString('pt-BR',{minimumFractionDigits:2})} de desconto</strong>`
@@ -1644,12 +1592,12 @@ function aplicarCupom() {
         msgTxt = `✅ Cupom <strong>${codigo}</strong> aplicado! ${cupomData.valor}% de desconto em todos os produtos${descStr}.`;
       } else {
         const prods = Array.isArray(cupomData.produtos) ? cupomData.produtos : [];
-        const n = Object.keys(cart).filter(id => prods.includes(id)).length;
+        const n = Object.keys(cart).filter(k => { const b = k.split('__')[0]; return prods.includes(k) || prods.includes(b); }).length;
         msgTxt = `✅ Cupom <strong>${codigo}</strong> aplicado! ${cupomData.valor}% em ${n || prods.length} produto(s)${descStr}.`;
       }
     } else {
       const precos = cupomData.precos || {};
-      const n = Object.keys(cart).filter(id => precos[id] !== undefined).length;
+      const n = Object.keys(cart).filter(k => { const b = k.split('__')[0]; return precos[k] !== undefined || precos[b] !== undefined; }).length;
       msgTxt = `✅ Cupom <strong>${codigo}</strong> aplicado! Preço especial em ${n || Object.keys(precos).length} produto(s)${descStr}.`;
     }
     msg.innerHTML = `<div class="cupom-ok">${msgTxt}</div>`;
@@ -1666,12 +1614,13 @@ function calcularDescontoCupom() {
   if (!cupomAplicado || !cupomData) return 0;
   if (cupomData.tipo === '%') {
     if (cupomData.produtos === 'todos') {
-      return (getTotal() + freteValor) * (cupomData.valor / 100);
+      return getTotal() * (cupomData.valor / 100);
     }
     let base = 0;
     const prods = Array.isArray(cupomData.produtos) ? cupomData.produtos : [];
     Object.entries(cart).forEach(([id, qty]) => {
-      if (prods.includes(id)) base += getPriceByKey(id) * qty;
+      const baseId = id.split('__')[0];
+      if (prods.includes(id) || prods.includes(baseId)) base += getProductPrice(id) * qty;
     });
     return base * (cupomData.valor / 100);
   }
@@ -1679,8 +1628,12 @@ function calcularDescontoCupom() {
     let desc = 0;
     const precos = cupomData.precos || {};
     Object.entries(cart).forEach(([id, qty]) => {
-      if (precos[id] !== undefined) {
-        desc += Math.max(0, getPriceByKey(id) - precos[id]) * qty;
+      const baseId = id.split('__')[0];
+      const discP  = precos[id]    !== undefined ? precos[id]
+                   : precos[baseId] !== undefined ? precos[baseId]
+                   : null;
+      if (discP !== null) {
+        desc += Math.max(0, getProductPrice(id) - discP) * qty;
       }
     });
     return desc;
@@ -1785,7 +1738,6 @@ function getVariantLabel(key) {
 function getVariantStock(id) {
   const p = CATALOG.find(x => x.id === id);
   if (!p || !p.variantes) return p ? p.stock : 0;
-  // Retorna o maior estoque entre as variantes (card só desativado se TODAS estiverem sem estoque)
   return Math.max(...p.variantes.map(v => parseInt(v.estoque) || 0));
 }
 
@@ -1799,19 +1751,20 @@ function changeVariantQty(id, varIdx, delta) {
   const qtyEl = document.getElementById(`vqty-${id}-${varIdx}`);
   if (qtyEl) qtyEl.textContent = newQty;
 
+  const card = document.getElementById(`pc-${id}`);
+  if (card) {
+    const anySelected = p.variantes.some((_, i) => cart[`${id}__${i}`] > 0);
+    card.classList.toggle('selected', anySelected);
+    const check = card.querySelector('.pc-check');
+    if (check) check.textContent = anySelected ? '✓' : '';
+  }
+
   const subEl = document.getElementById(`vsub-${id}-${varIdx}`);
   if (subEl) {
     const price = getPriceByKey(key);
     subEl.textContent = newQty > 0 ? `= R$ ${(price * newQty).toLocaleString('pt-BR', {minimumFractionDigits:2})}` : '';
   }
 
-  const hasAny = p && p.variantes.some((_, i) => (cart[`${id}__${i}`] || 0) > 0);
-  const cardEl = document.getElementById(`pc-${id}`);
-  if (cardEl) {
-    cardEl.classList.toggle('selected', hasAny);
-    const chk = cardEl.querySelector('.pc-check');
-    if (chk) chk.textContent = hasAny ? '✓' : '';
-  }
   updateTotal();
 }
 
@@ -1821,7 +1774,7 @@ function renderProducts() {
   const searching = !!activeSearch;
   ['section-destaque','section-recomendado','catalog-divider'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.style.display = searching ? 'none' : '';
+    if (el) el.style.display = searching ? 'none' : (id === 'catalog-divider' ? '' : '');
   });
   if (!searching) renderHighlights();
 
@@ -1850,12 +1803,12 @@ function renderProducts() {
   }
 
   list.forEach(p => {
-    const varIdx = selectedVariants[p.id] || 0;
     const currentPrice = getProductPrice(p.id);
     const qty = cart[p.id] || 1;
     const isSelected = cart.hasOwnProperty(p.id);
     const subtotal = isSelected ? (currentPrice * qty).toLocaleString('pt-BR', {minimumFractionDigits:2}) : '0,00';
-    const stockAtual = p.variantes ? getVariantStock(p.id) : p.stock;
+    const temVariantes = p.variantes && p.variantes.length > 0;
+    const stockAtual = temVariantes ? getVariantStock(p.id) : p.stock;
     const semEstoque = stockAtual === 0;
     const estoqueLabel = semEstoque
       ? `<span style="color:#f39c12;font-size:.7rem;font-weight:700">🕐 Sem estoque — chega em até 7 dias</span>`
@@ -1871,9 +1824,7 @@ function renderProducts() {
       <span class="promo-price-old">R$ ${p.price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>` : '';
     const temProtocolo = PROTOCOLS && PROTOCOLS[p.id];
     const saibaMaisBtn = temProtocolo ? `<button class="btn-saiba-mais" onclick="event.stopPropagation(); abrirProtocolo('${p.id}')">📋 Saiba mais sobre este produto</button>` : '';
-    const temVariantes = p.variantes && p.variantes.length > 0;
 
-    // Produtos COM variantes: cada dose tem sua própria linha com [− qty +]
     const variantRowsHtml = temVariantes ? `
       <div class="variant-rows">
         ${p.variantes.map((v, i) => {
@@ -1884,7 +1835,7 @@ function renderProducts() {
           const vStock = parseInt(v.estoque) || 0;
           const semV = vStock === 0;
           const vStockLabel = semV
-            ? `<span class="vr-stock out">⚠️ Sem estoque</span>`
+            ? `<span class="vr-stock" style="color:#f39c12;font-size:.68rem">🕐 Chega em 7 dias</span>`
             : vStock <= 5
               ? `<span class="vr-stock low">⚡ ${vStock} un.</span>`
               : `<span class="vr-stock ok">✅ ${vStock} un.</span>`;
@@ -1894,13 +1845,10 @@ function renderProducts() {
             ? `<span class="vr-price-old">R$ ${vPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
                <span class="vr-price promo">R$ ${vPromo.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`
             : `<span class="vr-price">R$ ${vPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`;
-          const vStockLabel2 = semV
-            ? `<span class="vr-stock" style="color:#f39c12;font-size:.68rem">🕐 Chega em 7 dias</span>`
-            : vStockLabel;
           return `<div class="variant-row">
             <div class="vr-info">
               <span class="vr-dose">${v.dose}</span>
-              <div class="vr-price-row">${vPromoHtml}${vStockLabel2}</div>
+              <div class="vr-price-row">${vPromoHtml}${vStockLabel}</div>
             </div>
             <div class="vr-controls">
               <button class="vr-btn" onclick="event.stopPropagation(); changeVariantQty('${p.id}',${i},-1)">−</button>
@@ -1912,7 +1860,6 @@ function renderProducts() {
         }).join('')}
       </div>` : '';
 
-    // Produtos SEM variantes: comportamento original
     const qtyWrapHtml = !temVariantes ? `
         <div class="pc-qty-wrap" id="qty-wrap-${p.id}">
           <button class="qty-btn" onclick="event.stopPropagation(); changeQty('${p.id}',-1)">−</button>
@@ -1967,11 +1914,15 @@ function renderHighlights() {
   divider.style.display  = (destaques.length || recomendados.length) ? '' : 'none';
   function buildTile(p, badgeClass, badgeLabel, cardClass) {
     const temVariantes = p.variantes && p.variantes.length > 0;
-    let promoRibbon = '', promoClass = '', priceHtml;
+
+    // Para variantes: pega o menor preço real entre as variantes
+    // Para produto simples: usa getEffectivePrice normalmente
+    let priceDisplay, promoRibbon = '', promoClass = '', priceHtml;
 
     if (temVariantes) {
       const precos = p.variantes.map(v => parseFloat(v.preco) || 0).filter(v => v > 0);
       const minPreco = precos.length ? Math.min(...precos) : 0;
+      // Verifica se alguma variante tem promo_preco
       const varPromos = p.variantes.filter(v => parseFloat(v.promo_preco) > 0 && isPromoDentroData(p));
       if (varPromos.length > 0) {
         const minPromo = Math.min(...varPromos.map(v => parseFloat(v.promo_preco)));
@@ -2167,9 +2118,8 @@ function abrirProtocolo(id) {
       <div class="proto-section-body">${String(s.campo).replace(/\n/g,'<br>')}</div>
     </div>`).join('');
 
-  // Informativo
-  const footer = document.getElementById('pm-info-footer');
   const aviso  = document.getElementById('pm-aviso');
+  const footer = document.getElementById('pm-info-footer');
   if (proto.pagina) {
     aviso.style.display   = 'flex';
     footer.style.display  = 'block';
@@ -2185,16 +2135,19 @@ function abrirProtocolo(id) {
 
 function abrirInformativo() {
   const footer = document.getElementById('pm-info-footer');
-  document.getElementById('info-iframe').src = footer.dataset.pagina;
-  document.getElementById('info-overlay-title').textContent = footer.dataset.titulo || 'Informativo do produto';
-  document.getElementById('info-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  const pagina = footer.dataset.pagina;
+  if (window.innerWidth < 768) {
+    window.open(pagina, '_blank');
+  } else {
+    document.getElementById('info-iframe').src = pagina;
+    document.getElementById('info-overlay-title').textContent = footer.dataset.titulo || 'Informativo do produto';
+    document.getElementById('info-overlay').classList.add('open');
+  }
 }
 
 function fecharInformativo() {
   document.getElementById('info-overlay').classList.remove('open');
   document.getElementById('info-iframe').src = '';
-  document.body.style.overflow = '';
 }
 
 function getFreteLabel() {
@@ -2244,7 +2197,7 @@ function goStep(n) {
 }
 
 async function _goStep3() {
-  const btn     = document.querySelector('#panel2 .btn-next');
+  const btn = document.querySelector('#panel2 .btn-next');
   const alertEl = document.getElementById('alert2');
   alertEl.classList.remove('show');
 
@@ -2254,7 +2207,7 @@ async function _goStep3() {
     return;
   }
 
-  const docLimpo = v('f_documento').replace(/\D/g,'');
+  const cpfLimpo = v('f_documento').replace(/\D/g,'');
   btn.disabled = true;
   btn.textContent = '⏳ Verificando...';
 
@@ -2263,10 +2216,9 @@ async function _goStep3() {
       action:      'cadastrar',
       clinica:     v('f_clinica'),
       responsavel: v('f_responsavel'),
-      cargo:       v('f_cargo'),
       telefone:    v('f_telefone'),
       email:       v('f_email'),
-      cpf:         docLimpo,
+      cpf:         cpfLimpo,
       cidade:      v('f_cidade'),
       estado:      v('f_estado'),
       endereco:    v('f_endereco')
@@ -2276,7 +2228,7 @@ async function _goStep3() {
 
     if (!data.ok) {
       const msgs = {
-        cpf:      '⚠️ Este CPF/CNPJ já está cadastrado. Use "Já sou cadastrado" para entrar.',
+        cpf:      '⚠️ Este CPF já está cadastrado. Use "Já sou cadastrado" para entrar.',
         email:    '⚠️ Este e-mail já está cadastrado. Use "Já sou cadastrado" para entrar.',
         telefone: '⚠️ Este telefone já está cadastrado. Use "Já sou cadastrado" para entrar.',
       };
@@ -2287,7 +2239,7 @@ async function _goStep3() {
       return;
     }
   } catch(e) {
-    // erro de rede: avança mesmo assim
+    // erro de rede: avança mesmo assim (não bloqueia pedido por falha de rede)
   }
 
   btn.disabled = false;
@@ -2373,13 +2325,34 @@ function buildReview() {
     const { id } = parseCartKey(key);
     const p = CATALOG.find(x => x.id === id);
     if (!p) return;
-    const qty = cart[key];
+    const qty   = cart[key];
     const price = getPriceByKey(key);
     const varLabel = getVariantLabel(key);
-    const sub = price * qty;
+    const sub   = price * qty;
     total += sub;
+
+    // Verifica se este item tem desconto de cupom
+    let cupomHtml = '';
+    if (cupomAplicado && cupomData) {
+      const { id: baseId } = parseCartKey(key);
+      if (cupomData.tipo === 'fixo') {
+        const precos = cupomData.precos || {};
+        const novoP  = precos[key]    !== undefined ? parseFloat(precos[key])
+                     : precos[baseId] !== undefined ? parseFloat(precos[baseId])
+                     : null;
+        if (novoP !== null) {
+          cupomHtml = `<div style="font-size:.72rem;color:var(--accent);margin-top:1px">🎟️ Cupom: R$ ${novoP.toLocaleString('pt-BR',{minimumFractionDigits:2})} / un.</div>`;
+        }
+      } else if (cupomData.tipo === '%') {
+        const prods = Array.isArray(cupomData.produtos) ? cupomData.produtos : null;
+        if (!prods || prods.includes(key) || prods.includes(baseId)) {
+          cupomHtml = `<div style="font-size:.72rem;color:var(--accent);margin-top:1px">🎟️ Cupom: −${cupomData.valor}%</div>`;
+        }
+      }
+    }
+
     html += `<div class="rp-item">
-      <div><div class="rp-name">${p.icon} ${p.name}</div><div class="rp-detail">${varLabel}</div></div>
+      <div><div class="rp-name">${p.icon} ${p.name}</div><div class="rp-detail">${varLabel}</div>${cupomHtml}</div>
       <div><div style="text-align:right; font-size:.8rem; color:var(--gray)">${qty} × R$${price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
       <div class="rp-total">R$ ${sub.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div>
     </div>`;
@@ -2404,22 +2377,20 @@ function buildReview() {
   // Total com frete
   total += freteValor;
   if (selectedPayment === 'Cartão de Crédito') {
-    const parc   = parseInt(document.getElementById('f_parcelas').value);
-    const config = PARCELAS_CONFIG.find(p => p.parcelas === parc);
-    const juros  = config ? config.juros : 0;
-    if (juros > 0) total *= (1 + juros / 100);
+    const parc = parseInt(document.getElementById('f_parcelas').value);
+    if (parc > 3) total *= 1.05;
   }
 
   // Total box
   const subtotalBruto = getTotal();
   const totalFinal    = getFinalTotal();
   const descontoValor = cupomAplicado ? calcularDescontoCupom() : 0;
-  const descontoLabel = cupomAplicado && cupomData
-    ? (cupomData.tipo === '%' ? `${cupomData.valor}%` : 'Preço especial')
-    : '';
-  const descontoHtml  = cupomAplicado ? `
+  const descontoLabel = cupomData?.tipo === 'fixo'
+    ? `Preço especial — ${cupomCodigo}`
+    : `${(cupomData?.valor||0).toFixed(0)}% — ${cupomCodigo}`;
+  const descontoHtml  = cupomAplicado && descontoValor > 0 ? `
     <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.85rem;color:var(--accent);font-weight:700">
-      <span>🎟️ Desconto (${descontoLabel} — ${cupomCodigo})</span>
+      <span>🎟️ Desconto (${descontoLabel})</span>
       <span>− R$ ${descontoValor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
     </div>` : '';
   document.getElementById('review-total-box').innerHTML = `
@@ -2434,6 +2405,7 @@ function buildReview() {
     <div class="rtb-label">Total do Pedido</div>
     <div class="rtb-amount">R$ ${totalFinal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
     <div class="rtb-method">${selectedPayment}</div>`;
+
   renderRecomendacoesRevisao();
 }
 
@@ -2483,9 +2455,11 @@ function sendWhatsApp() {
   msg += `\n━━━━━━━━━━━━━━━━━━━━━━\n`;
   msg += `📦 Frete: ${freteValor === 0 ? 'GRÁTIS' : 'R$ ' + freteValor.toFixed(2).replace('.',',')}\n`;
   if (cupomAplicado) {
-    const desc = calcularDescontoCupom();
-    const dLabel = cupomData && cupomData.tipo === '%' ? `${cupomData.valor}%` : 'Preço especial';
-    msg += `🎟️ Desconto (${dLabel} — ${cupomCodigo}): − R$ ${desc.toLocaleString('pt-BR',{minimumFractionDigits:2})}\n`;
+    const desc   = calcularDescontoCupom();
+    const dLabel = cupomData?.tipo === 'fixo'
+      ? `Preço especial — ${cupomCodigo}`
+      : `${cupomData?.valor || 0}% — ${cupomCodigo}`;
+    msg += `🎟️ Desconto (${dLabel}): − R$ ${desc.toLocaleString('pt-BR',{minimumFractionDigits:2})}\n`;
   }
   msg += `💰 *TOTAL: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}*\n`;
   msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
@@ -2548,11 +2522,8 @@ function getFinalTotal() {
     const juros  = config ? config.juros : 0;
     if (juros > 0) total *= (1 + juros / 100);
   }
-  if (cupomAplicado) {
-    const desc = calcularDescontoCupom();
-    total -= desc;
-    if (total < 0) total = 0;
-  }
+  total -= calcularDescontoCupom();
+  if (total < 0) total = 0;
   return total;
 }
 
@@ -2570,7 +2541,6 @@ function newOrder() {
   cupomAplicado    = false;
   cupomDesconto    = 0;
   cupomCodigo      = '';
-  cupomData        = null;
   const fc = document.getElementById('f_cupom');
   const bc = document.getElementById('btn-cupom');
   const mc = document.getElementById('cupom-msg');
@@ -2649,6 +2619,72 @@ document.getElementById('history-modal').addEventListener('click', function(e) {
   if (e.target === this) closeHistory();
 });
 
+// ─── ACESSO RÁPIDO — CPF ─────────────────────────────────────────────────────
+let _buscaTimer = null;
+
+function agendarBuscaCliente(valor) {
+  clearTimeout(_buscaTimer);
+  const doc = valor.replace(/\D/g, '');
+  if (doc.length === 11) {
+    _buscaTimer = setTimeout(() => buscarCliente(doc), 600);
+  } else {
+    // limpa feedback se apagou dígitos
+    document.getElementById('ar-loading').style.display = 'none';
+    document.getElementById('ar-bem-vindo').style.display = 'none';
+    document.getElementById('ar-nao-encontrado').style.display = 'none';
+    document.getElementById('ar-limpar').style.display = 'none';
+  }
+}
+
+async function buscarCliente(docParam) {
+  const doc = (docParam || '').replace(/\D/g, '');
+  if (!doc || doc.length !== 11) return;
+
+  document.getElementById('ar-loading').style.display = 'block';
+  document.getElementById('ar-bem-vindo').style.display = 'none';
+  document.getElementById('ar-nao-encontrado').style.display = 'none';
+  document.getElementById('ar-limpar').style.display = 'none';
+
+  try {
+    const res = await fetch(`${SHEETS_URL}?action=cliente&documento=${doc}`);
+    const data = await res.json();
+    document.getElementById('ar-loading').style.display = 'none';
+
+    if (data && data.nome) {
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+      set('f_clinica',     data.nome);
+      set('f_responsavel', data.responsavel || data.apelido || '');
+      set('f_cargo',       data.cargo);
+      set('f_telefone',    data.telefone);
+      set('f_email',       data.email);
+      set('f_documento',   data.documento);
+      set('f_cidade',      data.cidade);
+      set('f_estado',      data.estado);
+      set('f_endereco',    data.endereco);
+
+      if (Array.isArray(data.historico)) clienteHistorico = data.historico;
+      const nome = data.responsavel || data.nome || 'cliente';
+      document.getElementById('ar-bem-vindo').innerHTML = `✅ Olá, <strong>${nome}</strong>! Seus dados foram preenchidos automaticamente.`;
+      document.getElementById('ar-bem-vindo').style.display = 'block';
+      document.getElementById('ar-limpar').style.display = 'inline-block';
+    } else {
+      document.getElementById('ar-nao-encontrado').innerHTML = '⚠️ Não encontramos seus dados. Preencha o formulário manualmente abaixo.';
+      document.getElementById('ar-nao-encontrado').style.display = 'block';
+    }
+  } catch (e) {
+    document.getElementById('ar-loading').style.display = 'none';
+  }
+}
+
+function limparAcesso() {
+  document.getElementById('ar-bem-vindo').style.display = 'none';
+  document.getElementById('ar-nao-encontrado').style.display = 'none';
+  document.getElementById('ar-limpar').style.display = 'none';
+  ['f_clinica','f_responsavel','f_cargo','f_telefone','f_email','f_documento','f_cidade','f_estado','f_endereco'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+}
+
 // ─── RECOMENDAÇÕES NA REVISÃO ────────────────────────────────────────────────
 function renderRecomendacoesRevisao() {
   const cartIds = Object.keys(cart).map(k => k.split('__')[0]);
@@ -2715,10 +2751,9 @@ function adicionarDaRec(id) {
     if (!cart[id]) cart[id] = 1;
   }
   updateTotal();
-  buildReview();
+  buildReview(); // atualiza a revisão inteira
 }
 
-// ─── LOGIN PANEL ────────────────────────────────────────────────────────────
 // ─── LOGIN PANEL ─────────────────────────────────────────────────────────────
 
 function lpToggleLogin() {
@@ -2733,11 +2768,12 @@ function lpToggleLogin() {
 }
 
 function lpShowForm() {
+  // formulário já está visível por padrão — só garante que o painel fecha
   document.getElementById('lp-panel').style.display = 'none';
 }
 
-function lpSetLogado(clinica, responsavel) {
-  const exibir = responsavel || clinica || '';
+function lpSetLogado(nome, apelido) {
+  const exibir = apelido || nome || '';
   document.getElementById('lp-nome-bar').textContent = exibir;
   document.getElementById('lp-logado-bar').style.display = 'flex';
 }
@@ -2758,11 +2794,6 @@ function lpFormatDoc(input) {
   let v = input.value.replace(/\D/g,'');
   if (v.length <= 11) {
     v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
-  } else {
-    v = v.replace(/(\d{2})(\d)/,'$1.$2')
-         .replace(/(\d{3})(\d)/,'$1.$2')
-         .replace(/(\d{3})(\d)/,'$1/$2')
-         .replace(/(\d{4})(\d{1,2})$/,'$1-$2');
   }
   input.value = v;
 }
@@ -2771,8 +2802,8 @@ async function lpEntrar() {
   const raw     = document.getElementById('lp-doc-input').value.trim();
   const isEmail = raw.includes('@');
   const doc     = isEmail ? raw.toLowerCase() : raw.replace(/\D/g,'');
-  if (!isEmail && doc.length !== 11 && doc.length !== 14) {
-    document.getElementById('lp-erro').innerHTML = '⚠️ CPF ou CNPJ inválido. <span class="lp-link" onclick="lpShowForm()">Preencher manualmente</span>';
+  if (!isEmail && doc.length !== 11) {
+    document.getElementById('lp-erro').innerHTML = '⚠️ CPF inválido. <span class="lp-link" onclick="lpShowForm()">Preencher manualmente</span>';
     document.getElementById('lp-erro').style.display = 'block';
     return;
   }
@@ -2787,14 +2818,14 @@ async function lpEntrar() {
     const res = await fetch(`${SHEETS_URL}?action=cliente&documento=${encodeURIComponent(doc)}`);
     const data = await res.json();
     document.getElementById('lp-loading').style.display = 'none';
-    if (data && (data.clinica || data.nome)) {
+    if (data && data.nome) {
       lpPreencherCampos(data);
-      lpSetLogado(data.clinica || data.nome, data.responsavel);
+      lpSetLogado(data.nome, data.responsavel || data.apelido);
       if (Array.isArray(data.historico)) clienteHistorico = data.historico;
       _clienteJaLogado = true;
       lpShowForm();
       document.getElementById('lp-ja-tem-conta').style.display = 'none';
-      _aplicarStep(2);
+      _aplicarStep(3);
     } else {
       document.getElementById('lp-erro').innerHTML = '⚠️ Não encontrado. <span class="lp-link" onclick="lpShowForm()">Preencher manualmente</span>';
       document.getElementById('lp-erro').style.display = 'block';
@@ -2808,10 +2839,9 @@ async function lpEntrar() {
 
 function lpPreencherCampos(data) {
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-  set('f_documento',   data.doc || data.documento || '');
-  set('f_clinica',     data.clinica || data.nome || '');
-  set('f_responsavel', data.responsavel || '');
-  set('f_cargo',       data.cargo || '');
+  set('f_documento',   data.cpf || data.documento || '');
+  set('f_clinica',     data.nome);
+  set('f_responsavel', data.responsavel || data.apelido || '');
   set('f_telefone',    data.telefone);
   set('f_email',       data.email);
   set('f_cidade',      data.cidade);
