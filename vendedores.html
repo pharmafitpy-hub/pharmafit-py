@@ -337,7 +337,7 @@
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 const SHEETS_URL  = 'https://script.google.com/macros/s/AKfycbwSM2eVjBp0sbddf3CL70loX0OWqh5hSrO3SzL1uj9z54lN9i7G1PTON67rWD5CkTWA/exec';
 const PIN         = '5689';          // PIN para acessar esta página
-const SERVER_PIN  = '5689';   // deve bater com CUPOM_PIN no Apps Script B2B
+const SERVER_PIN  = 'Pharma@5689';   // deve bater com CUPOM_PIN no Apps Script B2B
 
 // ── ESTADO ───────────────────────────────────────────────────────────────────
 let PRODUTOS = [];
@@ -378,7 +378,7 @@ async function carregarProdutos() {
             icone: p.icone || '💊',
             nome:  p.nome,
             conc:  v.dose || p.conc,
-            preco: v.preco || 0,
+            preco: parseFloat(v.preco) || 0,
             lab:   p.lab,
             tags:  p.tags || [],
           });
@@ -410,7 +410,8 @@ function renderProdutos(lista) {
   }
   grid.innerHTML = lista.map(p => {
     const sel = selecionados.has(p.id);
-    const preco = p.preco > 0 ? `R$ ${p.preco.toLocaleString('pt-BR',{minimumFractionDigits:2})}` : '—';
+    const precoNum = parseFloat(p.preco) || 0;
+    const preco = precoNum > 0 ? `R$ ${precoNum.toLocaleString('pt-BR',{minimumFractionDigits:2})}` : '—';
     return `<div class="prod-card${sel?' selected':''}" onclick="toggleProd('${p.id}')">
       <div class="prod-check">${sel ? '✓' : ''}</div>
       <div>
@@ -482,9 +483,9 @@ function renderTabelaPrecos() {
         ${prods.map(p => `
           <tr>
             <td class="td-nome">${p.icone||'💊'} ${p.nome}${p.conc ? ` <span style="color:var(--gray);font-weight:400">${p.conc}</span>` : ''}</td>
-            <td class="td-orig">R$ ${(p.preco||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+            <td class="td-orig">R$ ${(parseFloat(p.preco)||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
             <td class="td-novo"><input type="number" id="novo-preco-${p.id}" min="0" step="0.01"
-              placeholder="${(p.preco||0).toFixed(2)}" style="width:110px"/></td>
+              placeholder="${(parseFloat(p.preco)||0).toFixed(2)}" style="width:110px"/></td>
           </tr>`).join('')}
       </tbody>
     </table>`;
