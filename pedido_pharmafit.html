@@ -1634,19 +1634,23 @@ function aplicarCupom() {
     }
     document.getElementById('f_cupom').disabled   = true;
     document.getElementById('btn-cupom').disabled = true;
+    const descValor = calcularDescontoCupom();
+    const descStr   = descValor > 0
+      ? ` — <strong>− R$ ${descValor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong>`
+      : '';
     let msgTxt = '';
     if (cupomData.tipo === '%') {
       if (cupomData.produtos === 'todos') {
-        msgTxt = `✅ Cupom <strong>${codigo}</strong> aplicado! ${cupomData.valor}% de desconto em todos os produtos.`;
+        msgTxt = `✅ Cupom <strong>${codigo}</strong> aplicado! ${cupomData.valor}% de desconto em todos os produtos${descStr}.`;
       } else {
         const prods = Array.isArray(cupomData.produtos) ? cupomData.produtos : [];
         const n = Object.keys(cart).filter(id => prods.includes(id)).length;
-        msgTxt = `✅ Cupom <strong>${codigo}</strong> aplicado! ${cupomData.valor}% de desconto em ${n || prods.length} produto(s).`;
+        msgTxt = `✅ Cupom <strong>${codigo}</strong> aplicado! ${cupomData.valor}% em ${n || prods.length} produto(s)${descStr}.`;
       }
     } else {
       const precos = cupomData.precos || {};
       const n = Object.keys(cart).filter(id => precos[id] !== undefined).length;
-      msgTxt = `✅ Cupom <strong>${codigo}</strong> aplicado! Preço especial em ${n || Object.keys(precos).length} produto(s).`;
+      msgTxt = `✅ Cupom <strong>${codigo}</strong> aplicado! Preço especial em ${n || Object.keys(precos).length} produto(s)${descStr}.`;
     }
     msg.innerHTML = `<div class="cupom-ok">${msgTxt}</div>`;
     buildReview();
