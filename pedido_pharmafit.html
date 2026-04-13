@@ -1085,17 +1085,35 @@
         <label>E-mail <span class="required-mark">*</span></label>
         <input type="email" id="f_email" placeholder="contato@clinica.com"/>
       </div>
+      <div class="field" style="max-width:170px">
+        <label>CEP de Entrega <span class="required-mark">*</span></label>
+        <input type="text" id="f_cep_entrega" placeholder="00000-000" maxlength="9"
+          oninput="this.value=this.value.replace(/\D/g,'').replace(/^(\d{5})(\d)/,'$1-$2'); if(this.value.replace(/\D/g,'').length===8) preencherEnderecoViaCEP()"/>
+        <div id="cep-end-loading" style="display:none;font-size:.72rem;color:var(--gray);margin-top:3px">⏳ Buscando endereço...</div>
+      </div>
+      <div class="field">
+        <label>Rua / Logradouro <span class="required-mark">*</span></label>
+        <input type="text" id="f_rua" placeholder="Ex: Rua das Flores"/>
+      </div>
+      <div class="field" style="max-width:130px">
+        <label>Número <span class="required-mark">*</span></label>
+        <input type="text" id="f_numero" placeholder="Ex: 123"/>
+      </div>
+      <div class="field">
+        <label>Bairro <span class="required-mark">*</span></label>
+        <input type="text" id="f_bairro" placeholder="Ex: Centro"/>
+      </div>
+      <div class="field">
+        <label>Complemento</label>
+        <input type="text" id="f_complemento" placeholder="Sala 5, Apto 301..."/>
+      </div>
       <div class="field">
         <label>Cidade</label>
         <input type="text" id="f_cidade" placeholder="São Paulo"/>
       </div>
-      <div class="field">
-        <label>Estado / País</label>
-        <input type="text" id="f_estado" placeholder="SP — Brasil"/>
-      </div>
-      <div class="field full">
-        <label>Endereço de Entrega</label>
-        <input type="text" id="f_endereco" placeholder="Rua, número, bairro, CEP"/>
+      <div class="field" style="max-width:100px">
+        <label>Estado</label>
+        <input type="text" id="f_estado" placeholder="SP" maxlength="2"/>
       </div>
       <div class="field full">
         <label>Observações Iniciais</label>
@@ -1608,7 +1626,7 @@ function limparAcesso() {
   document.getElementById('ar-bem-vindo').style.display = 'none';
   document.getElementById('ar-nao-encontrado').style.display = 'none';
   document.getElementById('ar-limpar').style.display = 'none';
-  ['f_clinica','f_responsavel','f_cargo','f_telefone','f_email','f_documento','f_cidade','f_estado','f_endereco'].forEach(id => {
+  ['f_clinica','f_responsavel','f_cargo','f_telefone','f_email','f_documento','f_cep_entrega','f_rua','f_numero','f_bairro','f_complemento','f_cidade','f_estado'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
 }
@@ -2077,6 +2095,39 @@ function getTotal() {
   return total;
 }
 
+// ─── ENDEREÇO — CEP AUTO-FILL + COMPOSIÇÃO ───────────────────────────────────
+async function preencherEnderecoViaCEP() {
+  const cep     = document.getElementById('f_cep_entrega').value.replace(/\D/g,'');
+  if (cep.length !== 8) return;
+  const loading = document.getElementById('cep-end-loading');
+  if (loading) loading.style.display = 'block';
+  try {
+    const res  = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const data = await res.json();
+    if (loading) loading.style.display = 'none';
+    if (!data.erro) {
+      const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+      set('f_rua',    data.logradouro);
+      set('f_bairro', data.bairro);
+      set('f_cidade', data.localidade);
+      set('f_estado', data.uf);
+      document.getElementById('f_numero')?.focus();
+    }
+  } catch(e) {
+    if (loading) loading.style.display = 'none';
+  }
+}
+
+function getEnderecoCompleto() {
+  const cep  = (document.getElementById('f_cep_entrega')?.value || '').trim();
+  const rua  = v('f_rua');
+  const num  = v('f_numero');
+  const bairro = v('f_bairro');
+  const comp = v('f_complemento');
+  const parts = [rua, num, comp, bairro, cep].filter(Boolean);
+  return parts.join(', ');
+}
+
 // ─── FRETE (ViaCEP → tabela por estado) ──────────────────────────────────────
 async function calcFrete() {
   const cepRaw = document.getElementById('f_frete_cep').value.replace(/\D/g,'');
@@ -2274,7 +2325,7 @@ async function _goStep3() {
       cpf:         docLimpo,
       cidade:      v('f_cidade'),
       estado:      v('f_estado'),
-      endereco:    v('f_endereco')
+      endereco:    getEnderecoCompleto()
     });
     const res  = await fetch(`${SHEETS_URL}?${p.toString()}`);
     const data = await res.json();
@@ -2335,7 +2386,7 @@ function validateStep1() {
 }
 
 function validateStep2() {
-  const required = ['f_clinica','f_responsavel','f_telefone','f_email'];
+  const required = ['f_clinica','f_responsavel','f_telefone','f_email','f_rua','f_numero','f_bairro'];
   let ok = true;
   required.forEach(id => {
     const el = document.getElementById(id);
@@ -2364,8 +2415,8 @@ function buildReview() {
     ['Telefone', v('f_telefone')],
     ['E-mail', v('f_email')],
     ['Documento', v('f_documento') || '—'],
-    ['Cidade', `${v('f_cidade')} ${v('f_estado')}`],
-    ['Endereço', v('f_endereco') || '—'],
+    ['Cidade', `${v('f_cidade')} — ${v('f_estado')}`],
+    ['Endereço', getEnderecoCompleto() || '—'],
     ['Observações', v('f_obs') || '—'],
   ];
   document.getElementById('review-dados').innerHTML =
@@ -2480,7 +2531,8 @@ function sendWhatsApp() {
   msg += `E-mail: ${v('f_email')}\n`;
   if (v('f_documento')) msg += `Documento: ${v('f_documento')}\n`;
   if (v('f_cidade')) msg += `Cidade/Estado: ${v('f_cidade')} — ${v('f_estado')}\n`;
-  if (v('f_endereco')) msg += `Endereço: ${v('f_endereco')}\n`;
+  const endCompleto = getEnderecoCompleto();
+  if (endCompleto) msg += `Endereço: ${endCompleto}\n`;
   if (v('f_obs')) msg += `Obs: ${v('f_obs')}\n`;
 
   msg += `\n💊 *PRODUTOS SOLICITADOS*\n`;
@@ -2543,7 +2595,7 @@ function sendWhatsApp() {
     documento:     v('f_documento'),
     cidade:        v('f_cidade'),
     estado:        v('f_estado'),
-    endereco:      v('f_endereco'),
+    endereco:      getEnderecoCompleto(),
     produtos:      itensPedido,
     quantidades:   itensPedido,
     total:         total.toFixed(2),
@@ -2771,7 +2823,7 @@ function lpSetLogado(clinica, responsavel) {
 function lpLogout() {
   clienteHistorico = [];
   _clienteJaLogado = false;
-  ['f_clinica','f_responsavel','f_cargo','f_telefone','f_email','f_documento','f_cidade','f_estado','f_endereco'].forEach(id => {
+  ['f_clinica','f_responsavel','f_cargo','f_telefone','f_email','f_documento','f_cep_entrega','f_rua','f_numero','f_bairro','f_complemento','f_cidade','f_estado'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('lp-logado-bar').style.display = 'none';
@@ -2842,7 +2894,8 @@ function lpPreencherCampos(data) {
   set('f_email',       data.email);
   set('f_cidade',      data.cidade);
   set('f_estado',      data.estado);
-  set('f_endereco',    data.endereco);
+  // Carrega endereço legado no campo de rua para o cliente revisar
+  if (data.endereco) set('f_rua', data.endereco);
 }
 </script>
 
