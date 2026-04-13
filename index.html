@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Expires" content="0"/>
   <title>PharmaFit-PY · Peptídeos de Alta Performance</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
   <style>
@@ -156,6 +159,8 @@
     .h-card .hc-name { font-family:'Montserrat',sans-serif; font-size:9.5pt; font-weight:800; color:white; margin-bottom:4px; }
     .h-card .hc-desc { font-size:8pt; color:rgba(255,255,255,0.55); line-height:1.4; }
     .h-card .hc-tag { display:inline-block; background:rgba(93,173,226,0.2); color:#5DADE2; font-size:7pt; font-weight:700; padding:2px 8px; border-radius:50px; margin-top:8px; }
+    .h-card .hc-vitrine { display:inline-block; background:rgba(245,158,11,0.15); color:#F59E0B; font-size:6.5pt; font-weight:700; padding:2px 7px; border-radius:50px; margin-left:5px; border:1px solid rgba(245,158,11,0.3); }
+    .hero-disclaimer { margin-top:14px; font-size:7.5pt; color:rgba(255,255,255,0.4); text-align:center; font-style:italic; }
 
     /* ─── SECTION BASE ────────────────────────────────── */
     section { padding: 90px 40px; }
@@ -508,11 +513,26 @@
 <!-- ═══ PRODUTOS ═══ -->
 <section class="produtos-bg" id="produtos">
   <div class="container">
-    <span class="section-badge">Catálogo</span>
-    <h2 class="section-title">Nossos Peptídeos</h2>
+    <span class="section-badge">Com o que trabalhamos</span>
+    <h2 class="section-title">Nossa Linha de Compostos</h2>
     <p class="section-sub">Cada produto acompanha informativo técnico científico completo — frente e verso — com protocolos, dissolução e referências.</p>
+    <div style="margin-bottom:36px;padding:18px 24px;background:#F59E0B;border-radius:12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <span style="font-size:1.4rem;flex-shrink:0">⚠️</span>
+      <p style="font-size:.9rem;color:#1A1428;margin:0;flex:1;min-width:200px;font-weight:500">
+        <strong style="font-weight:800">Esta página não exibe preços.</strong> Os compostos listados são apenas uma visão geral do que trabalhamos.
+        Para ver o catálogo completo com preços e disponibilidade, <a href="catalogo_interno.html" style="color:#1A1428;font-weight:800;text-decoration:underline">acesse o Catálogo →</a>
+      </p>
+    </div>
     <div class="prod-grid" id="prod-grid">
-      <div style="grid-column:1/-1;text-align:center;padding:40px;color:#4A6278">⏳ Carregando catálogo...</div>
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:#4A6278">⏳ Carregando produtos...</div>
+    </div>
+    <div style="margin-top:48px;padding:32px 28px;background:linear-gradient(135deg,rgba(124,58,237,0.15),rgba(245,158,11,0.1));border:1px solid rgba(124,58,237,0.3);border-radius:18px;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:10px">🛒</div>
+      <h3 style="font-family:'Montserrat',sans-serif;font-size:1.1rem;font-weight:800;color:#ffffff;margin-bottom:8px">Quer fazer um pedido?</h3>
+      <p style="font-size:.88rem;color:rgba(255,255,255,0.75);margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto">Acesse o formulário de pedido, escolha os produtos, quantidades e finalize com as condições de pagamento.</p>
+      <a href="pedido_pharmafit.html" style="display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,#F39C12,#E67E22);color:#ffffff;font-family:'Montserrat',sans-serif;font-size:.95rem;font-weight:800;padding:14px 30px;border-radius:50px;text-decoration:none;box-shadow:0 6px 24px rgba(243,156,18,0.4);transition:all .2s">
+        📋 Acessar Formulário de Pedido →
+      </a>
     </div>
   </div>
 </section>
