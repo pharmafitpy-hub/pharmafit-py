@@ -1163,6 +1163,9 @@
 
     <!-- Parcelamento (só para cartão) -->
     <div class="installment-wrap" id="installment-wrap">
+      <div id="cupom-parc-badge" style="display:none;background:rgba(245,158,11,.12);border:1px solid var(--accent);border-radius:8px;padding:8px 14px;font-size:.82rem;color:var(--accent);margin-bottom:12px">
+        ⚡ Cupom ativo: parcelas 1× a 3× sem juros!
+      </div>
       <div class="form-grid">
         <div class="field">
           <label>Número de Parcelas</label>
@@ -1359,10 +1362,8 @@
   </div>
 </div>
 
+<script src="assets/js/config.js"></script>
 <script>
-// ─── CONFIG ─────────────────────────────────────────────────────────────────
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwSM2eVjBp0sbddf3CL70loX0OWqh5hSrO3SzL1uj9z54lN9i7G1PTON67rWD5CkTWA/exec';
-
 // ─── TABELA DE FRETE POR ESTADO ──────────────────────────────────────────────
 const FRETE_TABELA = {
   //         SEDEX  PAC  Jadlog  ds      dp       dj
@@ -1675,11 +1676,26 @@ function aplicarCupom() {
     }
     msg.innerHTML = `<div class="cupom-ok">${msgTxt}</div>`;
     buildReview();
+    checkCupomExtras();
   } else {
     cupomAplicado = false;
     cupomDesconto = 0;
     cupomData     = null;
     msg.innerHTML = `<div class="cupom-err">❌ Código inválido. Verifique e tente novamente.</div>`;
+  }
+}
+
+function checkCupomExtras() {
+  const badge    = document.getElementById('cupom-parc-badge');
+  const gratisEl = document.getElementById('frete-gratis');
+  if (badge) badge.style.display = cupomData?.parcelamento === 'SIM' ? 'block' : 'none';
+  if (cupomData?.frete_gratis_acima) {
+    const limiar = parseFloat(cupomData.frete_gratis_acima);
+    if (!isNaN(limiar)) {
+      gratisEl.textContent = `🎉 Cupom: frete grátis para pedidos acima de R$ ${limiar.toLocaleString('pt-BR',{minimumFractionDigits:2})}!`;
+      gratisEl.style.display = 'block';
+    }
+    if (freteEstado) selecionarFrete(freteMetodo || 'jadlog');
   }
 }
 
@@ -2197,6 +2213,10 @@ function selecionarFrete(metodo) {
   freteMetodo = metodo;
   const tabela = FRETE_TABELA[freteEstado];
   freteValor = tabela ? (tabela[metodo] || 0) : 0;
+  if (cupomData?.frete_gratis_acima) {
+    const limiar = parseFloat(cupomData.frete_gratis_acima);
+    if (!isNaN(limiar) && getTotal() >= limiar) freteValor = 0;
+  }
 }
 
 // ─── PROTOCOLO MODAL ────────────────────────────────────────────────────────
@@ -2283,7 +2303,8 @@ function calcInstallment() {
   const parcelas = parseInt(document.getElementById('f_parcelas').value);
   let total = getTotal();
   const config = PARCELAS_CONFIG.find(p => p.parcelas === parcelas);
-  const juros = config ? config.juros : 0;
+  let juros = config ? config.juros : 0;
+  if (cupomData?.parcelamento === 'SIM' && parcelas <= 3) juros = 0;
   if (juros > 0) total *= (1 + juros / 100);
   const por = total / parcelas;
   document.getElementById('f_parcela_val').value = `R$ ${por.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
@@ -2485,14 +2506,23 @@ function buildReview() {
   if (selectedPayment === 'Cartão de Crédito') {
     const parc = document.getElementById('f_parcelas').value;
     const val = document.getElementById('f_parcela_val').value;
-    pagInfo += `<div class="rc-row"><span class="lbl">Parcelamento</span><span class="val">${parc}x de ${val}</span></div>`;
+    const semJuros = cupomData?.parcelamento === 'SIM' && parseInt(parc) <= 3 ? ' (sem juros — cupom)' : '';
+    pagInfo += `<div class="rc-row"><span class="lbl">Parcelamento</span><span class="val">${parc}x de ${val}${semJuros}</span></div>`;
+  }
+  if (cupomData?.parcelamento === 'SIM') {
+    pagInfo += `<div class="rc-row"><span class="lbl">⚡ Benefício cupom</span><span class="val" style="color:var(--accent)">Parcelas 1× a 3× sem juros</span></div>`;
   }
   if (v('f_obs_pag')) {
     pagInfo += `<div class="rc-row"><span class="lbl">Obs. pagamento</span><span class="val">${v('f_obs_pag')}</span></div>`;
   }
 
   // Frete
-  let pagFrete = `<div class="rc-row"><span class="lbl">Frete</span><span class="val">${getFreteLabel()}</span></div>`;
+  let freteLabel = getFreteLabel();
+  if (cupomData?.frete_gratis_acima) {
+    const limiar = parseFloat(cupomData.frete_gratis_acima);
+    if (!isNaN(limiar)) freteLabel += ` <span style="color:var(--accent);font-size:.78rem">(🎟️ grátis acima de R$ ${limiar.toLocaleString('pt-BR',{minimumFractionDigits:2})})</span>`;
+  }
+  let pagFrete = `<div class="rc-row"><span class="lbl">Frete</span><span class="val">${freteLabel}</span></div>`;
   document.getElementById('review-payment').innerHTML = pagInfo + pagFrete;
 
   // Total com frete
@@ -2571,8 +2601,10 @@ function sendWhatsApp() {
   if (selectedPayment === 'Cartão de Crédito') {
     const parc = document.getElementById('f_parcelas').value;
     const val = document.getElementById('f_parcela_val').value;
-    msg += `Parcelamento: ${parc}x de ${val}\n`;
+    const semJurosSuffix = cupomData?.parcelamento === 'SIM' && parseInt(parc) <= 3 ? ' (sem juros — cupom)' : '';
+    msg += `Parcelamento: ${parc}x de ${val}${semJurosSuffix}\n`;
   }
+  if (cupomData?.parcelamento === 'SIM') msg += `⚡ Benefício: parcelas 1× a 3× sem juros (cupom)\n`;
   if (v('f_obs_pag')) msg += `Obs. pagamento: ${v('f_obs_pag')}\n`;
 
   msg += `\n━━━━━━━━━━━━━━━━━━━━━━\n`;
@@ -2602,7 +2634,7 @@ function sendWhatsApp() {
     ? `${document.getElementById('f_parcelas').value}x de ${document.getElementById('f_parcela_val').value}`
     : '—';
 
-  // SHEETS_URL já definida no topo
+
   const params = new URLSearchParams({
     clinica:       v('f_clinica'),
     responsavel:   v('f_responsavel'),
@@ -2627,9 +2659,12 @@ function sendWhatsApp() {
   });
   fetch(`${SHEETS_URL}?${params.toString()}`, { method: 'GET', mode: 'no-cors' }).catch(() => {});
 
+  // Decrementar estoque
+  fetch(`${SHEETS_URL}?action=decrementar_estoque&carrinho=${encodeURIComponent(JSON.stringify(cart))}`, { method: 'GET', mode: 'no-cors' }).catch(() => {});
+
   // Abrir WhatsApp
   const encoded = encodeURIComponent(msg);
-  window.open(`https://wa.me/12142049853?text=${encoded}`, '_blank');
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encoded}`, '_blank');
 
   // Mostrar sucesso
   showSuccess();

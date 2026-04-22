@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<title>Gerador de Pedido — PharmaFit</title>
+<style>
+  :root {
+    --bg:#0a0f1e; --card:#111827; --border:#1e2a3a; --accent:#F59E0B;
+    --green:#10B981; --red:#EF4444; --blue:#3b82f6; --gray:#9CA3AF;
+    --white:#ffffff; --input-bg:#162032; --wa:#25D366;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--white);min-height:100vh}
+
+  header{background:var(--card);border-bottom:2px solid var(--accent);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+  header .left{display:flex;align-items:center;gap:14px}
+  header h1{font-size:1.05rem;font-weight:700}
+  header span{font-size:.75rem;color:var(--accent)}
+  .btn-voltar{background:transparent;border:1px solid var(--border);color:var(--gray);padding:7px 16px;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;display:none}
+  .btn-voltar:hover{border-color:var(--accent);color:var(--accent)}
+
+  .container{max-width:1300px;margin:0 auto;padding:24px 20px}
+  .section-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--accent);margin-bottom:12px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px}
+
+  .tela-inicial{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:40px}
+  .tela-inicial h2{font-size:1.4rem;font-weight:800;text-align:center}
+  .tela-inicial p{color:var(--gray);font-size:.9rem;text-align:center;margin-top:4px}
+  .modo-btns{display:flex;gap:24px;flex-wrap:wrap;justify-content:center}
+  .modo-btn{background:var(--card);border:2px solid var(--border);border-radius:16px;padding:36px 44px;cursor:pointer;transition:all .2s;text-align:center;min-width:260px}
+  .modo-btn:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 8px 30px rgba(245,158,11,.12)}
+  .modo-btn .icon{font-size:2.4rem;margin-bottom:12px}
+  .modo-btn .title{font-size:1.05rem;font-weight:800;margin-bottom:6px}
+  .modo-btn .desc{font-size:.78rem;color:var(--gray);line-height:1.5}
+
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}
+  .field label{font-size:.72rem;color:var(--gray);font-weight:600;text-transform:uppercase;letter-spacing:.8px}
+  .field input,.field select,.field textarea{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:9px 12px;font-size:.88rem;font-family:inherit;outline:none;transition:border .2s}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+  .field textarea{resize:vertical;min-height:42px}
+
+  .busca-bar{display:flex;gap:8px;margin-bottom:14px}
+  .busca-bar input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:10px 14px;font-size:.88rem;font-family:inherit;outline:none}
+  .busca-bar input:focus{border-color:var(--accent)}
+
+  /* TABS */
+  .tabs{display:flex;gap:0;margin-bottom:14px}
+  .tab-btn{flex:1;padding:10px;text-align:center;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;border:1px solid var(--border);background:var(--input-bg);color:var(--gray);transition:all .15s;font-family:inherit}
+  .tab-btn:first-child{border-radius:8px 0 0 8px}
+  .tab-btn:last-child{border-radius:0 8px 8px 0}
+  .tab-btn.active{background:var(--accent);color:#000;border-color:var(--accent)}
+  .tab-btn:not(.active):hover{color:var(--accent)}
+
+  .clientes-grid,.pedidos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;max-height:480px;overflow-y:auto;padding-right:4px}
+  .clientes-grid::-webkit-scrollbar,.pedidos-grid::-webkit-scrollbar{width:4px}
+  .clientes-grid::-webkit-scrollbar-thumb,.pedidos-grid::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+  .cli-card,.ped-card{background:var(--input-bg);border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .15s}
+  .cli-card:hover,.ped-card:hover{border-color:var(--accent);background:rgba(245,158,11,.06)}
+  .ped-card.selecionado{border-color:var(--green);background:rgba(16,185,129,.06)}
+  .cli-nome{font-size:.88rem;font-weight:700;margin-bottom:3px}
+  .cli-info{font-size:.72rem;color:var(--gray);line-height:1.5}
+  .cli-tag{display:inline-block;font-size:.6rem;font-weight:700;background:rgba(59,130,246,.18);color:#93c5fd;padding:2px 7px;border-radius:4px;margin-top:5px}
+  .btn-novo-cliente{background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(245,158,11,.1));border:2px dashed var(--accent);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .15s}
+  .btn-novo-cliente:hover{background:rgba(245,158,11,.12);border-color:var(--green)}
+  .btn-novo-cliente .icon{font-size:1.5rem;margin-bottom:6px}
+  .btn-novo-cliente .label{font-size:.8rem;font-weight:700;color:var(--accent)}
+  .status-msg{font-size:.75rem;margin-top:8px;min-height:18px}
+
+  .ped-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+  .ped-cliente{font-size:.85rem;font-weight:700}
+  .ped-data{font-size:.62rem;color:var(--gray)}
+  .ped-total{font-size:.95rem;font-weight:800;color:var(--accent);margin-bottom:6px}
+  .ped-pag{display:inline-block;font-size:.6rem;font-weight:700;background:rgba(59,130,246,.18);color:#93c5fd;padding:2px 7px;border-radius:4px;margin-bottom:6px}
+  .ped-itens{font-size:.7rem;color:var(--gray);line-height:1.5}
+  .ped-btn{margin-top:10px;width:100%;padding:8px;border-radius:7px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-size:.75rem;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit}
+  .ped-btn:hover{background:var(--accent);color:#000}
+  .ped-btn.loaded{background:rgba(16,185,129,.15);border-color:var(--green);color:var(--green)}
+  .loading-box{text-align:center;padding:40px;color:var(--gray);font-size:.85rem}
+
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center}
+  .modal-overlay.ativo{display:flex}
+  .modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:90%;max-width:540px;max-height:90vh;overflow-y:auto}
+  .modal h3{font-size:1rem;font-weight:800;margin-bottom:18px;color:var(--accent)}
+  .modal .row{margin-bottom:10px}
+  .modal-actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end}
+  .btn-modal{padding:10px 22px;border-radius:8px;border:none;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+  .btn-modal.primary{background:var(--accent);color:#000}
+  .btn-modal.primary:hover{background:#D97706}
+  .btn-modal.secondary{background:transparent;border:1px solid var(--border);color:var(--gray)}
+  .btn-modal.secondary:hover{border-color:var(--accent);color:var(--accent)}
+
+  .layout{display:grid;grid-template-columns:400px 1fr;gap:20px}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+  .cart-empty{text-align:center;padding:30px;color:var(--gray);font-size:.85rem}
+  .cart-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+  .cart-item:last-child{border-bottom:none}
+  .ci-icon{font-size:1.1rem;flex-shrink:0}
+  .ci-info{flex:1;min-width:0}
+  .ci-name{font-size:.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ci-conc{font-size:.7rem;color:var(--gray)}
+  .ci-price{font-size:.8rem;color:var(--accent);font-weight:700;white-space:nowrap}
+  .ci-qty{display:flex;align-items:center;gap:5px}
+  .ci-qty button{width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:var(--input-bg);color:var(--white);font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+  .ci-qty button:hover{background:var(--accent);color:#000;border-color:var(--accent)}
+  .ci-qty span{font-size:.85rem;font-weight:700;min-width:20px;text-align:center}
+  .ci-remove{background:none;border:none;color:var(--red);cursor:pointer;font-size:.85rem;padding:4px;flex-shrink:0;opacity:.7}
+  .ci-remove:hover{opacity:1}
+  .cart-total{margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+  .cart-total .total-row{display:flex;justify-content:space-between;align-items:center}
+  .cart-total .label{font-size:.78rem;color:var(--gray)}
+  .cart-total .amount{font-size:1.15rem;font-weight:800;color:var(--accent)}
+  .cart-total .sub-row{display:flex;justify-content:space-between;font-size:.75rem;color:var(--gray);margin-top:4px}
+  .cart-total .juros-info{font-size:.68rem;color:var(--gray);margin-top:4px}
+  .var-select{background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--white);padding:4px 8px;font-size:.72rem;font-family:inherit;width:100%;margin-top:5px;outline:none}
+
+  .search-bar{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--white);font-size:.88rem;font-family:inherit;width:100%;outline:none;margin-bottom:14px}
+  .search-bar:focus{border-color:var(--accent)}
+  .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;max-height:480px;overflow-y:auto;padding-right:4px}
+  .cat-grid::-webkit-scrollbar{width:4px}
+  .cat-grid::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+  .prod-tile{background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:12px 10px;cursor:pointer;transition:all .15s;text-align:center;position:relative}
+  .prod-tile:hover{border-color:var(--accent);background:rgba(245,158,11,.08);transform:translateY(-2px)}
+  .prod-tile.in-cart{border-color:var(--green)}
+  .prod-tile .pt-icon{font-size:1.3rem;margin-bottom:6px}
+  .prod-tile .pt-name{font-size:.72rem;font-weight:700;line-height:1.3;margin-bottom:3px}
+  .prod-tile .pt-conc{font-size:.65rem;color:var(--gray);margin-bottom:4px}
+  .prod-tile .pt-price{font-size:.78rem;font-weight:800;color:var(--accent)}
+  .prod-tile .pt-badge{position:absolute;top:6px;right:6px;background:var(--green);color:#fff;font-size:.55rem;font-weight:800;padding:2px 5px;border-radius:4px}
+
+  /* FRETE */
+  .frete-box{background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:12px}
+  .frete-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+  .frete-row .field{min-width:120px}
+  .btn-calc{background:var(--accent);color:#000;border:none;border-radius:8px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;margin-bottom:5px}
+  .btn-calc:hover{background:#D97706}
+  .frete-opcoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .frete-opt{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;cursor:pointer;transition:all .15s;text-align:center;flex:1;min-width:120px}
+  .frete-opt:hover{border-color:var(--accent)}
+  .frete-opt.sel{border-color:var(--green);background:rgba(16,185,129,.08)}
+  .frete-opt .fo-nome{font-size:.72rem;font-weight:700;margin-bottom:4px}
+  .frete-opt .fo-preco{font-size:.88rem;font-weight:800;color:var(--accent)}
+  .frete-opt .fo-prazo{font-size:.62rem;color:var(--gray);margin-top:2px}
+  .frete-gratis{font-size:.72rem;color:var(--green);font-weight:700;margin-top:6px}
+  .frete-endereco-txt{font-size:.75rem;color:var(--gray);margin-top:6px}
+  .frete-status{font-size:.72rem;margin-top:6px;min-height:16px}
+
+  .parcelas-row{margin-top:10px}
+  .parcelas-row.hidden{display:none}
+
+  /* CUPOM */
+  .cupom-box{background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:12px}
+  .cupom-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .cupom-row input{flex:1;min-width:140px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:9px 12px;font-size:.88rem;font-family:inherit;outline:none;text-transform:uppercase;letter-spacing:1px;transition:border .2s}
+  .cupom-row input:focus{border-color:var(--accent)}
+  .cupom-row input:disabled{opacity:.5}
+  .btn-cupom{background:var(--accent);color:#000;border:none;border-radius:8px;padding:9px 18px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .btn-cupom:hover{background:#D97706}
+  .btn-cupom:disabled{opacity:.5;cursor:not-allowed}
+  .btn-rm-cupom{background:transparent;border:1px solid var(--red);color:var(--red);border-radius:8px;padding:9px 14px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn-rm-cupom:hover{background:rgba(239,68,68,.1)}
+  .cupom-status{font-size:.75rem;margin-top:8px;min-height:16px}
+  .cupom-ok{color:var(--green)}
+  .cupom-err{color:var(--red)}
+
+  .msg-textarea{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:16px;font-family:monospace;font-size:.82rem;line-height:1.6;color:#E5E7EB;resize:vertical;min-height:240px;outline:none;transition:border .2s}
+  .msg-textarea:focus{border-color:var(--accent)}
+  .msg-hint{font-size:.7rem;color:var(--gray);margin-bottom:8px}
+  .msg-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:11px 20px;border-radius:8px;border:none;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+  .btn-copy{background:var(--input-bg);border:1px solid var(--border);color:var(--white)}
+  .btn-copy:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-copy.copied{background:rgba(16,185,129,.15);border-color:var(--green);color:var(--green)}
+  .btn-wa{background:var(--wa);color:#fff}
+  .btn-wa:hover{background:#1DA851}
+  .btn-reset{background:transparent;border:1px solid var(--border);color:var(--gray)}
+  .btn-reset:hover{color:var(--accent);border-color:var(--accent)}
+  .btn-clear{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+  .btn-clear:hover{background:rgba(239,68,68,.2)}
+  .btn-save{background:var(--green);color:#fff}
+  .btn-save:hover{background:#059669}
+  .btn-save.saved{background:rgba(16,185,129,.2);color:var(--green);border:1px solid var(--green)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+  .save-status{font-size:.75rem;margin-top:8px;min-height:18px}
+
+  .modo-badge{display:inline-block;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;padding:4px 12px;border-radius:20px;margin-bottom:16px}
+  .modo-badge.novo{background:rgba(16,185,129,.15);color:var(--green)}
+  .modo-badge.corrigir{background:rgba(245,158,11,.15);color:var(--accent)}
+  .hidden{display:none!important}
+
+  /* CUPOM */
+  .cupom-box{background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:12px}
+  .cupom-row{display:flex;gap:8px;align-items:center}
+  .cupom-row input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:9px 12px;font-size:.88rem;font-family:inherit;outline:none;transition:border .2s}
+  .cupom-row input:focus{border-color:var(--accent)}
+  .cupom-row input:disabled{opacity:.5;cursor:not-allowed}
+  .btn-cupom{background:var(--accent);color:#000;border:none;border-radius:8px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s}
+  .btn-cupom:hover{background:#D97706}
+  .btn-cupom:disabled{opacity:.5;cursor:not-allowed}
+  .btn-remover-cupom{background:transparent;border:1px solid var(--red);color:var(--red);border-radius:8px;padding:9px 12px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+  .btn-remover-cupom:hover{background:rgba(239,68,68,.1)}
+  .cupom-status{font-size:.75rem;margin-top:8px;min-height:16px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="left"><div><h1>🧬 Gerador de Pedido</h1><span>Ferramenta interna — PharmaFit-PY</span></div></div>
+  <button class="btn-voltar" id="btn-voltar" onclick="voltarInicio()">← Voltar ao Inicio</button>
+</header>
+
+<div class="container">
+
+  <!-- ══ TELA 1: ESCOLHA ══ -->
+  <div id="tela-inicio" class="tela-inicial">
+    <div><h2>O que deseja fazer?</h2><p>Selecione uma opcao para comecar</p></div>
+    <div class="modo-btns">
+      <div class="modo-btn" onclick="iniciarModo('novo')"><div class="icon">📝</div><div class="title">Novo Pedido</div><div class="desc">Criar um pedido do zero.<br/>Selecione um cliente ou cadastre um novo.</div></div>
+      <div class="modo-btn" onclick="iniciarModo('corrigir')"><div class="icon">✏️</div><div class="title">Corrigir Pedido</div><div class="desc">Editar um pedido existente.<br/>Veja os ultimos pedidos ou busque por cliente.</div></div>
+    </div>
+  </div>
+
+  <!-- ══ TELA 2A: CLIENTES ══ -->
+  <div id="tela-clientes" class="hidden">
+    <span class="modo-badge novo">Novo Pedido</span>
+    <div class="card">
+      <div class="section-title">👥 Selecione o Cliente</div>
+      <div class="busca-bar"><input type="text" id="busca_cliente" placeholder="🔍 Buscar por nome, telefone, CPF/CNPJ ou e-mail..." oninput="filtrarClientes()"/></div>
+      <div id="clientes-grid" class="clientes-grid"><div class="loading-box">⏳ Carregando clientes...</div></div>
+      <div class="status-msg" id="clientes-status"></div>
+    </div>
+  </div>
+
+  <!-- ══ TELA 2B: CORRIGIR — TABS ══ -->
+  <div id="tela-pedidos" class="hidden">
+    <span class="modo-badge corrigir">Corrigir Pedido</span>
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" id="tab-pedidos" onclick="trocarTab('pedidos')">📦 Por Pedido</button>
+        <button class="tab-btn" id="tab-clientes-corr" onclick="trocarTab('clientes-corr')">👤 Por Cliente</button>
+      </div>
+      <!-- TAB: PEDIDOS -->
+      <div id="tab-content-pedidos">
+        <div class="busca-bar"><input type="text" id="busca_pedido" placeholder="🔍 Filtrar por cliente, telefone, data..." oninput="filtrarPedidos()"/></div>
+        <div id="pedidos-grid" class="pedidos-grid"><div class="loading-box">⏳ Carregando pedidos...</div></div>
+        <div class="status-msg" id="pedidos-status"></div>
+      </div>
+      <!-- TAB: CLIENTES -->
+      <div id="tab-content-clientes-corr" class="hidden">
+        <div class="busca-bar"><input type="text" id="busca_cli_corr" placeholder="🔍 Buscar cliente por nome, telefone, CPF..." oninput="filtrarClientesCorr()"/></div>
+        <div id="clientes-corr-grid" class="clientes-grid"><div class="loading-box">⏳ Carregando clientes...</div></div>
+        <div class="status-msg" id="clientes-corr-status"></div>
+        <!-- Pedidos do cliente selecionado -->
+        <div id="pedidos-cliente-section" class="hidden" style="margin-top:16px">
+          <div class="section-title" id="pedidos-cli-titulo">📦 Pedidos de ...</div>
+          <div id="pedidos-cliente-grid" class="pedidos-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TELA 3: EDITOR ══ -->
+  <div id="tela-editor" class="hidden">
+    <span class="modo-badge novo hidden" id="badge-novo">Novo Pedido</span>
+    <span class="modo-badge corrigir hidden" id="badge-corrigir">Corrigir Pedido</span>
+
+    <div class="card">
+      <div class="section-title">📋 Dados do Cliente</div>
+      <div class="row">
+        <div class="field"><label>Nome / Clinica</label><input type="text" id="c_nome" placeholder="Ex: Dra. Ana Souza" oninput="gerarMensagem()"/></div>
+        <div class="field" style="max-width:200px"><label>Telefone (com DDD)</label><input type="text" id="c_telefone" placeholder="11999999999" oninput="gerarMensagem()"/></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="field" style="max-width:200px"><label>Forma de Pagamento</label>
+          <select id="c_pagamento" onchange="onPagamentoChange()">
+            <option value="">— Nao informado —</option><option>PIX</option><option>Transferencia Bancaria</option><option>Cartao de Credito</option><option>Boleto Bancario</option>
+          </select>
+        </div>
+        <div class="field parcelas-row hidden" id="parcelas-field" style="max-width:240px"><label>Parcelas</label>
+          <select id="c_parcelas" onchange="gerarMensagem()"><option value="">Carregando...</option></select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="field"><label id="lbl-obs">Observacao</label><input type="text" id="c_obs" placeholder="Ex: cliente solicitou entrega expressa" oninput="gerarMensagem()"/></div>
+      </div>
+
+      <!-- CUPOM -->
+      <div class="cupom-box">
+        <div class="section-title" style="margin-bottom:10px">🎟️ Cupom de Bonificação</div>
+        <div class="cupom-row">
+          <input type="text" id="c_cupom" placeholder="EX: BONUS10" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')aplicarCupom()"/>
+          <button class="btn-cupom" id="btn-aplicar-cupom" onclick="aplicarCupom()">Aplicar</button>
+          <button class="btn-rm-cupom hidden" id="btn-remover-cupom" onclick="removerCupom()">✕ Remover</button>
+        </div>
+        <div class="cupom-status" id="cupom-status"></div>
+      </div>
+
+      <!-- FRETE -->
+      <div class="frete-box">
+        <div class="section-title" style="margin-bottom:10px">📦 Frete / Entrega</div>
+        <div class="frete-row">
+          <div class="field" style="max-width:140px"><label>CEP</label><input type="text" id="f_cep" placeholder="00000-000" maxlength="9" oninput="mascaraCep(this)"/></div>
+          <button class="btn-calc" onclick="calcularFrete()">Calcular Frete</button>
+        </div>
+        <div class="frete-status" id="frete-status"></div>
+        <div class="frete-endereco-txt" id="frete-endereco-txt"></div>
+        <div class="frete-opcoes" id="frete-opcoes" style="display:none"></div>
+        <div class="frete-gratis" id="frete-gratis" style="display:none">🎉 Frete gratis para pedidos acima de R$ 3.000!</div>
+      </div>
+
+      <!-- CUPOM -->
+      <div class="cupom-box">
+        <div class="section-title" style="margin-bottom:10px">🎟️ Cupom / Bonificação</div>
+        <div class="cupom-row">
+          <input type="text" id="c_cupom" placeholder="Ex: BONUS10" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')aplicarCupom()"/>
+          <button class="btn-cupom" id="btn-cupom" onclick="aplicarCupom()">Aplicar</button>
+          <button class="btn-remover-cupom hidden" id="btn-remover-cupom" onclick="removerCupom()">✕ Remover</button>
+        </div>
+        <div class="cupom-status" id="cupom-status"></div>
+      </div>
+    </div>
+
+    <!-- CARRINHO + CATALOGO -->
+    <div class="layout">
+      <div><div class="card" style="position:sticky;top:20px">
+        <div class="section-title">🛒 Itens do Pedido</div>
+        <div id="cart-list"><div class="cart-empty">Adicione produtos do catalogo →</div></div>
+        <div class="cart-total" id="cart-total" style="display:none">
+          <div class="sub-row"><span>Subtotal</span><span id="subtotal-amount">R$ 0,00</span></div>
+          <div class="sub-row" id="frete-row" style="display:none"><span>Frete (<span id="frete-metodo-label"></span>)</span><span id="frete-valor-label">R$ 0,00</span></div>
+          <div class="sub-row" id="cupom-desc-row" style="display:none"><span>Desconto (<span id="cupom-codigo-label"></span>)</span><span id="cupom-desc-label" style="color:var(--green)">− R$ 0,00</span></div>
+          <div class="juros-info" id="juros-info" style="display:none"></div>
+          <div class="total-row" style="margin-top:8px"><span class="label">Total</span><span class="amount" id="total-amount">R$ 0,00</span></div>
+        </div>
+      </div></div>
+      <div><div class="card">
+        <div class="section-title">💊 Adicionar Produto</div>
+        <input type="search" class="search-bar" id="busca_cat" placeholder="🔍 Buscar produto no catalogo..." oninput="filtrarProdutos()"/>
+        <div id="cat-grid" class="cat-grid"><div class="loading-box">⏳ Carregando catalogo...</div></div>
+      </div></div>
+    </div>
+
+    <!-- MENSAGEM -->
+    <div class="card">
+      <div class="section-title">💬 Mensagem do Pedido</div>
+      <div class="msg-hint">✏️ Voce pode editar o texto abaixo antes de enviar</div>
+      <textarea class="msg-textarea" id="msg-preview" placeholder="Monte o pedido acima para gerar a mensagem..."></textarea>
+      <div class="msg-actions">
+        <button class="btn btn-save" id="btn-save" onclick="salvarPedido()" disabled>💾 Salvar no Sheets</button>
+        <button class="btn btn-copy" id="btn-copy" onclick="copiarMensagem()" disabled>📋 Copiar</button>
+        <button class="btn btn-wa" id="btn-wa" onclick="enviarWhatsApp()" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Enviar no WhatsApp
+        </button>
+        <button class="btn btn-reset" onclick="gerarMensagem()">🔄 Regenerar</button>
+        <button class="btn btn-clear" onclick="limparPedido()">🗑️ Limpar Pedido</button>
+      </div>
+      <div class="save-status" id="save-status"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CADASTRO -->
+<div class="modal-overlay" id="modal-cadastro"><div class="modal">
+  <h3>➕ Cadastrar Novo Cliente</h3>
+  <div class="row"><div class="field"><label>Nome / Clinica *</label><input type="text" id="nc_nome"/></div></div>
+  <div class="row"><div class="field"><label>Responsavel</label><input type="text" id="nc_responsavel"/></div><div class="field"><label>Cargo</label><input type="text" id="nc_cargo"/></div></div>
+  <div class="row"><div class="field"><label>Telefone *</label><input type="text" id="nc_telefone"/></div><div class="field"><label>E-mail</label><input type="text" id="nc_email"/></div></div>
+  <div class="row"><div class="field"><label>CPF/CNPJ</label><input type="text" id="nc_cpf"/></div></div>
+  <div class="row"><div class="field"><label>Cidade</label><input type="text" id="nc_cidade"/></div><div class="field" style="max-width:100px"><label>Estado</label><input type="text" id="nc_estado" maxlength="2"/></div></div>
+  <div class="row"><div class="field"><label>Endereco</label><input type="text" id="nc_endereco"/></div></div>
+  <div class="status-msg" id="cadastro-status" style="color:#FCA5A5"></div>
+  <div class="modal-actions"><button class="btn-modal secondary" onclick="fecharModal()">Cancelar</button><button class="btn-modal primary" id="btn-salvar-cliente" onclick="salvarNovoCliente()">Cadastrar</button></div>
+</div></div>
+
+<script src="assets/js/config.js"></script>
+<script>
+const FRETE_TABELA = {
+  SP:{sedex:28,pac:18,jadlog:15,ds:'1-2',dp:'4-6',dj:'3-5'},
+  RJ:{sedex:34,pac:24,jadlog:20,ds:'1-2',dp:'5-7',dj:'4-6'},
+  MG:{sedex:34,pac:24,jadlog:20,ds:'2-3',dp:'6-8',dj:'4-7'},
+  ES:{sedex:38,pac:28,jadlog:24,ds:'2-3',dp:'6-9',dj:'5-8'},
+  PR:{sedex:38,pac:28,jadlog:22,ds:'2-3',dp:'5-8',dj:'4-7'},
+  SC:{sedex:38,pac:28,jadlog:24,ds:'2-3',dp:'6-9',dj:'5-8'},
+  RS:{sedex:42,pac:32,jadlog:28,ds:'2-3',dp:'7-10',dj:'5-8'},
+  MS:{sedex:45,pac:35,jadlog:30,ds:'3-4',dp:'8-12',dj:'6-9'},
+  MT:{sedex:48,pac:38,jadlog:34,ds:'3-4',dp:'9-13',dj:'7-10'},
+  GO:{sedex:45,pac:35,jadlog:30,ds:'3-4',dp:'8-12',dj:'6-9'},
+  DF:{sedex:45,pac:35,jadlog:30,ds:'2-3',dp:'7-10',dj:'5-8'},
+  BA:{sedex:52,pac:40,jadlog:35,ds:'3-5',dp:'10-14',dj:'7-10'},
+  SE:{sedex:55,pac:42,jadlog:37,ds:'3-5',dp:'10-14',dj:'8-11'},
+  AL:{sedex:55,pac:42,jadlog:37,ds:'4-5',dp:'11-15',dj:'8-12'},
+  PE:{sedex:55,pac:42,jadlog:37,ds:'4-5',dp:'11-15',dj:'8-12'},
+  PB:{sedex:58,pac:44,jadlog:39,ds:'4-5',dp:'12-16',dj:'9-13'},
+  RN:{sedex:58,pac:44,jadlog:39,ds:'4-5',dp:'12-16',dj:'9-13'},
+  CE:{sedex:58,pac:44,jadlog:39,ds:'4-5',dp:'12-16',dj:'9-13'},
+  PI:{sedex:62,pac:48,jadlog:43,ds:'5-6',dp:'13-17',dj:'10-14'},
+  MA:{sedex:62,pac:48,jadlog:43,ds:'5-6',dp:'13-17',dj:'10-14'},
+  PA:{sedex:65,pac:50,jadlog:45,ds:'5-6',dp:'14-18',dj:'10-15'},
+  AM:{sedex:68,pac:52,jadlog:48,ds:'5-7',dp:'15-20',dj:'11-16'},
+  AC:{sedex:72,pac:56,jadlog:52,ds:'6-8',dp:'16-22',dj:'12-18'},
+  RO:{sedex:68,pac:52,jadlog:48,ds:'5-7',dp:'15-20',dj:'11-16'},
+  RR:{sedex:72,pac:56,jadlog:52,ds:'6-8',dp:'16-22',dj:'12-18'},
+  AP:{sedex:68,pac:52,jadlog:48,ds:'5-7',dp:'15-20',dj:'11-16'},
+  TO:{sedex:62,pac:48,jadlog:43,ds:'4-6',dp:'12-16',dj:'9-13'},
+};
+
+let CATALOG=[], CLIENTES=[], CLIENTES_CORR=[], PEDIDOS=[], PARCELAS=[], CUPONS={};
+let cart={}, MODO='', clienteAtual=null;
+let freteValor=0, freteMetodo='', freteEstado='', freteCep='';
+let pendingCart=null, pendingCartText=null;
+let cupomAplicado=false, cupomCodigo='', cupomData=null;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════════
+window.onload = () => { carregarCatalogo(); carregarParcelas(); carregarCupons(); };
+
+async function carregarCupons(){
+  try{const r=await fetch(`${SHEETS_URL}?action=cupons`);const d=await r.json();if(d&&typeof d==='object')CUPONS=d;}catch(e){}
+}
+
+async function carregarCatalogo() {
+  try {
+    const res = await fetch(`${SHEETS_URL}?action=produtos`);
+    const data = await res.json();
+    CATALOG = data.map(p => ({
+      id: p.id, icon: p.icone||'💊', name: p.nome, conc: String(p.conc||''),
+      price: parseFloat(p.preco)||0,
+      variantes: (Array.isArray(p.variantes)&&p.variantes.length>0&&p.variantes[0].dose)
+        ? p.variantes.map(v=>({dose:v.dose,preco:parseFloat(v.preco)||0})) : []
+    }));
+    if(pendingCart){cart=pendingCart;pendingCart=null;renderCart();renderCatalogo();gerarMensagem();}
+    if(pendingCartText){reconstruirCarrinho(pendingCartText);pendingCartText=null;renderCart();renderCatalogo();gerarMensagem();}
+  } catch(e){}
+}
+
+async function carregarParcelas() {
+  try { const r=await fetch(`${SHEETS_URL}?action=parcelas`); PARCELAS=await r.json(); renderParcelasSelect(); } catch(e){}
+}
+async function carregarCupons() {
+  try { const r=await fetch(`${SHEETS_URL}?action=cupons`); CUPONS=await r.json(); } catch(e){}
+}
+function renderParcelasSelect() {
+  const sel=document.getElementById('c_parcelas'); if(!sel)return;
+  sel.innerHTML='<option value="1">1x sem juros</option>';
+  PARCELAS.forEach(p=>{
+    const l=p.juros>0?`${p.parcelas}x com ${p.juros}% juros`:`${p.parcelas}x sem juros`;
+    sel.innerHTML+=`<option value="${p.parcelas}" data-juros="${p.juros}">${l}</option>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CUPOM
+// ═══════════════════════════════════════════════════════════════════════════════
+function getItemPrice(key){
+  const parts=key.split('__'),id=parts[0],varIdx=parts.length>1?parseInt(parts[1]):null;
+  const p=CATALOG.find(x=>x.id===id);if(!p)return 0;
+  let price=p.price;
+  if(varIdx!==null&&p.variantes[varIdx])price=p.variantes[varIdx].preco;
+  if(cupomAplicado&&cupomData&&cupomData.tipo==='fixo'){
+    const precos=cupomData.precos||{};
+    if(precos[key]!==undefined)price=precos[key];
+    else if(precos[id]!==undefined)price=precos[id];
+  }
+  return price;
+}
+function calcularDescontoCupom(){
+  if(!cupomAplicado||!cupomData)return 0;
+  if(cupomData.tipo==='%'){
+    if(cupomData.produtos==='todos')return calcSubtotal()*(cupomData.valor/100);
+    let base=0;const prods=Array.isArray(cupomData.produtos)?cupomData.produtos:[];
+    Object.keys(cart).forEach(key=>{const bid=key.split('__')[0];if(prods.includes(key)||prods.includes(bid))base+=getItemPrice(key)*cart[key];});
+    return base*(cupomData.valor/100);
+  }
+  if(cupomData.tipo==='fixo'){
+    let desc=0;const precos=cupomData.precos||{};
+    Object.keys(cart).forEach(key=>{const bid=key.split('__')[0];const p=CATALOG.find(x=>x.id===bid);if(!p)return;
+      const parts=key.split('__'),varIdx=parts.length>1?parseInt(parts[1]):null;
+      let orig=p.price;if(varIdx!==null&&p.variantes[varIdx])orig=p.variantes[varIdx].preco;
+      const disc=precos[key]!==undefined?precos[key]:precos[bid]!==undefined?precos[bid]:null;
+      if(disc!==null)desc+=Math.max(0,orig-disc)*cart[key];
+    });
+    return desc;
+  }
+  return 0;
+}
+function aplicarCupom(){
+  const codigo=(document.getElementById('c_cupom').value||'').trim().toUpperCase();
+  const status=document.getElementById('cupom-status');
+  if(!codigo){status.innerHTML='<span class="cupom-err">⚠️ Digite um código.</span>';return;}
+  const c=CUPONS[codigo];
+  if(c!==undefined){
+    cupomAplicado=true;cupomCodigo=codigo;
+    cupomData=typeof c==='number'?{tipo:'%',valor:c*100,produtos:'todos'}:c;
+    document.getElementById('c_cupom').disabled=true;
+    document.getElementById('btn-aplicar-cupom').disabled=true;
+    document.getElementById('btn-remover-cupom').classList.remove('hidden');
+    const desc=calcularDescontoCupom();
+    const descStr=desc>0?` — <strong>R$ ${desc.toLocaleString('pt-BR',{minimumFractionDigits:2})} de desconto</strong>`:'';
+    let txt='';
+    if(cupomData.tipo==='%')txt=`✅ <strong>${codigo}</strong> aplicado! ${cupomData.valor}% de desconto${descStr}.`;
+    else txt=`✅ <strong>${codigo}</strong> aplicado! Preço especial em produtos selecionados${descStr}.`;
+    status.innerHTML=`<span class="cupom-ok">${txt}</span>`;
+    renderCart();gerarMensagem();
+  }else{
+    cupomAplicado=false;cupomData=null;
+    status.innerHTML='<span class="cupom-err">❌ Código inválido.</span>';
+  }
+}
+function removerCupom(){
+  cupomAplicado=false;cupomCodigo='';cupomData=null;
+  document.getElementById('c_cupom').value='';
+  document.getElementById('c_cupom').disabled=false;
+  document.getElementById('btn-aplicar-cupom').disabled=false;
+  document.getElementById('btn-remover-cupom').classList.add('hidden');
+  document.getElementById('cupom-status').textContent='';
+  renderCart();gerarMensagem();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NAVEGACAO
+// ═══════════════════════════════════════════════════════════════════════════════
+function mostrarTela(id){
+  ['tela-inicio','tela-clientes','tela-pedidos','tela-editor'].forEach(t=>document.getElementById(t).classList.toggle('hidden',t!==id));
+  document.getElementById('btn-voltar').style.display=id==='tela-inicio'?'none':'block';
+}
+function voltarInicio(){
+  if(MODO&&Object.keys(cart).length>0){if(!confirm('Tem certeza? O pedido atual sera perdido.'))return;}
+  MODO='';cart={};clienteAtual=null;freteValor=0;freteMetodo='';mostrarTela('tela-inicio');
+}
+function iniciarModo(modo){
+  MODO=modo;
+  if(modo==='novo'){mostrarTela('tela-clientes');carregarClientesLista();}
+  else{mostrarTela('tela-pedidos');carregarUltimosPedidos();carregarClientesCorrLista();}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TABS (Corrigir)
+// ═══════════════════════════════════════════════════════════════════════════════
+function trocarTab(tab){
+  document.getElementById('tab-pedidos').classList.toggle('active',tab==='pedidos');
+  document.getElementById('tab-clientes-corr').classList.toggle('active',tab==='clientes-corr');
+  document.getElementById('tab-content-pedidos').classList.toggle('hidden',tab!=='pedidos');
+  document.getElementById('tab-content-clientes-corr').classList.toggle('hidden',tab!=='clientes-corr');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// IR PARA EDITOR
+// ═══════════════════════════════════════════════════════════════════════════════
+function irParaEditor(){
+  mostrarTela('tela-editor');
+  const bN=document.getElementById('badge-novo'),bC=document.getElementById('badge-corrigir');
+  if(MODO==='novo'){bN.classList.remove('hidden');bC.classList.add('hidden');document.getElementById('lbl-obs').textContent='Observacao';document.getElementById('c_obs').placeholder='Ex: cliente solicitou entrega expressa';}
+  else{bC.classList.remove('hidden');bN.classList.add('hidden');document.getElementById('lbl-obs').textContent='Observacao (o que foi alterado)';document.getElementById('c_obs').placeholder='Ex: adicionado Tirzepatida 120mg conforme solicitado';}
+  if(clienteAtual){
+    document.getElementById('c_nome').value=clienteAtual.clinica||clienteAtual.nome||'';
+    document.getElementById('c_telefone').value=clienteAtual.telefone||'';
+  }
+  renderCatalogo();renderCart();gerarMensagem();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FRETE
+// ═══════════════════════════════════════════════════════════════════════════════
+function mascaraCep(el){let v=el.value.replace(/\D/g,'');if(v.length>5)v=v.slice(0,5)+'-'+v.slice(5,8);el.value=v;}
+
+async function calcularFrete(){
+  const cep=document.getElementById('f_cep').value.replace(/\D/g,'');
+  const status=document.getElementById('frete-status');
+  const opcoes=document.getElementById('frete-opcoes');
+  const endTxt=document.getElementById('frete-endereco-txt');
+  const gratisEl=document.getElementById('frete-gratis');
+  if(cep.length!==8){status.textContent='CEP invalido (8 digitos).';status.style.color='#FCA5A5';return;}
+  status.textContent='⏳ Consultando CEP...';status.style.color='var(--gray)';
+  try{
+    const res=await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const data=await res.json();
+    if(data.erro){status.textContent='CEP nao encontrado.';status.style.color='#FCA5A5';opcoes.style.display='none';return;}
+    freteEstado=data.uf;freteCep=cep;
+    endTxt.textContent=`📍 ${data.logradouro?data.logradouro+', ':''}${data.localidade}/${data.uf}`;
+    const tab=FRETE_TABELA[data.uf];
+    if(!tab){status.textContent='Estado sem tabela de frete.';status.style.color='#FCA5A5';return;}
+
+    // Verifica frete gratis
+    const subtotal=calcSubtotal();
+    if(subtotal>=3000){
+      freteValor=0;freteMetodo='gratis';
+      opcoes.style.display='none';
+      gratisEl.style.display='block';
+      status.textContent='';
+    } else {
+      gratisEl.style.display='none';
+      opcoes.style.display='flex';
+      opcoes.innerHTML=[
+        {id:'sedex',nome:'SEDEX',preco:tab.sedex,prazo:tab.ds},
+        {id:'pac',nome:'PAC',preco:tab.pac,prazo:tab.dp},
+        {id:'jadlog',nome:'Jadlog',preco:tab.jadlog,prazo:tab.dj},
+      ].map(o=>`<div class="frete-opt" id="fo-${o.id}" onclick="selecionarFrete('${o.id}')">
+        <div class="fo-nome">${o.nome}</div>
+        <div class="fo-preco">R$ ${o.preco.toFixed(2).replace('.',',')}</div>
+        <div class="fo-prazo">${o.prazo} dias uteis</div>
+      </div>`).join('');
+      selecionarFrete('jadlog');
+      status.textContent='';
+    }
+    renderCart();gerarMensagem();
+  }catch(e){status.textContent='⚠️ Erro ao consultar CEP.';status.style.color='#FCA5A5';}
+}
+
+function selecionarFrete(metodo){
+  freteMetodo=metodo;
+  const tab=FRETE_TABELA[freteEstado];
+  freteValor=tab?(tab[metodo]||0):0;
+  document.querySelectorAll('.frete-opt').forEach(el=>el.classList.remove('sel'));
+  const el=document.getElementById('fo-'+metodo);if(el)el.classList.add('sel');
+  renderCart();gerarMensagem();
+}
+
+function calcSubtotal(){
+  let s=0;
+  Object.keys(cart).forEach(key=>{const p=CATALOG.find(x=>x.id===key.split('__')[0]);if(!p)return;s+=getItemPrice(key)*cart[key];});
+  return s;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PARCELAS
+// ═══════════════════════════════════════════════════════════════════════════════
+function onPagamentoChange(){
+  const v=document.getElementById('c_pagamento').value;
+  const f=document.getElementById('parcelas-field');
+  if(v==='Cartao de Credito')f.classList.remove('hidden');else{f.classList.add('hidden');document.getElementById('c_parcelas').value='1';}
+  gerarMensagem();
+}
+function getParcelaInfo(){
+  if(document.getElementById('c_pagamento').value!=='Cartao de Credito')return null;
+  const sel=document.getElementById('c_parcelas'),opt=sel.options[sel.selectedIndex];if(!opt)return null;
+  const parc=parseInt(sel.value)||1;
+  let juros=parseFloat(opt.getAttribute('data-juros'))||0;
+  if(cupomData?.parcelamento==='SIM'&&parc<=3)juros=0;
+  return{parcelas:parc,juros};
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CATALOGO
+// ═══════════════════════════════════════════════════════════════════════════════
+function filtrarProdutos(){renderCatalogo(document.getElementById('busca_cat').value.toLowerCase());}
+function renderCatalogo(filtro=''){
+  const grid=document.getElementById('cat-grid');if(!grid)return;
+  if(CATALOG.length===0){grid.innerHTML='<div class="loading-box">⏳ Carregando catalogo...</div>';return;}
+  const lista=filtro?CATALOG.filter(p=>p.name.toLowerCase().includes(filtro)||String(p.conc).toLowerCase().includes(filtro)):CATALOG;
+  if(!lista.length){grid.innerHTML='<div class="loading-box">Nenhum produto encontrado.</div>';return;}
+  grid.innerHTML=lista.map(p=>{
+    const inCart=Object.keys(cart).some(k=>k.split('__')[0]===p.id);
+    const precoMin=p.variantes.length>0?Math.min(...p.variantes.map(v=>v.preco)):p.price;
+    return`<div class="prod-tile ${inCart?'in-cart':''}" onclick="adicionarProduto('${p.id}')">
+      ${inCart?'<span class="pt-badge">✓</span>':''}
+      <div class="pt-icon">${p.icon}</div><div class="pt-name">${p.name}</div>
+      <div class="pt-conc">${p.conc}</div><div class="pt-price">R$ ${precoMin.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CLIENTES (NOVO PEDIDO)
+// ═══════════════════════════════════════════════════════════════════════════════
+async function carregarClientesLista(){
+  document.getElementById('clientes-grid').innerHTML='<div class="loading-box">⏳ Carregando clientes...</div>';
+  try{const r=await fetch(`${SHEETS_URL}?action=clientes`);CLIENTES=await r.json();renderClientes();}
+  catch(e){document.getElementById('clientes-grid').innerHTML='<div class="loading-box">⚠️ Erro ao carregar.</div>';}
+}
+function filtrarClientes(){renderClientes(document.getElementById('busca_cliente').value.toLowerCase());}
+function renderClientes(filtro=''){
+  const grid=document.getElementById('clientes-grid');
+  const lista=filtro?CLIENTES.filter(c=>`${c.clinica} ${c.responsavel} ${c.telefone} ${c.cpf} ${c.email}`.toLowerCase().includes(filtro)):CLIENTES;
+  let html=`<div class="btn-novo-cliente" onclick="abrirCadastro()"><div class="icon">➕</div><div class="label">Cadastrar Novo Cliente</div></div>`;
+  if(!lista.length&&filtro)html+='<div class="loading-box">Nenhum cliente encontrado.</div>';
+  else html+=lista.map((c,i)=>{
+    const ri=CLIENTES.indexOf(c);const parts=[];
+    if(c.telefone)parts.push(`📞 ${c.telefone}`);if(c.cpf)parts.push(`🆔 ${c.cpf}`);if(c.email)parts.push(`📧 ${c.email}`);if(c.cidade)parts.push(`📍 ${c.cidade}${c.estado?'/'+c.estado:''}`);
+    return`<div class="cli-card" onclick="selecionarCliente(${ri},'novo')"><div class="cli-nome">${c.clinica||c.responsavel||'Sem nome'}</div><div class="cli-info">${parts.join(' · ')}</div>${c.responsavel&&c.clinica?`<span class="cli-tag">${c.responsavel}</span>`:''}</div>`;
+  }).join('');
+  grid.innerHTML=html;
+  document.getElementById('clientes-status').textContent=`${CLIENTES.length} clientes cadastrados`;
+}
+function selecionarCliente(i,modo){
+  clienteAtual=(modo==='novo'?CLIENTES:CLIENTES_CORR)[i];if(!clienteAtual)return;
+  cart={};freteValor=0;freteMetodo='';
+  if(modo==='novo')irParaEditor();
+  else carregarPedidosDoCliente(clienteAtual);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CLIENTES (CORRIGIR — tab Por Cliente)
+// ═══════════════════════════════════════════════════════════════════════════════
+async function carregarClientesCorrLista(){
+  document.getElementById('clientes-corr-grid').innerHTML='<div class="loading-box">⏳ Carregando clientes...</div>';
+  try{const r=await fetch(`${SHEETS_URL}?action=clientes`);CLIENTES_CORR=await r.json();renderClientesCorr();}
+  catch(e){document.getElementById('clientes-corr-grid').innerHTML='<div class="loading-box">⚠️ Erro.</div>';}
+}
+function filtrarClientesCorr(){renderClientesCorr(document.getElementById('busca_cli_corr').value.toLowerCase());}
+function renderClientesCorr(filtro=''){
+  const grid=document.getElementById('clientes-corr-grid');
+  const lista=filtro?CLIENTES_CORR.filter(c=>`${c.clinica} ${c.responsavel} ${c.telefone} ${c.cpf} ${c.email}`.toLowerCase().includes(filtro)):CLIENTES_CORR;
+  if(!lista.length){grid.innerHTML='<div class="loading-box">Nenhum cliente encontrado.</div>';return;}
+  grid.innerHTML=lista.map((c,i)=>{
+    const ri=CLIENTES_CORR.indexOf(c);const parts=[];
+    if(c.telefone)parts.push(`📞 ${c.telefone}`);if(c.cpf)parts.push(`🆔 ${c.cpf}`);if(c.cidade)parts.push(`📍 ${c.cidade}${c.estado?'/'+c.estado:''}`);
+    return`<div class="cli-card" onclick="selecionarCliente(${ri},'corr')"><div class="cli-nome">${c.clinica||'Sem nome'}</div><div class="cli-info">${parts.join(' · ')}</div></div>`;
+  }).join('');
+  document.getElementById('clientes-corr-status').textContent=`${CLIENTES_CORR.length} clientes`;
+}
+
+async function carregarPedidosDoCliente(cli){
+  const sec=document.getElementById('pedidos-cliente-section');
+  const grid=document.getElementById('pedidos-cliente-grid');
+  document.getElementById('pedidos-cli-titulo').textContent=`📦 Pedidos de ${cli.clinica||'cliente'}`;
+  sec.classList.remove('hidden');
+  grid.innerHTML='<div class="loading-box">⏳ Buscando pedidos...</div>';
+  const doc=cli.cpf||cli.telefone||cli.email||'';
+  if(!doc){grid.innerHTML='<div class="loading-box">Sem documento para buscar.</div>';return;}
+  try{
+    const r=await fetch(`${SHEETS_URL}?action=pedidos&documento=${encodeURIComponent(doc.replace(/\D/g,''))}`);
+    const pedidos=await r.json();
+    if(!pedidos.length){grid.innerHTML='<div class="loading-box">Nenhum pedido encontrado para este cliente.</div>';return;}
+    grid.innerHTML=pedidos.map((p,i)=>{
+      const itens=(p.produtos||'').split('\n').filter(Boolean);
+      const itensH=itens.slice(0,3).map(l=>`<div>${l}</div>`).join('')+(itens.length>3?`<div style="color:var(--gray)">+${itens.length-3} itens...</div>`:'');
+      const total=p.total?`R$ ${parseFloat(p.total).toLocaleString('pt-BR',{minimumFractionDigits:2})}`:'—';
+      return`<div class="ped-card" id="pcli-card-${i}"><div class="ped-header"><div class="ped-cliente">${p.clinica||''}</div><div class="ped-data">📅 ${p.data||'—'}</div></div>
+        <div class="ped-total">${total}</div>${p.pagamento?`<span class="ped-pag">${p.pagamento}</span>`:''}
+        <div class="ped-itens">${itensH}</div>
+        <button class="ped-btn" id="pcli-btn-${i}" onclick="selecionarPedidoCliente(${i})">✏️ Editar este pedido</button></div>`;
+    }).join('');
+    grid._pedidos=pedidos;
+  }catch(e){grid.innerHTML='<div class="loading-box">⚠️ Erro ao buscar pedidos.</div>';}
+}
+
+function selecionarPedidoCliente(i){
+  const pedidos=document.getElementById('pedidos-cliente-grid')._pedidos;
+  if(!pedidos||!pedidos[i])return;
+  carregarPedidoNoEditor(pedidos[i],clienteAtual);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PEDIDOS (CORRIGIR — tab Por Pedido)
+// ═══════════════════════════════════════════════════════════════════════════════
+async function carregarUltimosPedidos(){
+  document.getElementById('pedidos-grid').innerHTML='<div class="loading-box">⏳ Carregando pedidos...</div>';
+  try{const r=await fetch(`${SHEETS_URL}?action=ultimos_pedidos`);PEDIDOS=await r.json();renderPedidosLista();}
+  catch(e){document.getElementById('pedidos-grid').innerHTML='<div class="loading-box">⚠️ Erro.</div>';}
+}
+function filtrarPedidos(){renderPedidosLista(document.getElementById('busca_pedido').value.toLowerCase());}
+function renderPedidosLista(filtro=''){
+  const grid=document.getElementById('pedidos-grid');
+  const lista=filtro?PEDIDOS.filter(p=>`${p.clinica} ${p.telefone} ${p.data} ${p.produtos} ${p.pagamento}`.toLowerCase().includes(filtro)):PEDIDOS;
+  if(!lista.length){grid.innerHTML=`<div class="loading-box">${filtro?'Nenhum pedido encontrado.':'Nenhum pedido registrado.'}</div>`;return;}
+  grid.innerHTML=lista.map(p=>{
+    const ri=PEDIDOS.indexOf(p);const itens=(p.produtos||'').split('\n').filter(Boolean);
+    const itensH=itens.slice(0,3).map(l=>`<div>${l}</div>`).join('')+(itens.length>3?`<div style="color:var(--gray)">+${itens.length-3} itens...</div>`:'');
+    const total=p.total?`R$ ${parseFloat(p.total).toLocaleString('pt-BR',{minimumFractionDigits:2})}`:'—';
+    return`<div class="ped-card" id="ped-card-${ri}"><div class="ped-header"><div class="ped-cliente">${p.clinica||'Sem nome'}</div><div class="ped-data">📅 ${p.data||'—'}</div></div>
+      <div class="ped-total">${total}</div>${p.pagamento?`<span class="ped-pag">${p.pagamento}</span>`:''}
+      <div class="ped-itens">${itensH}</div>
+      <button class="ped-btn" id="ped-btn-${ri}" onclick="selecionarPedido(${ri})">✏️ Editar este pedido</button></div>`;
+  }).join('');
+  document.getElementById('pedidos-status').textContent=`${PEDIDOS.length} pedidos encontrados`;
+}
+
+async function selecionarPedido(i){
+  const p=PEDIDOS[i];if(!p)return;
+  // Visual
+  document.querySelectorAll('#pedidos-grid .ped-card').forEach(c=>c.classList.remove('selecionado'));
+  document.querySelectorAll('#pedidos-grid .ped-btn').forEach(b=>{b.classList.remove('loaded');b.innerHTML='✏️ Editar este pedido';});
+  const card=document.getElementById(`ped-card-${i}`),btn=document.getElementById(`ped-btn-${i}`);
+  if(card)card.classList.add('selecionado');if(btn){btn.classList.add('loaded');btn.textContent='⏳ Carregando...';}
+
+  // Busca dados completos do cliente
+  const doc=p.documento||p.telefone||'';
+  let cli={clinica:p.clinica||'',telefone:p.telefone||'',endereco:p.endereco||'',cidade:p.cidade||'',estado:p.estado||''};
+  if(doc){
+    try{
+      const r=await fetch(`${SHEETS_URL}?action=cliente&documento=${encodeURIComponent(doc.replace(/\D/g,''))}`);
+      const fullCli=await r.json();
+      if(fullCli&&fullCli.clinica)cli=fullCli;
+    }catch(e){}
+  }
+
+  if(btn)btn.textContent='✓ Selecionado';
+  carregarPedidoNoEditor(p,cli);
+}
+
+function carregarPedidoNoEditor(p,cli){
+  clienteAtual=cli;
+  if(p.pagamento){const sel=document.getElementById('c_pagamento');[...sel.options].forEach(o=>{if(o.value===p.pagamento)o.selected=true;});onPagamentoChange();}
+  cart={};let ok=false;
+  if(p.carrinho){try{const cj=JSON.parse(p.carrinho);if(typeof cj==='object'&&Object.keys(cj).length>0){cart=cj;ok=true;}}catch(e){}}
+  if(!ok&&p.produtos){
+    if(CATALOG.length>0)reconstruirCarrinho(p.produtos);
+    else pendingCartText=p.produtos;
+  }
+  if(CATALOG.length===0&&Object.keys(cart).length>0){pendingCart={...cart};cart={};}
+  freteValor=0;freteMetodo='';
+  irParaEditor();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MODAL CADASTRO
+// ═══════════════════════════════════════════════════════════════════════════════
+function abrirCadastro(){document.getElementById('modal-cadastro').classList.add('ativo');}
+function fecharModal(){document.getElementById('modal-cadastro').classList.remove('ativo');document.getElementById('cadastro-status').textContent='';}
+async function salvarNovoCliente(){
+  const status=document.getElementById('cadastro-status');
+  const nome=document.getElementById('nc_nome').value.trim(),tel=document.getElementById('nc_telefone').value.trim();
+  if(!nome){status.textContent='Preencha o nome.';return;}if(!tel){status.textContent='Preencha o telefone.';return;}
+  const btn=document.getElementById('btn-salvar-cliente');btn.disabled=true;btn.textContent='Salvando...';status.textContent='';
+  const params=new URLSearchParams({action:'cadastrar',clinica:nome,responsavel:document.getElementById('nc_responsavel').value.trim(),cargo:document.getElementById('nc_cargo').value.trim(),telefone:tel,email:document.getElementById('nc_email').value.trim(),cpf:document.getElementById('nc_cpf').value.trim(),cidade:document.getElementById('nc_cidade').value.trim(),estado:document.getElementById('nc_estado').value.trim(),endereco:document.getElementById('nc_endereco').value.trim()});
+  try{
+    const r=await fetch(`${SHEETS_URL}?${params}`);const data=await r.json();
+    if(data.ok){fecharModal();['nc_nome','nc_responsavel','nc_cargo','nc_telefone','nc_email','nc_cpf','nc_cidade','nc_estado','nc_endereco'].forEach(id=>document.getElementById(id).value='');
+      clienteAtual={clinica:nome,telefone:tel,email:document.getElementById('nc_email').value,endereco:document.getElementById('nc_endereco').value,cidade:document.getElementById('nc_cidade').value,estado:document.getElementById('nc_estado').value,cpf:document.getElementById('nc_cpf').value,responsavel:document.getElementById('nc_responsavel').value,cargo:document.getElementById('nc_cargo').value};
+      cart={};irParaEditor();
+    }else if(data.duplicado){const c=data.duplicado==='cpf'?'CPF/CNPJ':data.duplicado==='email'?'E-mail':'Telefone';status.textContent=`${c} ja cadastrado.`;}
+    else status.textContent=data.erro||'Erro.';
+  }catch(e){status.textContent='⚠️ Erro de conexao.';}
+  finally{btn.disabled=false;btn.textContent='Cadastrar';}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MATCH DE PRODUTOS
+// ═══════════════════════════════════════════════════════════════════════════════
+function reconstruirCarrinho(txt){txt.split('\n').forEach(l=>{const m=l.match(/^(\d+)x\s+(.+)/);if(!m)return;const melhor=encontrarProduto(m[2]);if(melhor){const key=melhor.varIdx!==null?`${melhor.produto.id}__${melhor.varIdx}`:melhor.produto.id;cart[key]=parseInt(m[1]);}});}
+function encontrarProduto(linha){
+  const ll=normalizar(linha);let ms=0,mp=null,mv=null;
+  CATALOG.forEach(p=>{if(p.variantes.length>0)p.variantes.forEach((v,i)=>{const s=calcScore(ll,normalizar(p.name),normalizar(v.dose));if(s>ms){ms=s;mp=p;mv=i;}});
+  else{const s=calcScore(ll,normalizar(p.name),normalizar(p.conc));if(s>ms){ms=s;mp=p;mv=null;}}});
+  return ms>=0.35?{produto:mp,varIdx:mv}:null;
+}
+function normalizar(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s\+]/g,' ').replace(/\s+/g,' ').trim();}
+function calcScore(linha,nome,conc){const pn=nome.split(' ').filter(w=>w.length>2),pc=conc.split(' ').filter(w=>w.length>1);if(!pn.length)return 0;const aN=pn.filter(w=>linha.includes(w)).length/pn.length,aC=pc.length>0?pc.filter(w=>linha.includes(w)).length/pc.length:0;return aN*0.7+aC*0.3;}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CARRINHO
+// ═══════════════════════════════════════════════════════════════════════════════
+function adicionarProduto(id){
+  const p=CATALOG.find(x=>x.id===id);if(!p)return;
+  if(p.variantes.length>0){const ex=Object.keys(cart).filter(k=>k.split('__')[0]===id);ex.length?cart[ex[0]]++:(cart[`${id}__0`]=1);}
+  else cart[id]=(cart[id]||0)+1;
+  renderCart();renderCatalogo(document.getElementById('busca_cat').value.toLowerCase());gerarMensagem();
+}
+function alterarQtd(key,d){const n=(cart[key]||0)+d;n<=0?delete cart[key]:(cart[key]=n);renderCart();renderCatalogo(document.getElementById('busca_cat').value.toLowerCase());gerarMensagem();}
+function removerItem(key){delete cart[key];renderCart();renderCatalogo(document.getElementById('busca_cat').value.toLowerCase());gerarMensagem();}
+function alterarVariante(id,old,novo){const q=cart[old]||1;delete cart[old];cart[`${id}__${novo}`]=q;renderCart();gerarMensagem();}
+
+function renderCart(){
+  const list=document.getElementById('cart-list'),totalDiv=document.getElementById('cart-total'),keys=Object.keys(cart);
+  if(!keys.length){list.innerHTML='<div class="cart-empty">Adicione produtos do catalogo →</div>';totalDiv.style.display='none';return;}
+  let subtotal=0;
+  list.innerHTML=keys.map(key=>{
+    const parts=key.split('__'),id=parts[0],varIdx=parts.length>1?parseInt(parts[1]):null,p=CATALOG.find(x=>x.id===id);
+    if(!p)return`<div class="cart-item"><span class="ci-icon">❓</span><div class="ci-info"><div class="ci-name">${key}</div></div><button class="ci-remove" onclick="removerItem('${key}')">✕</button></div>`;
+    const qty=cart[key];let conc=p.conc;
+    if(varIdx!==null&&p.variantes[varIdx])conc=p.variantes[varIdx].dose;
+    const price=getItemPrice(key);const sub=price*qty;subtotal+=sub;
+    const vs=p.variantes.length>1?`<select class="var-select" onchange="alterarVariante('${id}','${key}',this.value)">${p.variantes.map((v,vi)=>`<option value="${vi}" ${vi===varIdx?'selected':''}>${v.dose}</option>`).join('')}</select>`:'';
+    return`<div class="cart-item"><span class="ci-icon">${p.icon}</span>
+      <div class="ci-info"><div class="ci-name">${p.name}</div><div class="ci-conc">${conc}</div>${vs}</div>
+      <div style="text-align:right;flex-shrink:0"><div class="ci-price">R$ ${sub.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        <div class="ci-qty" style="margin-top:4px;justify-content:flex-end"><button onclick="alterarQtd('${key}',-1)">−</button><span>${qty}</span><button onclick="alterarQtd('${key}',1)">+</button></div>
+      </div><button class="ci-remove" onclick="removerItem('${key}')">✕</button></div>`;
+  }).join('');
+
+  // Frete gratis check
+  const gratisEl=document.getElementById('frete-gratis');
+  if(subtotal>=3000&&freteMetodo!=='gratis'){freteValor=0;freteMetodo='gratis';if(gratisEl)gratisEl.style.display='block';document.getElementById('frete-opcoes').style.display='none';}
+  else if(subtotal<3000&&freteMetodo==='gratis'){freteValor=0;freteMetodo='';if(gratisEl)gratisEl.style.display='none';}
+
+  document.getElementById('subtotal-amount').textContent=`R$ ${subtotal.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+
+  // Frete row
+  const fr=document.getElementById('frete-row');
+  if(freteValor>0){fr.style.display='flex';document.getElementById('frete-metodo-label').textContent=freteMetodo.toUpperCase();document.getElementById('frete-valor-label').textContent=`R$ ${freteValor.toFixed(2).replace('.',',')}`;}
+  else if(freteMetodo==='gratis'){fr.style.display='flex';document.getElementById('frete-metodo-label').textContent='GRATIS';document.getElementById('frete-valor-label').textContent='R$ 0,00';}
+  else fr.style.display='none';
+
+  // Desconto cupom
+  const descRow=document.getElementById('cupom-desc-row');
+  const desconto=calcularDescontoCupom();
+  if(cupomAplicado&&desconto>0){
+    descRow.style.display='flex';
+    document.getElementById('cupom-codigo-label').textContent=cupomCodigo;
+    document.getElementById('cupom-desc-label').textContent=`− R$ ${desconto.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+  } else descRow.style.display='none';
+
+  // Parcelas
+  const parcInfo=getParcelaInfo(),jurosDiv=document.getElementById('juros-info');
+  let totalFinal=subtotal+freteValor-desconto;if(totalFinal<0)totalFinal=0;
+  if(parcInfo&&parcInfo.parcelas>1&&parcInfo.juros>0){
+    totalFinal=totalFinal*(1+parcInfo.juros/100);const vp=totalFinal/parcInfo.parcelas;
+    jurosDiv.innerHTML=`💳 ${parcInfo.parcelas}x de R$ ${vp.toLocaleString('pt-BR',{minimumFractionDigits:2})} (${parcInfo.juros}% juros)`;jurosDiv.style.display='block';
+  }else if(parcInfo&&parcInfo.parcelas>1){const vp=totalFinal/parcInfo.parcelas;jurosDiv.innerHTML=`💳 ${parcInfo.parcelas}x de R$ ${vp.toLocaleString('pt-BR',{minimumFractionDigits:2})} sem juros`;jurosDiv.style.display='block';}
+  else jurosDiv.style.display='none';
+
+  document.getElementById('total-amount').textContent=`R$ ${totalFinal.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+  totalDiv.style.display='block';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GERAR MENSAGEM
+// ═══════════════════════════════════════════════════════════════════════════════
+function gerarMensagem(){
+  const ta=document.getElementById('msg-preview'),btnC=document.getElementById('btn-copy'),btnW=document.getElementById('btn-wa'),btnS=document.getElementById('btn-save'),keys=Object.keys(cart);
+  if(!keys.length){ta.value='';btnC.disabled=true;btnW.disabled=true;btnS.disabled=true;return;}
+  const nome=document.getElementById('c_nome').value.trim()||'Cliente',pag=document.getElementById('c_pagamento').value,obs=document.getElementById('c_obs').value.trim();
+  const isNovo=MODO==='novo',titulo=isNovo?'NOVO PEDIDO':'PEDIDO CORRIGIDO',rodape=isNovo?'Novo pedido':'Pedido corrigido';
+  let msg=`🧬 *${titulo} — PharmaFit-PY*\n━━━━━━━━━━━━━━━━━━━━━━\n\n👤 *CLIENTE*\n${nome}\n\n💊 *PRODUTOS*\n`;
+  let subtotal=0;
+  keys.forEach(key=>{
+    const parts=key.split('__'),id=parts[0],vi=parts.length>1?parseInt(parts[1]):null,p=CATALOG.find(x=>x.id===id);if(!p)return;
+    const qty=cart[key];let price=p.price,conc=String(p.conc);if(vi!==null&&p.variantes[vi]){price=p.variantes[vi].preco;conc=p.variantes[vi].dose;}
+    const sub=price*qty;subtotal+=sub;
+    msg+=`• ${p.icon} ${p.name} (${conc}) — ${qty}x — R$ ${sub.toLocaleString('pt-BR',{minimumFractionDigits:2})}\n`;
+  });
+  msg+=`\n━━━━━━━━━━━━━━━━━━━━━━\n`;
+  // Frete
+  if(freteValor>0)msg+=`📦 Frete (${freteMetodo.toUpperCase()}): R$ ${freteValor.toFixed(2).replace('.',',')}\n`;
+  else if(freteMetodo==='gratis')msg+=`📦 Frete: 🎉 GRATIS\n`;
+  // Cupom
+  const desc=calcularDescontoCupom();
+  if(cupomAplicado&&desc>0)msg+=`🎟️ Cupom ${cupomCodigo}: − R$ ${desc.toLocaleString('pt-BR',{minimumFractionDigits:2})}\n`;
+  // Parcelas
+  const pi=getParcelaInfo();let total=subtotal+freteValor-desc;if(total<0)total=0;
+  if(pi&&pi.parcelas>1&&pi.juros>0){total=total*(1+pi.juros/100);const vp=total/pi.parcelas;msg+=`💰 *SUBTOTAL: R$ ${subtotal.toLocaleString('pt-BR',{minimumFractionDigits:2})}*\n💳 *${pi.parcelas}x de R$ ${vp.toLocaleString('pt-BR',{minimumFractionDigits:2})}* (${pi.juros}% juros)\n💰 *TOTAL: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}*\n`;}
+  else if(pi&&pi.parcelas>1){const vp=total/pi.parcelas;msg+=`💰 *TOTAL: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}*\n💳 ${pi.parcelas}x de R$ ${vp.toLocaleString('pt-BR',{minimumFractionDigits:2})} sem juros\n`;}
+  else msg+=`💰 *TOTAL: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}*\n`;
+  if(pag)msg+=`💳 Pagamento: ${pag}\n`;
+  if(obs)msg+=`\n📝 ${obs}\n`;
+  msg+=`━━━━━━━━━━━━━━━━━━━━━━\n_PharmaFit-PY · ${rodape}_`;
+  ta.value=msg;btnC.disabled=false;btnS.disabled=false;
+  btnS.classList.remove('saved');btnS.innerHTML='💾 Salvar no Sheets';document.getElementById('save-status').textContent='';
+  btnW.disabled=!document.getElementById('c_telefone').value.trim();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SALVAR PEDIDO
+// ═══════════════════════════════════════════════════════════════════════════════
+async function salvarPedido(){
+  const keys=Object.keys(cart);if(!keys.length)return;
+  const btn=document.getElementById('btn-save'),status=document.getElementById('save-status');
+  const nome=document.getElementById('c_nome').value.trim(),tel=document.getElementById('c_telefone').value.trim();
+  if(!nome||!tel){status.textContent='⚠️ Preencha nome e telefone.';status.style.color='#FCA5A5';return;}
+  btn.disabled=true;btn.innerHTML='⏳ Salvando...';status.textContent='';
+  let prodTxt='',qtds='',subtotal=0;
+  keys.forEach(key=>{const parts=key.split('__'),id=parts[0],vi=parts.length>1?parseInt(parts[1]):null,p=CATALOG.find(x=>x.id===id);if(!p)return;
+    const qty=cart[key];let price=p.price,conc=String(p.conc);if(vi!==null&&p.variantes[vi]){price=p.variantes[vi].preco;conc=p.variantes[vi].dose;}
+    subtotal+=price*qty;prodTxt+=`${qty}x ${p.name} (${conc}) = R$ ${(price*qty).toLocaleString('pt-BR',{minimumFractionDigits:2})}\n`;qtds+=`${qty},`;
+  });
+  const pag=document.getElementById('c_pagamento').value,pi=getParcelaInfo();
+  let totalFinal=subtotal+freteValor;let parcVal='';
+  if(pi&&pi.parcelas>1&&pi.juros>0){totalFinal=(subtotal+freteValor)*(1+pi.juros/100);parcVal=`${pi.parcelas}x (${pi.juros}% juros)`;}
+  else if(pi&&pi.parcelas>1)parcVal=`${pi.parcelas}x sem juros`;
+  const obs=document.getElementById('c_obs').value.trim(),tipo=MODO==='novo'?'NOVO':'CORRECAO';
+  const endTxt=document.getElementById('frete-endereco-txt').textContent||'';
+  const params=new URLSearchParams({
+    clinica:nome,responsavel:clienteAtual?.responsavel||'',cargo:clienteAtual?.cargo||'',telefone:tel,
+    email:clienteAtual?.email||'',documento:clienteAtual?.cpf||clienteAtual?.documento||'',
+    cidade:clienteAtual?.cidade||'',estado:clienteAtual?.estado||'',
+    endereco:endTxt||clienteAtual?.endereco||'',
+    produtos:prodTxt.trim(),quantidades:qtds,total:totalFinal.toFixed(2),
+    pagamento:pag,parcelas:parcVal,obs:`[${tipo}] ${obs}`.trim(),
+    obs_pagamento:freteValor>0?`Frete ${freteMetodo.toUpperCase()} R$${freteValor.toFixed(2)}`:'',
+    cupom_codigo:cupomCodigo||'',cupom_valor:calcularDescontoCupom().toFixed(2),carrinho:JSON.stringify(cart),
+  });
+  try{
+    const r=await fetch(`${SHEETS_URL}?${params}`);const txt=await r.text();
+    if(txt==='ok'||txt.includes('ok')){btn.classList.add('saved');btn.innerHTML='✓ Salvo!';status.textContent=`✅ Pedido ${tipo==='NOVO'?'criado':'corrigido'} salvo com sucesso.`;status.style.color='#6EE7B7';}
+    else{btn.disabled=false;btn.innerHTML='💾 Salvar no Sheets';status.textContent='⚠️ Resposta inesperada.';status.style.color='#FCA5A5';}
+  }catch(e){btn.disabled=false;btn.innerHTML='💾 Salvar no Sheets';status.textContent='⚠️ Erro de conexao.';status.style.color='#FCA5A5';}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ACOES
+// ═══════════════════════════════════════════════════════════════════════════════
+async function copiarMensagem(){
+  const msg=document.getElementById('msg-preview').value;if(!msg)return;
+  try{await navigator.clipboard.writeText(msg);}catch(e){const ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}
+  const btn=document.getElementById('btn-copy');btn.classList.add('copied');btn.textContent='✓ Copiado!';setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML='📋 Copiar';},2500);
+}
+function enviarWhatsApp(){
+  const tel=document.getElementById('c_telefone').value.replace(/\D/g,''),msg=document.getElementById('msg-preview').value;if(!tel||!msg)return;
+  const n=tel.startsWith('55')?tel:`55${tel}`;window.open(`https://wa.me/${n}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+function limparPedido(){
+  if(!confirm('Limpar o pedido atual?'))return;cart={};freteValor=0;freteMetodo='';
+  document.getElementById('c_obs').value='';document.getElementById('c_pagamento').value='';
+  document.getElementById('c_parcelas').value='1';document.getElementById('parcelas-field').classList.add('hidden');
+  document.getElementById('busca_cat').value='';document.getElementById('msg-preview').value='';
+  document.getElementById('f_cep').value='';document.getElementById('frete-opcoes').style.display='none';
+  document.getElementById('frete-status').textContent='';document.getElementById('frete-endereco-txt').textContent='';
+  document.getElementById('frete-gratis').style.display='none';
+  removerCupom();
+  renderCart();renderCatalogo();gerarMensagem();
+}
+</script>
+</body>
+</html>
