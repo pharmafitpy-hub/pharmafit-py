@@ -2107,6 +2107,7 @@ function updateTotal() {
   });
   document.getElementById('total-display').textContent = total.toLocaleString('pt-BR', {minimumFractionDigits:2});
   document.getElementById('items-count').textContent = `${count} produto(s) · ${Object.keys(cart).length} tipo(s)`;
+  if (cupomData?.frete_gratis_acima && freteEstado) selecionarFrete(freteMetodo || 'jadlog');
   if (selectedPayment === 'Cartão de Crédito') calcInstallment();
 }
 
@@ -2312,7 +2313,7 @@ function calcInstallment() {
   if (total < 0) total = 0;
   if (juros > 0) total *= (1 + juros / 100);
   const por = total / parcelas;
-  document.getElementById('f_parcela_val').value = `R$ ${por.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
+  document.getElementById('f_parcela_val').value = `R$ ${por.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
 }
 
 // ─── NAVIGATION ─────────────────────────────────────────────────────────────
