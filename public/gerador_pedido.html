@@ -308,19 +308,9 @@
         <div class="frete-status" id="frete-status"></div>
         <div class="frete-endereco-txt" id="frete-endereco-txt"></div>
         <div class="frete-opcoes" id="frete-opcoes" style="display:none"></div>
-        <div class="frete-gratis" id="frete-gratis" style="display:none">🎉 Frete gratis para pedidos acima de R$ 3.000!</div>
+        <div class="frete-gratis" id="frete-gratis" style="display:none"></div>
       </div>
 
-      <!-- CUPOM -->
-      <div class="cupom-box">
-        <div class="section-title" style="margin-bottom:10px">🎟️ Cupom / Bonificação</div>
-        <div class="cupom-row">
-          <input type="text" id="c_cupom" placeholder="Ex: BONUS10" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')aplicarCupom()"/>
-          <button class="btn-cupom" id="btn-cupom" onclick="aplicarCupom()">Aplicar</button>
-          <button class="btn-remover-cupom hidden" id="btn-remover-cupom" onclick="removerCupom()">✕ Remover</button>
-        </div>
-        <div class="cupom-status" id="cupom-status"></div>
-      </div>
     </div>
 
     <!-- CARRINHO + CATALOGO -->
@@ -872,11 +862,6 @@ function renderCart(){
         <div class="ci-qty" style="margin-top:4px;justify-content:flex-end"><button onclick="alterarQtd('${key}',-1)">−</button><span>${qty}</span><button onclick="alterarQtd('${key}',1)">+</button></div>
       </div><button class="ci-remove" onclick="removerItem('${key}')">✕</button></div>`;
   }).join('');
-
-  // Frete gratis check
-  const gratisEl=document.getElementById('frete-gratis');
-  if(subtotal>=3000&&freteMetodo!=='gratis'){freteValor=0;freteMetodo='gratis';if(gratisEl)gratisEl.style.display='block';document.getElementById('frete-opcoes').style.display='none';}
-  else if(subtotal<3000&&freteMetodo==='gratis'){freteValor=0;freteMetodo='';if(gratisEl)gratisEl.style.display='none';}
 
   document.getElementById('subtotal-amount').textContent=`R$ ${subtotal.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
 

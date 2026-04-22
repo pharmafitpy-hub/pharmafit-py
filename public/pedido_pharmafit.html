@@ -1200,7 +1200,7 @@
         </div>
         <div id="frete-loading" style="display:none;text-align:center;padding:12px;color:var(--gray);font-size:.85rem">⏳ Consultando Correios...</div>
         <div id="frete-error" style="display:none;background:rgba(231,76,60,.12);border:1px solid var(--danger);border-radius:8px;padding:10px 14px;font-size:.83rem;color:#f5a;margin-top:10px"></div>
-        <div class="frete-gratis" id="frete-gratis">🎉 Frete grátis para pedidos acima de R$ 3.000!</div>
+        <div class="frete-gratis" id="frete-gratis" style="display:none"></div>
         <div class="frete-metodos" id="frete-metodos" style="display:none">
           <div class="frete-opt" id="fo-sedex" onclick="selecionarFrete('sedex')">
             <div class="fo-icon">⚡</div>
@@ -1675,8 +1675,8 @@ function aplicarCupom() {
       msgTxt = `✅ Cupom <strong>${codigo}</strong> aplicado! Preço especial em ${n || Object.keys(precos).length} produto(s)${descStr}.`;
     }
     msg.innerHTML = `<div class="cupom-ok">${msgTxt}</div>`;
-    buildReview();
     checkCupomExtras();
+    buildReview();
   } else {
     cupomAplicado = false;
     cupomDesconto = 0;
@@ -2506,11 +2506,8 @@ function buildReview() {
   if (selectedPayment === 'Cartão de Crédito') {
     const parc = document.getElementById('f_parcelas').value;
     const val = document.getElementById('f_parcela_val').value;
-    const semJuros = cupomData?.parcelamento === 'SIM' && parseInt(parc) <= 3 ? ' (sem juros — cupom)' : '';
+    const semJuros = cupomData?.parcelamento === 'SIM' && parseInt(parc) <= 3 ? ' — sem juros (cupom)' : '';
     pagInfo += `<div class="rc-row"><span class="lbl">Parcelamento</span><span class="val">${parc}x de ${val}${semJuros}</span></div>`;
-  }
-  if (cupomData?.parcelamento === 'SIM') {
-    pagInfo += `<div class="rc-row"><span class="lbl">⚡ Benefício cupom</span><span class="val" style="color:var(--accent)">Parcelas 1× a 3× sem juros</span></div>`;
   }
   if (v('f_obs_pag')) {
     pagInfo += `<div class="rc-row"><span class="lbl">Obs. pagamento</span><span class="val">${v('f_obs_pag')}</span></div>`;
@@ -2520,7 +2517,14 @@ function buildReview() {
   let freteLabel = getFreteLabel();
   if (cupomData?.frete_gratis_acima) {
     const limiar = parseFloat(cupomData.frete_gratis_acima);
-    if (!isNaN(limiar)) freteLabel += ` <span style="color:var(--accent);font-size:.78rem">(🎟️ grátis acima de R$ ${limiar.toLocaleString('pt-BR',{minimumFractionDigits:2})})</span>`;
+    if (!isNaN(limiar)) {
+      if (freteValor === 0) {
+        freteLabel += ` <span style="color:var(--green);font-size:.78rem">🎉 Grátis (cupom)</span>`;
+      } else {
+        const falta = limiar - getTotal();
+        if (falta > 0) freteLabel += ` <span style="color:var(--accent);font-size:.78rem">🎟️ Adicione R$ ${falta.toLocaleString('pt-BR',{minimumFractionDigits:2})} para frete grátis</span>`;
+      }
+    }
   }
   let pagFrete = `<div class="rc-row"><span class="lbl">Frete</span><span class="val">${freteLabel}</span></div>`;
   document.getElementById('review-payment').innerHTML = pagInfo + pagFrete;
@@ -2530,7 +2534,8 @@ function buildReview() {
   if (selectedPayment === 'Cartão de Crédito') {
     const parc   = parseInt(document.getElementById('f_parcelas').value);
     const config = PARCELAS_CONFIG.find(p => p.parcelas === parc);
-    const juros  = config ? config.juros : 0;
+    let juros  = config ? config.juros : 0;
+    if (cupomData?.parcelamento === 'SIM' && parc <= 3) juros = 0;
     if (juros > 0) total *= (1 + juros / 100);
   }
 
@@ -2675,7 +2680,8 @@ function getFinalTotal() {
   if (selectedPayment === 'Cartão de Crédito') {
     const parc   = parseInt(document.getElementById('f_parcelas').value);
     const config = PARCELAS_CONFIG.find(p => p.parcelas === parc);
-    const juros  = config ? config.juros : 0;
+    let juros  = config ? config.juros : 0;
+    if (cupomData?.parcelamento === 'SIM' && parc <= 3) juros = 0;
     if (juros > 0) total *= (1 + juros / 100);
   }
   if (cupomAplicado) {
