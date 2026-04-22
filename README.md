@@ -53,10 +53,19 @@ Na tela de login → **Esqueci minha senha** → informe e-mail + data de nascim
 
 | Tipo | Comportamento |
 |---|---|
+<<<<<<< HEAD
 | `%` | Desconto percentual sobre o total |
 | `fixo` | Preço fixo por produto específico |
 | Parcelamento | Libera 1×–3× sem juros no cartão |
 | Frete grátis | Frete zerado para pedidos acima do valor definido |
+=======
+| `index.html` | Catálogo de produtos |
+| `pedido_pharmafit.html` | Formulário de pedido (4 passos) |
+| `gerador_pedido.html` | Gerador interno de pedidos (uso da equipe) |
+| `vendedores.html` | Área das vendedoras — criar cupons, histórico |
+| `catalogo_interno.html` | Catálogo interno |
+| `informativos/` | Páginas HTML de protocolo por produto |
+>>>>>>> 6825e99a1e822947e190c49260ddde4c30118780
 
 ---
 
