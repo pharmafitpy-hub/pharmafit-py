@@ -2558,6 +2558,34 @@ function buildReview() {
       <span>🎟️ Desconto (${descontoLabel} — ${cupomCodigo})</span>
       <span>− R$ ${descontoValor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
     </div>` : '';
+  const beneficiosReviewHtml = (() => {
+    if (!cupomAplicado || !cupomData) return '';
+    const items = [];
+    if (cupomData.parcelamento === 'SIM' && selectedPayment === 'Cartão de Crédito') {
+      const parc = parseInt(document.getElementById('f_parcelas').value) || 1;
+      if (parc <= 3) {
+        const origConf  = PARCELAS_CONFIG.find(p => p.parcelas === parc);
+        const jurosOrig = origConf ? origConf.juros : 0;
+        const base      = getTotal() - descontoValor;
+        const econJuros = jurosOrig > 0
+          ? ` <span style="opacity:.85">· economia de R$ ${(base * jurosOrig / 100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})} em juros</span>`
+          : '';
+        items.push(`⚡ Parcelamento sem juros (${parc}×)${econJuros} · cupom <strong>${cupomCodigo}</strong>`);
+      }
+    }
+    if (cupomData.frete_gratis_acima && freteValor === 0 && freteEstado && freteMetodo) {
+      const tabela       = FRETE_TABELA[freteEstado];
+      const freteOriginal = tabela ? (tabela[freteMetodo] || 0) : 0;
+      const econFrete    = freteOriginal > 0
+        ? ` <span style="opacity:.85">· economia de R$ ${freteOriginal.toFixed(2).replace('.',',')}</span>`
+        : '';
+      items.push(`🚚 Frete grátis${econFrete} · cupom <strong>${cupomCodigo}</strong>`);
+    }
+    if (!items.length) return '';
+    return items.map(i =>
+      `<div style="font-size:.75rem;color:var(--green);margin-bottom:5px">${i}</div>`
+    ).join('');
+  })();
   document.getElementById('review-total-box').innerHTML = `
     <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.85rem;color:rgba(255,255,255,.6)">
       <span>Subtotal produtos</span><span>R$ ${subtotalBruto.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
@@ -2566,6 +2594,7 @@ function buildReview() {
       <span>Frete</span><span>${freteValor===0 ? '🎉 Grátis' : 'R$ '+freteValor.toFixed(2).replace('.',',')}</span>
     </div>
     ${descontoHtml}
+    ${beneficiosReviewHtml}
     <div style="border-top:1px solid rgba(255,255,255,.15);margin:10px 0"></div>
     <div class="rtb-label">Total do Pedido</div>
     <div class="rtb-amount">R$ ${totalFinal.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
