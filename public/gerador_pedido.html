@@ -436,11 +436,15 @@ async function carregarCupons() {
 }
 function renderParcelasSelect() {
   const sel=document.getElementById('c_parcelas'); if(!sel)return;
+  const cur=sel.value;
+  const parcCupom=cupomData?.parcelamento==='SIM';
   sel.innerHTML='<option value="1">1x sem juros</option>';
   PARCELAS.forEach(p=>{
-    const l=p.juros>0?`${p.parcelas}x com ${p.juros}% juros`:`${p.parcelas}x sem juros`;
+    const semJurosCupom=parcCupom&&p.parcelas<=3;
+    const l=semJurosCupom?`${p.parcelas}x sem juros (cupom)`:p.juros>0?`${p.parcelas}x com ${p.juros}% juros`:`${p.parcelas}x sem juros`;
     sel.innerHTML+=`<option value="${p.parcelas}" data-juros="${p.juros}">${l}</option>`;
   });
+  if(cur)sel.value=cur;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -495,7 +499,7 @@ function aplicarCupom(){
     if(cupomData.tipo==='%')txt=`✅ <strong>${codigo}</strong> aplicado! ${cupomData.valor}% de desconto${descStr}.`;
     else txt=`✅ <strong>${codigo}</strong> aplicado! Preço especial em produtos selecionados${descStr}.`;
     status.innerHTML=`<span class="cupom-ok">${txt}</span>`;
-    renderCart();gerarMensagem();
+    renderParcelasSelect();renderCart();gerarMensagem();
   }else{
     cupomAplicado=false;cupomData=null;
     status.innerHTML='<span class="cupom-err">❌ Código inválido.</span>';
@@ -508,7 +512,7 @@ function removerCupom(){
   document.getElementById('btn-aplicar-cupom').disabled=false;
   document.getElementById('btn-remover-cupom').classList.add('hidden');
   document.getElementById('cupom-status').textContent='';
-  renderCart();gerarMensagem();
+  renderParcelasSelect();renderCart();gerarMensagem();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

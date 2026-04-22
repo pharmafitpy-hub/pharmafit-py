@@ -1689,6 +1689,7 @@ function checkCupomExtras() {
   const badge    = document.getElementById('cupom-parc-badge');
   const gratisEl = document.getElementById('frete-gratis');
   if (badge) badge.style.display = cupomData?.parcelamento === 'SIM' ? 'block' : 'none';
+  if (cupomData?.parcelamento === 'SIM') calcInstallment();
   if (cupomData?.frete_gratis_acima) {
     const limiar = parseFloat(cupomData.frete_gratis_acima);
     if (!isNaN(limiar)) {
