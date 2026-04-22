@@ -14,7 +14,6 @@ Sistema de pedidos e cupons para clínicas parceiras. Backend em Google Apps Scr
 | `vendedores.html` | Área das vendedoras — criar cupons, histórico |
 | `catalogo_interno.html` | Catálogo interno |
 | `informativos/` | Páginas HTML de protocolo por produto |
-| `Code.gs` | Google Apps Script — colar no editor do Sheets e reimplantar |
 
 ---
 
