@@ -2107,6 +2107,7 @@ function updateTotal() {
   });
   document.getElementById('total-display').textContent = total.toLocaleString('pt-BR', {minimumFractionDigits:2});
   document.getElementById('items-count').textContent = `${count} produto(s) · ${Object.keys(cart).length} tipo(s)`;
+  if (selectedPayment === 'Cartão de Crédito') calcInstallment();
 }
 
 function getTotal() {
@@ -2302,10 +2303,13 @@ function selectPayment(method) {
 
 function calcInstallment() {
   const parcelas = parseInt(document.getElementById('f_parcelas').value);
-  let total = getTotal();
+  if (!parcelas) return;
   const config = PARCELAS_CONFIG.find(p => p.parcelas === parcelas);
   let juros = config ? config.juros : 0;
   if (cupomData?.parcelamento === 'SIM' && parcelas <= 3) juros = 0;
+  const desconto = cupomAplicado ? calcularDescontoCupom() : 0;
+  let total = getTotal() + freteValor - desconto;
+  if (total < 0) total = 0;
   if (juros > 0) total *= (1 + juros / 100);
   const por = total / parcelas;
   document.getElementById('f_parcela_val').value = `R$ ${por.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
