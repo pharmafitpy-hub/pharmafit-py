@@ -1253,6 +1253,18 @@
 
     <div class="review-total-box" id="review-total-box"></div>
 
+    <!-- Cupom de Bonificação -->
+    <div class="cupom-section">
+      <div class="cupom-header">🎟️ Código de Bonificação</div>
+      <div class="cupom-row">
+        <input type="text" id="f_cupom" placeholder="EX: BONUS10"
+               oninput="this.value=this.value.toUpperCase()"
+               onkeydown="if(event.key==='Enter') aplicarCupom()"/>
+        <button id="btn-cupom" onclick="aplicarCupom()">Aplicar</button>
+      </div>
+      <div id="cupom-msg"></div>
+    </div>
+
     <!-- Recomendações na revisão -->
     <div class="rec-revisao" id="rec-revisao" style="display:none">
       <div class="rec-rev-header">
@@ -1268,18 +1280,6 @@
         <div class="rec-rev-group-label">🔄 Você costuma levar</div>
         <div class="rec-grid" id="rec-rev-hist-grid"></div>
       </div>
-    </div>
-
-    <!-- Cupom de Bonificação -->
-    <div class="cupom-section">
-      <div class="cupom-header">🎟️ Código de Bonificação</div>
-      <div class="cupom-row">
-        <input type="text" id="f_cupom" placeholder="EX: BONUS10"
-               oninput="this.value=this.value.toUpperCase()"
-               onkeydown="if(event.key==='Enter') aplicarCupom()"/>
-        <button id="btn-cupom" onclick="aplicarCupom()">Aplicar</button>
-      </div>
-      <div id="cupom-msg"></div>
     </div>
 
     <button class="btn-wa" onclick="sendWhatsApp()">
