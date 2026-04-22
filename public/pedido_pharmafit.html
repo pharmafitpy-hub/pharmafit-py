@@ -2220,6 +2220,7 @@ function selecionarFrete(metodo) {
     const limiar = parseFloat(cupomData.frete_gratis_acima);
     if (!isNaN(limiar) && getTotal() >= limiar) freteValor = 0;
   }
+  if (selectedPayment === 'Cartão de Crédito') calcInstallment();
 }
 
 // ─── PROTOCOLO MODAL ────────────────────────────────────────────────────────
@@ -2567,7 +2568,7 @@ function buildReview() {
     ${descontoHtml}
     <div style="border-top:1px solid rgba(255,255,255,.15);margin:10px 0"></div>
     <div class="rtb-label">Total do Pedido</div>
-    <div class="rtb-amount">R$ ${totalFinal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+    <div class="rtb-amount">R$ ${totalFinal.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
     <div class="rtb-method">${selectedPayment}</div>`;
   renderRecomendacoesRevisao();
 }
