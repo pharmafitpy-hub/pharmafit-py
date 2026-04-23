@@ -1,3 +1,34 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  INFORMATIVO TÉCNICO — TEMPLATE PHARMAFIT-PY                ║
+  ║  Produto: GHK-Cu 50mg                                       ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  ESTRUTURA GERAL (2 páginas .page):                         ║
+  ║  Pág 1: header → info-strip → "O Que É" → seções técnicas  ║
+  ║  Pág 2: header-small → seções avançadas → pharmafit-banner  ║
+  ║         → referências científicas → footer + footer-note    ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  O QUE CUSTOMIZAR POR PRODUTO:                              ║
+  ║  1. <title> — nome do produto                               ║
+  ║  2. :root — paleta de cores (ver abaixo)                    ║
+  ║     Tema azul/âmbar      → ex: Tirzepatida 120mg            ║
+  ║     Tema escuro/ouro     → ex: Durateston                   ║
+  ║  3. body { background } — cor do fundo externo da página    ║
+  ║  4. .header → textos: tag, título, subtítulo, badges        ║
+  ║  5. .info-strip → chips e texto de contexto                 ║
+  ║  6. Seção "O Que É..." → section-title + intro-text         ║
+  ║  7. Conteúdo das seções (componentes em informativo.css)    ║
+  ║  8. .header-small (pág 2) → título e subtítulo              ║
+  ║  9. .footer → brand text e código do documento              ║
+  ║  10. Referências científicas → .ref-list                    ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  NÃO ALTERAR (padronizado para todos os informativos):      ║
+  ║  • .pharmafit-banner — tagline e telefone da Pharmafit-PY   ║
+  ║  • .footer-note — aviso de uso profissional                 ║
+  ║  • Link para ../assets/css/informativo.css                  ║
+  ║  • Fontes: Montserrat + Lato (Google Fonts)                 ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5,609 +36,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Informativo Técnico — GHK-Cu 50mg | PharmaFit-PY</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/informativo.css" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --petrol:      #1B4F72;
-      --petrol-dark: #0D2B3E;
-      --petrol-mid:  #2471A3;
-      --petrol-lite: #D6EAF8;
-      --petrol-bg:   #EBF5FB;
-      --copper:      #A0522D;
-      --copper-mid:  #C1692A;
-      --copper-lite: #FDEBD0;
-      --copper-bg:   #FEF5EC;
-      --gold:        #B7860B;
-      --gold-lite:   #FEF9E7;
-      --green:       #1E8449;
-      --green-lite:  #D5F5E3;
-      --white:       #FFFFFF;
-      --gray-1:      #F4F6F7;
-      --gray-2:      #D5D8DC;
-      --text-dark:   #1A2530;
-      --text-mid:    #3D566E;
+      --petrol:     #1B4F72; --petrol-dark: #0D2B3E; --petrol-mid: #2471A3;
+      --petrol-lite:#D6EAF8; --petrol-bg:  #EBF5FB;
+      --amber:      #A0522D; --amber-mid:  #C1692A;
+      --amber-lite: #FDEBD0; --amber-bg:   #FEF5EC;
+      --gold:       #B7860B; --gold-mid:   #E67E22;
+      --gold-lite:  #FEF9E7; --gold-bg:    #FFFDE7;
+      --white:      #FFFFFF; --gray-1: #F4F6F7; --gray-2: #D5D8DC;
+      --text-dark:  #1A2530; --text-mid: #3D566E;
+      --shadow:     0 2px 12px rgba(13,43,62,0.10);
+      --header-bg:  linear-gradient(135deg, #0D2B3E 0%, #1B4F72 45%, #1a6090 75%, #1d5a7a 100%);
+      --header-bar-bg: linear-gradient(90deg, #A0522D 0%, #E67E22 25%, #E8A96A 50%, #2471A3 75%, #1B4F72 100%);
+      --header-small-bg: linear-gradient(135deg, #0D2B3E 0%, #1B4F72 60%, #1a6090 100%);
+      --header-hl:  #E8A96A;
     }
-
-    body {
-      font-family: 'Lato', sans-serif;
-      color: var(--text-dark);
-      background: #c8d8e4;
-      font-size: 10.5pt;
-      line-height: 1.6;
-    }
-
-    /* ─── A4 PAGE ──────────────────────────────────────── */
-    .page {
-      width: 210mm;
-      min-height: 297mm;
-      background: var(--white);
-      margin: 12mm auto;
-      box-shadow: 0 4px 32px rgba(13,43,62,0.18);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ─── HEADER ───────────────────────────────────────── */
-    .header {
-      background: linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol) 45%, #1a6090 75%, #1d5a7a 100%);
-      padding: 0;
-      position: relative;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-    .header::before {
-      content: '';
-      position: absolute;
-      top: -40px; right: -40px;
-      width: 220px; height: 220px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.04);
-    }
-    .header::after {
-      content: '';
-      position: absolute;
-      bottom: -60px; left: 30%;
-      width: 160px; height: 160px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.03);
-    }
-    /* decorative copper orb */
-    .header .orb-copper {
-      position: absolute;
-      top: 8px; right: 160px;
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(193,105,42,0.25) 0%, transparent 70%);
-    }
-    .header-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 28px 12px;
-    }
-    .header-logo img {
-      height: 70px;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
-    }
-    .header-center {
-      text-align: center;
-      flex: 1;
-      padding: 0 20px;
-    }
-    .header-tag {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 6.5pt;
-      font-weight: 600;
-      letter-spacing: 3px;
-      color: rgba(255,255,255,0.5);
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-    .header-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 26pt;
-      font-weight: 800;
-      color: white;
-      line-height: 1.05;
-      letter-spacing: 3px;
-    }
-    .header-title .copper-text {
-      color: #E8A96A;
-      text-shadow: 0 0 24px rgba(232,169,106,0.55);
-    }
-    .header-subtitle {
-      font-size: 8.5pt;
-      color: rgba(255,255,255,0.65);
-      margin-top: 5px;
-      font-weight: 300;
-      letter-spacing: 0.5px;
-    }
-    .header-badge {
-      text-align: right;
-    }
-    .badge-box {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-family: 'Montserrat', sans-serif;
-    }
-    .badge-box .b-label {
-      font-size: 6pt;
-      color: rgba(255,255,255,0.5);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-    .badge-box .b-val {
-      font-size: 8.5pt;
-      font-weight: 700;
-      color: white;
-      margin-top: 2px;
-    }
-    .badge-box .b-val span {
-      color: #E8A96A;
-      font-size: 13pt;
-      font-weight: 800;
-    }
-    .header-bar {
-      height: 4px;
-      background: linear-gradient(90deg, var(--copper) 0%, #E67E22 25%, #E8A96A 50%, var(--petrol-mid) 75%, var(--petrol) 100%);
-    }
-
-    /* ─── CONTENT ───────────────────────────────────────── */
-    .content {
-      padding: 18px 26px 22px;
-      flex: 1;
-    }
-
-    /* ─── INTRO STRIP ──────────────────────────────────── */
-    .intro-strip {
-      background: linear-gradient(135deg, var(--copper-bg) 0%, var(--petrol-bg) 100%);
-      border-left: 5px solid var(--copper-mid);
-      border-radius: 0 8px 8px 0;
-      padding: 11px 16px;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .intro-icon {
-      font-size: 26px;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-    .intro-text {
-      font-size: 9pt;
-      color: var(--text-mid);
-      line-height: 1.5;
-    }
-    .intro-text strong { color: var(--petrol-dark); }
-
-    /* ─── SECTION TITLES ───────────────────────────────── */
-    .section { margin-bottom: 16px; }
-    .section-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 9.5pt;
-      font-weight: 700;
-      color: var(--white);
-      background: linear-gradient(90deg, var(--petrol) 0%, var(--petrol-mid) 100%);
-      padding: 6px 14px;
-      border-radius: 6px;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .section-title .num {
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      width: 20px; height: 20px;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 8.5pt;
-      font-weight: 800;
-      flex-shrink: 0;
-    }
-
-    /* ─── COMPONENT CARDS ──────────────────────────────── */
-    .comp-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-    .comp-card {
-      border: 1px solid var(--gray-2);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .comp-card-header {
-      background: linear-gradient(90deg, var(--petrol-dark) 0%, var(--copper) 100%);
-      padding: 7px 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .comp-card-header .comp-icon { font-size: 16px; }
-    .comp-card-header .comp-name {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 9pt;
-      font-weight: 700;
-      color: white;
-    }
-    .comp-card-header .comp-name span {
-      font-size: 7pt;
-      font-weight: 400;
-      color: rgba(255,255,255,0.65);
-      margin-left: 6px;
-    }
-    .comp-card-body {
-      background: var(--gray-1);
-      padding: 9px 14px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px 18px;
-    }
-    .comp-item { font-size: 8.5pt; color: var(--text-mid); line-height: 1.4; }
-    .comp-item strong { color: var(--petrol-dark); font-size: 8pt; display: block; }
-
-    /* ─── MOA TABLE ─────────────────────────────────────── */
-    table.moa {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 8.5pt;
-    }
-    table.moa thead tr {
-      background: linear-gradient(90deg, var(--petrol) 0%, var(--petrol-mid) 100%);
-      color: white;
-    }
-    table.moa thead th {
-      padding: 7px 10px;
-      text-align: left;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7.5pt;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-    table.moa tbody tr:nth-child(odd)  { background: var(--gray-1); }
-    table.moa tbody tr:nth-child(even) { background: var(--white); }
-    table.moa tbody td {
-      padding: 6px 10px;
-      color: var(--text-dark);
-      border-bottom: 1px solid var(--gray-2);
-      vertical-align: top;
-    }
-    table.moa tbody td:first-child {
-      font-weight: 700;
-      color: var(--copper);
-      width: 32%;
-    }
-    table.moa tbody td .tag {
-      display: inline-block;
-      background: var(--petrol-lite);
-      color: var(--petrol-dark);
-      font-size: 7pt;
-      font-weight: 700;
-      padding: 1px 6px;
-      border-radius: 4px;
-      margin-top: 2px;
-    }
-    table.moa tbody td .tag.copper { background: var(--copper-lite); color: var(--copper); }
-
-    /* ─── DISSOLUÇÃO ────────────────────────────────────── */
-    .diss-box {
-      background: linear-gradient(135deg, var(--petrol-bg) 0%, var(--copper-bg) 100%);
-      border: 1.5px solid var(--petrol-lite);
-      border-radius: 10px;
-      padding: 14px 18px;
-    }
-    .diss-steps {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .diss-step {
-      text-align: center;
-    }
-    .diss-step .step-circle {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--petrol) 0%, var(--copper-mid) 100%);
-      color: white;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 13pt;
-      font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 5px;
-      box-shadow: 0 2px 8px rgba(27,79,114,0.25);
-    }
-    .diss-step .step-text {
-      font-size: 7pt;
-      color: var(--text-mid);
-      line-height: 1.3;
-    }
-    .diss-step .step-text strong { color: var(--petrol-dark); display: block; }
-
-    .dose-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 8.5pt;
-      margin-top: 4px;
-    }
-    .dose-table thead tr {
-      background: linear-gradient(90deg, var(--copper) 0%, var(--copper-mid) 100%);
-      color: white;
-    }
-    .dose-table thead th {
-      padding: 6px 10px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7pt;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      text-align: center;
-    }
-    .dose-table tbody tr:nth-child(odd)  { background: var(--copper-bg); }
-    .dose-table tbody tr:nth-child(even) { background: var(--white); }
-    .dose-table tbody td {
-      padding: 5px 10px;
-      text-align: center;
-      border-bottom: 1px solid #f0dece;
-    }
-    .dose-table tbody td:first-child { font-weight: 700; color: var(--copper); }
-
-    /* ─── FOOTER ────────────────────────────────────────── */
-    .footer {
-      background: var(--petrol-dark);
-      padding: 8px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-    }
-    .footer-brand {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7pt;
-      font-weight: 600;
-      color: rgba(255,255,255,0.5);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-    .footer-brand span { color: #E8A96A; }
-    .footer-code {
-      font-size: 6.5pt;
-      color: rgba(255,255,255,0.35);
-      letter-spacing: 1px;
-    }
-    .footer-page {
-      font-size: 7pt;
-      color: rgba(255,255,255,0.4);
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 600;
-    }
-
-    /* ─── VERSO: HEADER SMALL ───────────────────────────── */
-    .header-small {
-      background: linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol) 60%, #1a6090 100%);
-      padding: 10px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-    }
-    .header-small img { height: 42px; filter: drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
-    .header-small .hs-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 12pt;
-      font-weight: 800;
-      color: white;
-      letter-spacing: 2px;
-    }
-    .header-small .hs-title span { color: #E8A96A; }
-    .header-small .hs-sub {
-      font-size: 7pt;
-      color: rgba(255,255,255,0.5);
-      letter-spacing: 0.5px;
-      font-weight: 300;
-    }
-    .header-small .hs-right { text-align: right; }
-
-    /* ─── PROTOCOLO CARDS ───────────────────────────────── */
-    .proto-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .proto-card {
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(13,43,62,0.1);
-    }
-    .proto-head {
-      padding: 9px 12px;
-      color: white;
-      font-family: 'Montserrat', sans-serif;
-    }
-    .proto-head.p1 { background: linear-gradient(135deg, var(--copper) 0%, #C87941 100%); }
+    body { background: #c8d8e4; }
+    .proto-head.p1 { background: linear-gradient(135deg, var(--amber) 0%, #C87941 100%); }
     .proto-head.p2 { background: linear-gradient(135deg, var(--petrol) 0%, var(--petrol-mid) 100%); }
-    .proto-head.p3 { background: linear-gradient(135deg, var(--green) 0%, #27AE60 100%); }
-    .proto-head .p-num {
-      font-size: 6pt;
-      font-weight: 600;
-      letter-spacing: 2px;
-      opacity: 0.7;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-    .proto-head .p-title {
-      font-size: 8.5pt;
-      font-weight: 800;
-      line-height: 1.2;
-    }
-    .proto-head .p-icon { font-size: 18px; float: right; margin-top: -24px; opacity: 0.8; }
-    .proto-body {
-      background: var(--gray-1);
-      padding: 10px 12px;
-    }
-    .proto-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 5px;
-      font-size: 8pt;
-      border-bottom: 1px dashed var(--gray-2);
-      padding-bottom: 4px;
-    }
-    .proto-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .proto-row .pr-label {
-      color: var(--text-mid);
-      font-size: 7pt;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      min-width: 52px;
-    }
-    .proto-row .pr-val {
-      color: var(--text-dark);
-      font-size: 7.5pt;
-      text-align: right;
-      line-height: 1.3;
-    }
-    .proto-row .pr-val strong { color: var(--petrol-dark); }
-
-    /* ─── COMPARATIVO TABLE ─────────────────────────────── */
-    table.comp-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 8pt;
-      margin-bottom: 14px;
-    }
-    table.comp-table thead tr {
-      background: linear-gradient(90deg, var(--petrol-dark) 0%, var(--petrol) 100%);
-      color: white;
-    }
-    table.comp-table thead th {
-      padding: 7px 10px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7.5pt;
-      font-weight: 700;
-      letter-spacing: 0.4px;
-      text-align: center;
-    }
-    table.comp-table thead th:first-child { text-align: left; }
-    table.comp-table tbody tr:nth-child(odd)  { background: var(--gray-1); }
-    table.comp-table tbody tr:nth-child(even) { background: var(--white); }
-    table.comp-table tbody td {
-      padding: 6px 10px;
-      border-bottom: 1px solid var(--gray-2);
-      text-align: center;
-      vertical-align: middle;
-    }
-    table.comp-table tbody td:first-child {
-      text-align: left;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
-    table.comp-table tbody td .dot { font-size: 11pt; }
-
-    /* ─── SUPL & ADVERTENCIAS ───────────────────────────── */
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-
-    .supl-box {
-      background: linear-gradient(135deg, #FEF3E2 0%, #FEF9F0 100%);
-      border: 1.5px solid #F0B27A;
-      border-radius: 8px;
-      padding: 12px 14px;
-    }
-    .supl-box .box-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 8pt;
-      font-weight: 800;
-      color: var(--copper);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 8px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .supl-item {
-      display: flex; align-items: flex-start; gap: 8px;
-      margin-bottom: 6px;
-      font-size: 8pt;
-    }
-    .supl-item .si-icon { font-size: 14px; flex-shrink: 0; }
-    .supl-item .si-text { color: var(--text-mid); line-height: 1.4; }
-    .supl-item .si-text strong { color: var(--text-dark); }
-
-    .adv-box {
-      background: #FEF9E7;
-      border: 1.5px solid #F9CA24;
-      border-radius: 8px;
-      padding: 12px 14px;
-    }
-    .adv-box .box-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 8pt;
-      font-weight: 800;
-      color: #B7770D;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 8px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .adv-item {
-      display: flex; align-items: flex-start; gap: 6px;
-      margin-bottom: 5px;
-      font-size: 8pt;
-    }
-    .adv-item .adv-icon { font-size: 12px; flex-shrink: 0; margin-top: 1px; }
-    .adv-item .adv-text { color: var(--text-mid); line-height: 1.4; }
-    .adv-item .adv-text strong { color: #7D6608; }
-
-    /* ─── REFERÊNCIAS ───────────────────────────────────── */
-    .ref-box {
-      background: var(--gray-1);
-      border: 1px solid var(--gray-2);
-      border-radius: 8px;
-      padding: 10px 14px;
-    }
-    .ref-box .box-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 8pt;
-      font-weight: 800;
-      color: var(--petrol);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 8px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .ref-list { list-style: none; padding: 0; }
-    .ref-list li {
-      font-size: 7pt;
-      color: var(--text-mid);
-      line-height: 1.45;
-      padding: 3px 0;
-      border-bottom: 1px dashed var(--gray-2);
-      padding-left: 16px;
-      position: relative;
-    }
-    .ref-list li:last-child { border-bottom: none; }
-    .ref-list li::before {
-      content: attr(data-n);
-      position: absolute; left: 0;
-      color: var(--copper);
-      font-weight: 700;
-      font-size: 7pt;
-    }
-    .ref-list li em { color: var(--petrol); font-style: italic; }
-
-    @media print {
-      body { background: white; }
-      .page { margin: 0; box-shadow: none; page-break-after: always; }
-    }
+    .proto-head.p3 { background: linear-gradient(135deg, #1E8449 0%, #27AE60 100%); }
+    .orb-copper { position: absolute; top: 8px; right: 160px; width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle, rgba(193,105,42,0.25) 0%, transparent 70%); }
+    .header-title .copper-text { color: #E8A96A; text-shadow: 0 0 24px rgba(232,169,106,0.55); }
   </style>
 </head>
 <body>
@@ -622,7 +73,7 @@
     <div class="orb-copper"></div>
     <div class="header-inner">
       <div class="header-logo">
-        <img src="../logo_pharmafit.png" alt="PharmaFit-PY" />
+        <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" />
       </div>
       <div class="header-center">
         <div class="header-tag">Informativo Técnico — Peptídeo de Alta Performance</div>
@@ -631,7 +82,7 @@
         </div>
         <div class="header-subtitle">Glycyl-L-Histidyl-L-Lysine Copper Complex · Peptídeo de Regeneração e Rejuvenescimento</div>
       </div>
-      <div class="header-badge">
+      <div class="header-badges">
         <div class="badge-box">
           <div class="b-label">Concentração</div>
           <div class="b-val"><span>50</span> mg</div>
@@ -648,9 +99,12 @@
   <!-- CONTEÚDO -->
   <div class="content">
 
-    <!-- INTRO -->
+    <!-- SEÇÃO O QUE É + INTRO -->
+    <div class="section">
+      <div class="section-title"><span class="st-icon">🔬</span><h2>O Que É o GHK-Cu?</h2><div class="st-line"></div></div>
     <div class="intro-strip">
       <div class="intro-icon">🔬</div>
+      <div>
       <div class="intro-text">
         O <strong>GHK-Cu (Glycyl-L-Histidyl-L-Lysine Copper Complex)</strong> é um tripeptídeo de cobre isolado
         primeiramente do soro humano por Pickart (1973). Atua como potente modulador da expressão gênica,
@@ -658,32 +112,21 @@
         angiogênese e proteção antioxidante. É considerado o <strong>peptídeo anti-aging mais estudado</strong>
         da medicina regenerativa moderna.
       </div>
-    </div>
-
-    <!-- PERFIL DO COMPOSTO -->
-    <div class="section">
-      <div class="section-title"><span class="num">1</span> Perfil do Composto Ativo</div>
-      <div class="comp-grid">
-        <div class="comp-card">
-          <div class="comp-card-header">
-            <span class="comp-icon">🧬</span>
-            <div class="comp-name">GHK-Cu — Glycyl-L-Histidyl-L-Lysine Copper Complex <span>Tripeptídeo de Cobre</span></div>
-          </div>
-          <div class="comp-card-body" style="grid-template-columns: repeat(3, 1fr);">
-            <div class="comp-item"><strong>Estrutura</strong>Gly-His-Lys + Cu²⁺</div>
-            <div class="comp-item"><strong>Peso Molecular</strong>340,38 g/mol</div>
-            <div class="comp-item"><strong>Origem</strong>Soro humano (endógeno)</div>
-            <div class="comp-item"><strong>Genes Ativados</strong>> 4.000 genes</div>
-            <div class="comp-item"><strong>Meia-vida</strong>~30 min (sistêmica)</div>
-            <div class="comp-item"><strong>Concentração</strong>50 mg / frasco</div>
-          </div>
-        </div>
+      <div class="spec-grid">
+        <div class="spec-item"><div class="s-val">Gly-His-Lys</div><div class="s-lbl">Estrutura</div></div>
+        <div class="spec-item"><div class="s-val">340 Da</div><div class="s-lbl">Peso Molecular</div></div>
+        <div class="spec-item"><div class="s-val">Endógeno</div><div class="s-lbl">Origem</div></div>
+        <div class="spec-item"><div class="s-val">&gt;4.000</div><div class="s-lbl">Genes Ativados</div></div>
+        <div class="spec-item"><div class="s-val">~30 min</div><div class="s-lbl">Meia-vida</div></div>
+        <div class="spec-item"><div class="s-val">50 mg</div><div class="s-lbl">Concentração</div></div>
       </div>
+      </div>
+    </div>
     </div>
 
     <!-- MECANISMO DE AÇÃO -->
     <div class="section">
-      <div class="section-title"><span class="num">2</span> Mecanismo de Ação Científico</div>
+      <div class="section-title"><span class="st-icon">⚡</span><h2>Mecanismo de Ação Científico</h2><div class="st-line"></div></div>
       <table class="moa">
         <thead>
           <tr>
@@ -729,7 +172,7 @@
 
     <!-- DISSOLUÇÃO -->
     <div class="section">
-      <div class="section-title"><span class="num">3</span> Reconstituição — GHK-Cu 50mg / 2ml</div>
+      <div class="section-title"><span class="st-icon">💧</span><h2>Reconstituição — GHK-Cu 50mg / 2ml</h2><div class="st-line"></div></div>
       <div class="diss-box">
         <div class="diss-steps">
           <div class="diss-step">
@@ -801,6 +244,7 @@
     <div class="footer-code">DOC: GHKCU-50-PFY · Rev. Mar/2026</div>
     <div class="footer-page">1 / 2</div>
   </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
 
 </div><!-- /page 1 -->
 
@@ -812,7 +256,7 @@
 
   <!-- HEADER PEQUENO -->
   <div class="header-small">
-    <img src="../logo_pharmafit.png" alt="PharmaFit-PY" />
+    <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" />
     <div>
       <div class="hs-title"><span>GHK</span>-Cu · Protocolos Clínicos</div>
       <div class="hs-sub">Glycyl-L-Histidyl-L-Lysine Copper Complex · 50mg</div>
@@ -829,7 +273,7 @@
 
     <!-- PROTOCOLOS -->
     <div class="section">
-      <div class="section-title"><span class="num">4</span> Protocolos de Uso Clínico</div>
+      <div class="section-title"><span class="st-icon">📋</span><h2>Protocolos de Uso Clínico</h2><div class="st-line"></div></div>
       <div class="proto-grid">
 
         <!-- PROTOCOLO 1 -->
@@ -942,8 +386,8 @@
 
     <!-- TABELA COMPARATIVA -->
     <div class="section">
-      <div class="section-title"><span class="num">5</span> Comparativo dos Protocolos</div>
-      <table class="comp-table">
+      <div class="section-title"><span class="st-icon">📊</span><h2>Comparativo dos Protocolos</h2><div class="st-line"></div></div>
+      <table class="compare-table">
         <thead>
           <tr>
             <th>Parâmetro</th>
@@ -996,7 +440,7 @@
     <!-- SUPLEMENTAÇÃO + ADVERTÊNCIAS -->
     <div class="two-col">
 
-      <div class="supl-box">
+      <div class="box-card supl">
         <div class="box-title">⚗️ Suplementação Recomendada</div>
         <div class="supl-item">
           <span class="si-icon">🔵</span>
@@ -1016,7 +460,7 @@
         </div>
       </div>
 
-      <div class="adv-box">
+      <div class="box-card adv">
         <div class="box-title">⚠️ Advertências & Contraindicações</div>
         <div class="adv-item">
           <span class="adv-icon">🔴</span>
@@ -1046,8 +490,18 @@
 
     </div>
 
+    <div class="pharmafit-banner" style="margin-top:16px">
+      <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" class="pf-logo" />
+      <div class="pf-text">
+        <div class="pf-label">Estudo Clínico Elaborado por</div>
+        <div class="pf-brand">Pharmafit<span>-PY</span></div>
+        <div class="pf-tagline">Compostos injetáveis de alta pureza com qualidade farmacêutica.<br>Protocolos personalizados para saúde, performance e bem-estar.</div>
+      </div>
+      <a class="pf-cta" href="tel:+12142049853">📞 +1 (214) 204-9853</a>
+    </div>
+
     <!-- REFERÊNCIAS -->
-    <div class="ref-box">
+    <div class="box-card ref" style="margin-bottom:0">
       <div class="box-title">📚 Referências Científicas</div>
       <ul class="ref-list">
         <li data-n="1">Pickart L. (1973). <em>Human serum copper tripeptide GHK-Cu and wound healing.</em> Nature. First isolation and characterization.</li>
@@ -1068,6 +522,7 @@
     <div class="footer-code">DOC: GHKCU-50-PFY · Rev. Mar/2026 · Uso Profissional</div>
     <div class="footer-page">2 / 2</div>
   </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
 
 </div><!-- /page 2 -->
 

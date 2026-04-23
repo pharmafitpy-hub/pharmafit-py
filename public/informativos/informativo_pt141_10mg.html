@@ -1,3 +1,34 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  INFORMATIVO TÉCNICO — TEMPLATE PHARMAFIT-PY                ║
+  ║  Produto: PT-141 10mg (Bremelanotide)                       ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  ESTRUTURA GERAL (2 páginas .page):                         ║
+  ║  Pág 1: header → info-strip → "O Que É" → seções técnicas  ║
+  ║  Pág 2: header-small → seções avançadas → pharmafit-banner  ║
+  ║         → referências científicas → footer + footer-note    ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  O QUE CUSTOMIZAR POR PRODUTO:                              ║
+  ║  1. <title> — nome do produto                               ║
+  ║  2. :root — paleta de cores (ver abaixo)                    ║
+  ║     Tema azul/âmbar      → ex: Tirzepatida 120mg            ║
+  ║     Tema escuro/ouro     → ex: Durateston                   ║
+  ║  3. body { background } — cor do fundo externo da página    ║
+  ║  4. .header → textos: tag, título, subtítulo, badges        ║
+  ║  5. .info-strip → chips e texto de contexto                 ║
+  ║  6. Seção "O Que É..." → section-title + intro-text         ║
+  ║  7. Conteúdo das seções (componentes em informativo.css)    ║
+  ║  8. .header-small (pág 2) → título e subtítulo              ║
+  ║  9. .footer → brand text e código do documento              ║
+  ║  10. Referências científicas → .ref-list                    ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  NÃO ALTERAR (padronizado para todos os informativos):      ║
+  ║  • .pharmafit-banner — tagline e telefone da Pharmafit-PY   ║
+  ║  • .footer-note — aviso de uso profissional                 ║
+  ║  • Link para ../assets/css/informativo.css                  ║
+  ║  • Fontes: Montserrat + Lato (Google Fonts)                 ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5,503 +36,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Informativo Técnico — PT-141 10mg | PharmaFit-PY</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/informativo.css" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --petrol:      #1B4F72;
       --petrol-dark: #0D2B3E;
       --petrol-mid:  #2471A3;
       --petrol-lite: #D6EAF8;
       --petrol-bg:   #EBF5FB;
-      --violet:      #6C3483;
-      --violet-mid:  #8E44AD;
-      --violet-lite: #E8DAEF;
-      --violet-bg:   #F5EEF8;
-      --rose:        #C0392B;
-      --rose-lite:   #FADBD8;
+      --amber:       #6C3483;
+      --amber-mid:   #8E44AD;
+      --amber-lite:  #E8DAEF;
+      --amber-bg:    #F5EEF8;
       --gold:        #B7860B;
+      --gold-mid:    #D4AC0D;
+      --gold-lite:   #FCF3CF;
+      --gold-bg:     #FEFDE7;
       --white:       #FFFFFF;
       --gray-1:      #F4F6F7;
       --gray-2:      #D5D8DC;
       --text-dark:   #1A2530;
       --text-mid:    #3D566E;
+      --shadow:      0 2px 12px rgba(13,43,62,0.10);
+      --header-bg:   linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol) 40%, #5B2C6F 75%, #7D3C98 100%);
+      --header-small-bg: linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol) 50%, #6C3483 100%);
+      --header-bar-bg: linear-gradient(90deg, #6C3483 0%, #8E44AD 30%, #D7BDE2 55%, var(--petrol-mid) 80%, var(--petrol) 100%);
+      --header-hl:   #D7BDE2;
     }
-
-    body {
-      font-family: 'Lato', sans-serif;
-      color: var(--text-dark);
-      background: #c8d8e4;
-      font-size: 10.5pt;
-      line-height: 1.6;
-    }
-
-    /* ─── A4 PAGE ──────────────────────────────────────── */
-    .page {
-      width: 210mm;
-      min-height: 297mm;
-      background: var(--white);
-      margin: 12mm auto;
-      box-shadow: 0 4px 32px rgba(13,43,62,0.18);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ─── HEADER ───────────────────────────────────────── */
-    .header {
-      background: linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol) 40%, #5B2C6F 75%, #7D3C98 100%);
-      padding: 0;
-      position: relative;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-    .header::before {
-      content: '';
-      position: absolute;
-      top: -40px; right: -40px;
-      width: 220px; height: 220px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.04);
-    }
-    .header::after {
-      content: '';
-      position: absolute;
-      bottom: -60px; left: 30%;
-      width: 160px; height: 160px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.03);
-    }
-    .header .orb-violet {
-      position: absolute;
-      top: 10px; right: 155px;
-      width: 90px; height: 90px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(142,68,173,0.3) 0%, transparent 70%);
-    }
-    .header-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 28px 12px;
-    }
-    .header-logo img {
-      height: 70px;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
-    }
-    .header-center {
-      text-align: center;
-      flex: 1;
-      padding: 0 20px;
-    }
-    .header-tag {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 6.5pt;
-      font-weight: 600;
-      letter-spacing: 3px;
-      color: rgba(255,255,255,0.5);
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-    .header-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 28pt;
-      font-weight: 800;
-      color: white;
-      line-height: 1.05;
-      letter-spacing: 4px;
-    }
-    .header-title .violet-text {
-      color: #D7BDE2;
-      text-shadow: 0 0 24px rgba(215,189,226,0.6);
-    }
-    .header-subtitle {
-      font-size: 8.5pt;
-      color: rgba(255,255,255,0.65);
-      margin-top: 5px;
-      font-weight: 300;
-      letter-spacing: 0.5px;
-    }
-    .header-badge { text-align: right; }
-    .badge-box {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-family: 'Montserrat', sans-serif;
-    }
-    .badge-box .b-label {
-      font-size: 6pt;
-      color: rgba(255,255,255,0.5);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-    .badge-box .b-val {
-      font-size: 8.5pt;
-      font-weight: 700;
-      color: white;
-      margin-top: 2px;
-    }
-    .badge-box .b-val span {
-      color: #D7BDE2;
-      font-size: 13pt;
-      font-weight: 800;
-    }
-    .header-bar {
-      height: 4px;
-      background: linear-gradient(90deg, var(--violet) 0%, var(--violet-mid) 30%, #D7BDE2 55%, var(--petrol-mid) 80%, var(--petrol) 100%);
-    }
-
-    /* ─── FDA BADGE STRIP ───────────────────────────────── */
-    .fda-strip {
-      background: linear-gradient(90deg, var(--violet-bg) 0%, var(--petrol-bg) 100%);
-      border-bottom: 1px solid var(--violet-lite);
-      padding: 6px 28px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 8pt;
-    }
-    .fda-badge {
-      background: var(--violet);
-      color: white;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7pt;
-      font-weight: 800;
-      letter-spacing: 1px;
-      padding: 3px 9px;
-      border-radius: 4px;
-      white-space: nowrap;
-    }
-    .fda-text { color: var(--text-mid); }
-    .fda-text strong { color: var(--violet); }
-
-    /* ─── CONTENT ───────────────────────────────────────── */
-    .content {
-      padding: 16px 26px 20px;
-      flex: 1;
-    }
-
-    /* ─── INTRO STRIP ──────────────────────────────────── */
-    .intro-strip {
-      background: linear-gradient(135deg, var(--violet-bg) 0%, var(--petrol-bg) 100%);
-      border-left: 5px solid var(--violet-mid);
-      border-radius: 0 8px 8px 0;
-      padding: 11px 16px;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .intro-icon { font-size: 26px; line-height: 1; flex-shrink: 0; }
-    .intro-text { font-size: 9pt; color: var(--text-mid); line-height: 1.5; }
-    .intro-text strong { color: var(--petrol-dark); }
-
-    /* ─── SECTION TITLES ───────────────────────────────── */
-    .section { margin-bottom: 15px; }
-    .section-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 9.5pt;
-      font-weight: 700;
-      color: var(--white);
-      background: linear-gradient(90deg, var(--petrol) 0%, var(--petrol-mid) 100%);
-      padding: 6px 14px;
-      border-radius: 6px;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .section-title .num {
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      width: 20px; height: 20px;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 8.5pt; font-weight: 800; flex-shrink: 0;
-    }
-
-    /* ─── COMP CARD ─────────────────────────────────────── */
-    .comp-card {
-      border: 1px solid var(--gray-2);
-      border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 12px;
-    }
-    .comp-card-header {
-      background: linear-gradient(90deg, var(--petrol-dark) 0%, var(--violet) 100%);
-      padding: 8px 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .comp-card-header .comp-icon { font-size: 16px; }
-    .comp-card-header .comp-name {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 9pt;
-      font-weight: 700;
-      color: white;
-    }
-    .comp-card-header .comp-name span {
-      font-size: 7pt; font-weight: 400;
-      color: rgba(255,255,255,0.65);
-      margin-left: 6px;
-    }
-    .comp-card-body {
-      background: var(--gray-1);
-      padding: 9px 14px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px 18px;
-    }
-    .comp-item { font-size: 8.5pt; color: var(--text-mid); line-height: 1.4; }
-    .comp-item strong { color: var(--petrol-dark); font-size: 8pt; display: block; }
-
-    /* ─── MOA TABLE ─────────────────────────────────────── */
-    table.moa {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 8.5pt;
-    }
-    table.moa thead tr {
-      background: linear-gradient(90deg, var(--petrol) 0%, var(--violet) 100%);
-      color: white;
-    }
-    table.moa thead th {
-      padding: 7px 10px;
-      text-align: left;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7.5pt; font-weight: 700; letter-spacing: 0.5px;
-    }
-    table.moa tbody tr:nth-child(odd)  { background: var(--gray-1); }
-    table.moa tbody tr:nth-child(even) { background: var(--white); }
-    table.moa tbody td {
-      padding: 6px 10px;
-      color: var(--text-dark);
-      border-bottom: 1px solid var(--gray-2);
-      vertical-align: top;
-    }
-    table.moa tbody td:first-child {
-      font-weight: 700;
-      color: var(--violet);
-      width: 30%;
-    }
-    table.moa tbody td .tag {
-      display: inline-block;
-      background: var(--petrol-lite);
-      color: var(--petrol-dark);
-      font-size: 7pt; font-weight: 700;
-      padding: 1px 6px;
-      border-radius: 4px;
-      margin-top: 2px;
-    }
-    table.moa tbody td .tag.violet { background: var(--violet-lite); color: var(--violet); }
-
-    /* ─── DISSOLUÇÃO ────────────────────────────────────── */
-    .diss-box {
-      background: linear-gradient(135deg, var(--petrol-bg) 0%, var(--violet-bg) 100%);
-      border: 1.5px solid var(--petrol-lite);
-      border-radius: 10px;
-      padding: 14px 18px;
-    }
-    .diss-steps {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .diss-step { text-align: center; }
-    .diss-step .step-circle {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--petrol) 0%, var(--violet-mid) 100%);
-      color: white;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 13pt; font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 5px;
-      box-shadow: 0 2px 8px rgba(27,79,114,0.25);
-    }
-    .diss-step .step-text { font-size: 7pt; color: var(--text-mid); line-height: 1.3; }
-    .diss-step .step-text strong { color: var(--petrol-dark); display: block; }
-
-    .dose-table {
-      width: 100%; border-collapse: collapse; font-size: 8.5pt;
-    }
-    .dose-table thead tr {
-      background: linear-gradient(90deg, var(--violet) 0%, var(--violet-mid) 100%);
-      color: white;
-    }
-    .dose-table thead th {
-      padding: 6px 10px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7pt; font-weight: 700; letter-spacing: 0.5px;
-      text-align: center;
-    }
-    .dose-table tbody tr:nth-child(odd)  { background: var(--violet-bg); }
-    .dose-table tbody tr:nth-child(even) { background: var(--white); }
-    .dose-table tbody td {
-      padding: 5px 10px;
-      text-align: center;
-      border-bottom: 1px solid var(--violet-lite);
-    }
-    .dose-table tbody td:first-child { font-weight: 700; color: var(--violet); }
-
-    /* ─── FOOTER ────────────────────────────────────────── */
-    .footer {
-      background: var(--petrol-dark);
-      padding: 8px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-    }
-    .footer-brand {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7pt; font-weight: 600;
-      color: rgba(255,255,255,0.5);
-      letter-spacing: 1.5px; text-transform: uppercase;
-    }
-    .footer-brand span { color: #D7BDE2; }
-    .footer-code { font-size: 6.5pt; color: rgba(255,255,255,0.35); letter-spacing: 1px; }
-    .footer-page { font-size: 7pt; color: rgba(255,255,255,0.4); font-family: 'Montserrat', sans-serif; font-weight: 600; }
-
-    /* ─── VERSO HEADER SMALL ────────────────────────────── */
-    .header-small {
-      background: linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol) 50%, #6C3483 100%);
-      padding: 10px 28px;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-shrink: 0;
-    }
-    .header-small img { height: 42px; filter: drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
-    .header-small .hs-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 12pt; font-weight: 800; color: white; letter-spacing: 2px;
-    }
-    .header-small .hs-title span { color: #D7BDE2; }
-    .header-small .hs-sub { font-size: 7pt; color: rgba(255,255,255,0.5); letter-spacing: 0.5px; font-weight: 300; }
-    .header-small .hs-right { text-align: right; }
-
-    /* ─── PROTO CARDS ───────────────────────────────────── */
-    .proto-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .proto-card { border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(13,43,62,0.1); }
-    .proto-head { padding: 9px 12px; color: white; font-family: 'Montserrat', sans-serif; }
-    .proto-head.p1 { background: linear-gradient(135deg, #1A5276 0%, #2471A3 100%); }
-    .proto-head.p2 { background: linear-gradient(135deg, var(--violet) 0%, var(--violet-mid) 100%); }
-    .proto-head.p3 { background: linear-gradient(135deg, #117864 0%, #1ABC9C 100%); }
-    .proto-head .p-num { font-size: 6pt; font-weight: 600; letter-spacing: 2px; opacity: 0.7; text-transform: uppercase; margin-bottom: 2px; }
-    .proto-head .p-title { font-size: 8.5pt; font-weight: 800; line-height: 1.2; }
-    .proto-head .p-icon { font-size: 18px; float: right; margin-top: -24px; opacity: 0.8; }
-    .proto-body { background: var(--gray-1); padding: 10px 12px; }
-    .proto-row {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      margin-bottom: 5px; font-size: 8pt;
-      border-bottom: 1px dashed var(--gray-2); padding-bottom: 4px;
-    }
-    .proto-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .proto-row .pr-label {
-      color: var(--text-mid); font-size: 7pt; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.4px; min-width: 52px;
-    }
-    .proto-row .pr-val { color: var(--text-dark); font-size: 7.5pt; text-align: right; line-height: 1.3; }
-    .proto-row .pr-val strong { color: var(--petrol-dark); }
-
-    /* ─── COMP TABLE ────────────────────────────────────── */
-    table.comp-table {
-      width: 100%; border-collapse: collapse; font-size: 8pt; margin-bottom: 14px;
-    }
-    table.comp-table thead tr {
-      background: linear-gradient(90deg, var(--petrol-dark) 0%, var(--violet) 100%);
-      color: white;
-    }
-    table.comp-table thead th {
-      padding: 7px 10px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7.5pt; font-weight: 700; letter-spacing: 0.4px; text-align: center;
-    }
-    table.comp-table thead th:first-child { text-align: left; }
-    table.comp-table tbody tr:nth-child(odd)  { background: var(--gray-1); }
-    table.comp-table tbody tr:nth-child(even) { background: var(--white); }
-    table.comp-table tbody td {
-      padding: 6px 10px; border-bottom: 1px solid var(--gray-2);
-      text-align: center; vertical-align: middle;
-    }
-    table.comp-table tbody td:first-child { text-align: left; font-weight: 700; color: var(--text-dark); }
-    table.comp-table tbody td .dot { font-size: 11pt; }
-
-    /* ─── DOIS COLS ─────────────────────────────────────── */
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-
-    .supl-box {
-      background: linear-gradient(135deg, var(--violet-bg) 0%, #F8F9FA 100%);
-      border: 1.5px solid var(--violet-lite);
-      border-radius: 8px; padding: 12px 14px;
-    }
-    .supl-box .box-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 8pt; font-weight: 800;
-      color: var(--violet); text-transform: uppercase;
-      letter-spacing: 0.8px; margin-bottom: 8px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .supl-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: 8pt; }
-    .supl-item .si-icon { font-size: 14px; flex-shrink: 0; }
-    .supl-item .si-text { color: var(--text-mid); line-height: 1.4; }
-    .supl-item .si-text strong { color: var(--text-dark); }
-
-    .adv-box {
-      background: #FEF9E7;
-      border: 1.5px solid #F9CA24;
-      border-radius: 8px; padding: 12px 14px;
-    }
-    .adv-box .box-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 8pt; font-weight: 800; color: #B7770D;
-      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .adv-item { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 5px; font-size: 8pt; }
-    .adv-item .adv-icon { font-size: 12px; flex-shrink: 0; margin-top: 1px; }
-    .adv-item .adv-text { color: var(--text-mid); line-height: 1.4; }
-    .adv-item .adv-text strong { color: #7D6608; }
-
-    /* ─── REFERÊNCIAS ───────────────────────────────────── */
-    .ref-box {
-      background: var(--gray-1); border: 1px solid var(--gray-2);
-      border-radius: 8px; padding: 10px 14px;
-    }
-    .ref-box .box-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 8pt; font-weight: 800; color: var(--petrol);
-      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .ref-list { list-style: none; padding: 0; }
-    .ref-list li {
-      font-size: 7pt; color: var(--text-mid); line-height: 1.45;
-      padding: 3px 0 3px 16px;
-      border-bottom: 1px dashed var(--gray-2);
-      position: relative;
-    }
-    .ref-list li:last-child { border-bottom: none; }
-    .ref-list li::before {
-      content: attr(data-n);
-      position: absolute; left: 0;
-      color: var(--violet); font-weight: 700; font-size: 7pt;
-    }
-    .ref-list li em { color: var(--petrol); font-style: italic; }
-
-    @media print {
-      body { background: white; }
-      .page { margin: 0; box-shadow: none; page-break-after: always; }
-    }
+    body { background: #c8d8e4; }
+    /* Comp card — specific to PT-141 */
+    .comp-card { border:1px solid var(--gray-2); border-radius:8px; overflow:hidden; margin-bottom:12px; }
+    .comp-card-header { background:linear-gradient(90deg, var(--petrol-dark) 0%, #6C3483 100%); padding:8px 14px; display:flex; align-items:center; gap:10px; }
+    .comp-card-header .comp-icon { font-size:16px; }
+    .comp-card-header .comp-name { font-family:'Montserrat',sans-serif; font-size:9pt; font-weight:700; color:white; }
+    .comp-card-header .comp-name span { font-size:7pt; font-weight:400; color:rgba(255,255,255,0.65); margin-left:6px; }
+    .comp-card-body { background:var(--gray-1); padding:9px 14px; display:grid; grid-template-columns:repeat(3,1fr); gap:6px 18px; }
+    .comp-item { font-size:8.5pt; color:var(--text-mid); line-height:1.4; }
+    .comp-item strong { color:var(--petrol-dark); font-size:8pt; display:block; }
+    /* Comp table */
+    table.comp-table { width:100%; border-collapse:collapse; font-size:8pt; margin-bottom:14px; }
+    table.comp-table thead tr { background:linear-gradient(90deg, var(--petrol-dark) 0%, #6C3483 100%); color:white; }
+    table.comp-table thead th { padding:7px 10px; font-family:'Montserrat',sans-serif; font-size:7.5pt; font-weight:700; letter-spacing:0.4px; text-align:center; }
+    table.comp-table thead th:first-child { text-align:left; }
+    table.comp-table tbody tr:nth-child(odd) { background:var(--gray-1); }
+    table.comp-table tbody tr:nth-child(even) { background:var(--white); }
+    table.comp-table tbody td { padding:6px 10px; border-bottom:1px solid var(--gray-2); text-align:center; vertical-align:middle; }
+    table.comp-table tbody td:first-child { text-align:left; font-weight:700; color:var(--text-dark); }
+    table.comp-table tbody td .dot { font-size:11pt; }
   </style>
 </head>
 <body>
@@ -515,19 +96,19 @@
     <div class="orb-violet"></div>
     <div class="header-inner">
       <div class="header-logo">
-        <img src="../logo_pharmafit.png" alt="PharmaFit-PY" />
+        <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" />
       </div>
       <div class="header-center">
         <div class="header-tag">Informativo Técnico — Peptídeo de Alta Performance</div>
-        <div class="header-title"><span class="violet-text">PT</span>-141</div>
-        <div class="header-subtitle">Bremelanotide · Agonista Melanocortínico MC3R/MC4R · Vitalidade & Função Sexual</div>
+        <div class="header-title"><span class="hl">PT</span>-141</div>
+        <div class="header-subtitle">Bremelanotide · Agonista Melanocortínico MC3R/MC4R · Vitalidade &amp; Função Sexual</div>
       </div>
-      <div class="header-badge">
+      <div class="header-badges">
         <div class="badge-box">
           <div class="b-label">Concentração</div>
           <div class="b-val"><span>10</span> mg</div>
         </div>
-        <div class="badge-box" style="margin-top:6px;">
+        <div class="badge-box">
           <div class="b-label">Código</div>
           <div class="b-val">PT141-10-PFY</div>
         </div>
@@ -536,29 +117,30 @@
     <div class="header-bar"></div>
   </div>
 
-  <!-- FDA STRIP -->
-  <div class="fda-strip">
-    <span class="fda-badge">FDA APROVADO</span>
-    <span class="fda-text">Bremelanotide aprovado pelo FDA (2019) sob o nome comercial <strong>Vyleesi®</strong> para tratamento de Transtorno do Desejo Sexual Hipoativo (HSDD) em mulheres na pré-menopausa · Ação central via sistema melanocortínico.</span>
+  <div class="info-strip">
+    <span class="info-chip">FDA APROVADO</span>
+    <span class="info-text">Bremelanotide aprovado pelo FDA (2019) sob o nome comercial <strong>Vyleesi®</strong> para tratamento de Transtorno do Desejo Sexual Hipoativo (HSDD) em mulheres na pré-menopausa · Ação central via sistema melanocortínico.</span>
   </div>
 
   <div class="content">
 
-    <!-- INTRO -->
-    <div class="intro-strip">
-      <div class="intro-icon">🧠</div>
-      <div class="intro-text">
-        O <strong>PT-141 (Bremelanotide)</strong> é um análogo cíclico do hormônio α-MSH (alfa-melanócito estimulante) que atua
-        diretamente no <strong>Sistema Nervoso Central</strong>, ativando receptores MC3R e MC4R no hipotálamo. Diferente dos
-        inibidores da PDE-5 (sildenafil, tadalafil) que atuam perifericamente nos vasos sanguíneos, o PT-141 age na
-        <strong>via neurológica do desejo</strong>, sendo eficaz para disfunção sexual tanto masculina quanto feminina, com
-        ou sem componente vascular.
+    <div class="section">
+      <div class="section-title"><span class="st-icon">🧠</span><h2>O Que É o PT-141?</h2><div class="st-line"></div></div>
+      <div class="intro-strip">
+        <div class="intro-icon">🧠</div>
+        <div class="intro-text">
+          O <strong>PT-141 (Bremelanotide)</strong> é um análogo cíclico do hormônio α-MSH (alfa-melanócito estimulante) que atua
+          diretamente no <strong>Sistema Nervoso Central</strong>, ativando receptores MC3R e MC4R no hipotálamo. Diferente dos
+          inibidores da PDE-5 (sildenafil, tadalafil) que atuam perifericamente nos vasos sanguíneos, o PT-141 age na
+          <strong>via neurológica do desejo</strong>, sendo eficaz para disfunção sexual tanto masculina quanto feminina, com
+          ou sem componente vascular.
+        </div>
       </div>
     </div>
 
     <!-- PERFIL -->
     <div class="section">
-      <div class="section-title"><span class="num">1</span> Perfil do Composto Ativo</div>
+      <div class="section-title"><span class="st-icon">🔬</span><h2>Perfil do Composto Ativo</h2><div class="st-line"></div></div>
       <div class="comp-card">
         <div class="comp-card-header">
           <span class="comp-icon">🔬</span>
@@ -577,7 +159,7 @@
 
     <!-- MECANISMO -->
     <div class="section">
-      <div class="section-title"><span class="num">2</span> Mecanismo de Ação Científico</div>
+      <div class="section-title"><span class="st-icon">⚡</span><h2>Mecanismo de Ação Científico</h2><div class="st-line"></div></div>
       <table class="moa">
         <thead>
           <tr>
@@ -598,7 +180,7 @@
             <td><span class="tag">Alta</span></td>
           </tr>
           <tr>
-            <td>Dopamina & Ocitocina</td>
+            <td>Dopamina &amp; Ocitocina</td>
             <td>Aumenta liberação de dopamina e ocitocina no SNC · reforça motivação sexual e conexão emocional</td>
             <td><span class="tag">Alta</span></td>
           </tr>
@@ -608,7 +190,7 @@
             <td><span class="tag">Alta</span></td>
           </tr>
           <tr>
-            <td>Energia & Disposição</td>
+            <td>Energia &amp; Disposição</td>
             <td>Melhora energia, motivação e foco via ativação do eixo melanocortínico · efeito complementar ao desejo sexual</td>
             <td><span class="tag violet">Moderada-Alta</span></td>
           </tr>
@@ -623,7 +205,7 @@
 
     <!-- DISSOLUÇÃO -->
     <div class="section">
-      <div class="section-title"><span class="num">3</span> Reconstituição — PT-141 10mg / 2ml</div>
+      <div class="section-title"><span class="st-icon">💧</span><h2>Reconstituição — PT-141 10mg / 2ml</h2><div class="st-line"></div></div>
       <div class="diss-box">
         <div class="diss-steps">
           <div class="diss-step">
@@ -694,6 +276,7 @@
     <div class="footer-code">DOC: PT141-10-PFY · Rev. Mar/2026</div>
     <div class="footer-page">1 / 2</div>
   </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
 
 </div><!-- /page 1 -->
 
@@ -704,7 +287,7 @@
 <div class="page">
 
   <div class="header-small">
-    <img src="../logo_pharmafit.png" alt="PharmaFit-PY" />
+    <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" />
     <div>
       <div class="hs-title"><span>PT</span>-141 · Protocolos Clínicos</div>
       <div class="hs-sub">Bremelanotide · Agonista MC3R/MC4R · 10mg</div>
@@ -720,7 +303,7 @@
 
     <!-- PROTOCOLOS -->
     <div class="section">
-      <div class="section-title"><span class="num">4</span> Protocolos de Uso Clínico</div>
+      <div class="section-title"><span class="st-icon">📋</span><h2>Protocolos de Uso Clínico</h2><div class="st-line"></div></div>
       <div class="proto-grid">
 
         <!-- PROTOCOLO 1 -->
@@ -762,7 +345,7 @@
         <div class="proto-card">
           <div class="proto-head p2">
             <div class="p-num">Protocolo 02</div>
-            <div class="p-title">HSDD Feminino & Desejo</div>
+            <div class="p-title">HSDD Feminino &amp; Desejo</div>
             <div class="p-icon">♀️</div>
           </div>
           <div class="proto-body">
@@ -797,7 +380,7 @@
         <div class="proto-card">
           <div class="proto-head p3">
             <div class="p-num">Protocolo 03</div>
-            <div class="p-title">Vitalidade & Bem-estar Geral</div>
+            <div class="p-title">Vitalidade &amp; Bem-estar Geral</div>
             <div class="p-icon">⚡</div>
           </div>
           <div class="proto-body">
@@ -833,7 +416,7 @@
 
     <!-- COMPARATIVO -->
     <div class="section">
-      <div class="section-title"><span class="num">5</span> Comparativo dos Protocolos</div>
+      <div class="section-title"><span class="st-icon">📊</span><h2>Comparativo dos Protocolos</h2><div class="st-line"></div></div>
       <table class="comp-table">
         <thead>
           <tr>
@@ -887,7 +470,7 @@
     <!-- SUPL + ADV -->
     <div class="two-col">
 
-      <div class="supl-box">
+      <div class="box-card supl">
         <div class="box-title">⚗️ Suplementação Recomendada</div>
         <div class="supl-item">
           <span class="si-icon">🔵</span>
@@ -907,8 +490,8 @@
         </div>
       </div>
 
-      <div class="adv-box">
-        <div class="box-title">⚠️ Advertências & Contraindicações</div>
+      <div class="box-card adv">
+        <div class="box-title">⚠️ Advertências &amp; Contraindicações</div>
         <div class="adv-item">
           <span class="adv-icon">🔴</span>
           <div class="adv-text"><strong>Doença cardiovascular grave</strong> — contraindicado. PT-141 pode aumentar transitoriamente a pressão arterial (média +6 mmHg).</div>
@@ -933,8 +516,18 @@
 
     </div>
 
+    <div class="pharmafit-banner">
+      <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" class="pf-logo" />
+      <div class="pf-text">
+        <div class="pf-label">Estudo Clínico Elaborado por</div>
+        <div class="pf-brand">Pharmafit<span>-PY</span></div>
+        <div class="pf-tagline">Compostos injetáveis de alta pureza com qualidade farmacêutica.<br>Protocolos personalizados para saúde, performance e bem-estar.</div>
+      </div>
+      <a class="pf-cta" href="tel:+12142049853">📞 +1 (214) 204-9853</a>
+    </div>
+
     <!-- REFERÊNCIAS -->
-    <div class="ref-box">
+    <div class="box-card ref">
       <div class="box-title">📚 Referências Científicas</div>
       <ul class="ref-list">
         <li data-n="1">Clayton AH et al. (2016). <em>Bremelanotide for Female Sexual Dysfunctions in Premenopausal Women.</em> Obstet Gynecol. 128(3):536–547.</li>
@@ -943,7 +536,7 @@
         <li data-n="4">Diamond LE et al. (2006). <em>Double-blind, placebo-controlled evaluation of the safety, pharmacokinetic properties and pharmacodynamic effects of intranasal PT-141.</em> J Sex Med. 3(4):672–682.</li>
         <li data-n="5">Pfaus JG. (2009). <em>Pathways of sexual desire.</em> J Sex Med. 6(6):1506–1533.</li>
         <li data-n="6">Hadley ME, Dorr RT. (2006). <em>Melanocortin peptide therapeutics: historical milestones, clinical studies and commercialization.</em> Peptides. 27(4):921–930.</li>
-        <li data-n="7">FDA Drug Approval — Vyleesi® (bremelanotide). (2019). NDA 210557. U.S. Food & Drug Administration.</li>
+        <li data-n="7">FDA Drug Approval — Vyleesi® (bremelanotide). (2019). NDA 210557. U.S. Food &amp; Drug Administration.</li>
       </ul>
     </div>
 
@@ -954,6 +547,7 @@
     <div class="footer-code">DOC: PT141-10-PFY · Rev. Mar/2026 · Uso Profissional</div>
     <div class="footer-page">2 / 2</div>
   </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
 
 </div><!-- /page 2 -->
 

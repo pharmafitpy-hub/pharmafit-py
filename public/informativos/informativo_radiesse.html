@@ -1,461 +1,250 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  INFORMATIVO TÉCNICO — TEMPLATE PHARMAFIT-PY                ║
+  ║  Produto: Radiesse Plus Lido                                ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  ESTRUTURA GERAL (2 páginas .page):                         ║
+  ║  Pág 1: header → info-strip → "O Que É" → seções técnicas  ║
+  ║  Pág 2: header-small → seções avançadas → pharmafit-banner  ║
+  ║         → referências científicas → footer + footer-note    ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  NÃO ALTERAR (padronizado para todos os informativos):      ║
+  ║  • .pharmafit-banner — tagline e telefone da Pharmafit-PY   ║
+  ║  • .footer-note — aviso de uso profissional                 ║
+  ║  • Link para ../assets/css/informativo.css                  ║
+  ║  • Fontes: Montserrat + Lato (Google Fonts)                 ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Radiesse Plus Lido — Informativo Técnico | Pharmafit</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #c8c8c8; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; gap: 40px; }
-  .page { width: 794px; min-height: 1123px; background: #ffffff; position: relative; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.18); display: flex; flex-direction: column; }
-
-  /* HEADER — dourado/âmbar */
-  .header { background: linear-gradient(135deg, #27180a 0%, #78350f 45%, #431c04 100%); padding: 20px 24px 18px; display: flex; align-items: flex-start; justify-content: space-between; position: relative; overflow: hidden; }
-  .header::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 78% 35%, rgba(217,119,6,0.28) 0%, transparent 55%), radial-gradient(circle at 15% 75%, rgba(120,53,15,0.20) 0%, transparent 45%); }
-  .header-left { position: relative; z-index: 1; flex: 1; }
-  .header-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(217,119,6,0.22); border: 1px solid rgba(251,191,36,0.45); border-radius: 20px; padding: 3px 10px; margin-bottom: 8px; }
-  .header-badge span { color: #fde68a; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
-  .header-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: #fbbf24; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-  .header-title { font-size: 36px; font-weight: 900; letter-spacing: -1px; line-height: 1; color: #ffffff; text-shadow: 0 2px 12px rgba(217,119,6,0.6); }
-  .header-title span { color: #fbbf24; }
-  .header-subtitle { font-size: 11.5px; color: #fde68a; font-weight: 500; margin-top: 4px; letter-spacing: 0.3px; }
-  .header-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
-  .tag { background: rgba(217,119,6,0.18); border: 1px solid rgba(251,191,36,0.38); color: #fde68a; font-size: 9px; font-weight: 700; letter-spacing: 1px; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
-  .header-logo { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  .header-logo img.logo-pharmafit { width: 100px; height: 100px; object-fit: contain; border-radius: 12px; border: 2px solid rgba(251,191,36,0.55); background: transparent; filter: drop-shadow(0 0 10px rgba(217,119,6,0.6)); }
-  .logo-label { font-size: 8px; color: #fde68a; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; text-align: center; }
-
-  /* ACCENT BAR */
-  .accent-bar { height: 4px; background: linear-gradient(90deg, #78350f, #d97706, #fbbf24, #fde68a, #78350f); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
-  @keyframes shimmer { 0%{background-position:0% 0%} 100%{background-position:200% 0%} }
-
-  .content { flex: 1; padding: 18px 24px 14px; display: flex; flex-direction: column; gap: 14px; }
-  .section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .section-title .icon { width: 26px; height: 26px; border-radius: 6px; background: linear-gradient(135deg, #d97706, #fbbf24); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
-  .section-title h2 { font-size: 13px; font-weight: 800; color: #78350f; text-transform: uppercase; letter-spacing: 0.8px; }
-  .section-title .line { flex: 1; height: 1px; background: linear-gradient(90deg, #fbbf24, transparent); }
-
-  .intro-card { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 1px solid #fde68a; border-left: 4px solid #fbbf24; border-radius: 8px; padding: 12px 14px; }
-  .intro-text { font-size: 10.5px; line-height: 1.65; color: #1f2937; margin-bottom: 10px; }
-  .spec-grid { display: flex; gap: 8px; flex-wrap: wrap; }
-  .spec-item { background: #fff; border: 1px solid #fde68a; border-radius: 6px; padding: 6px 10px; text-align: center; flex: 1; min-width: 88px; }
-  .spec-item .s-val { font-size: 14px; font-weight: 800; color: #d97706; line-height: 1; }
-  .spec-item .s-lbl { font-size: 8px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
-
-  .mec-box { background: linear-gradient(135deg, #78350f 0%, #d97706 100%); border-radius: 8px; padding: 11px 14px; display: flex; align-items: center; gap: 12px; }
-  .mec-icon { font-size: 28px; flex-shrink: 0; }
-  .mec-content .mec-title { font-size: 10px; font-weight: 800; color: #fde68a; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
-  .mec-content .mec-text { font-size: 9.5px; color: #fef3c7; line-height: 1.6; }
-  .mec-chain { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
-  .mec-step { background: rgba(251,191,36,0.18); border: 1px solid rgba(251,191,36,0.38); color: #fde68a; font-size: 8px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
-  .mec-arrow { color: #fbbf24; font-size: 10px; font-weight: 900; }
-
-  .recon-steps { display: flex; flex-direction: column; gap: 6px; }
-  .recon-step { display: flex; align-items: flex-start; gap: 10px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 7px; padding: 8px 10px; }
-  .step-num { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #d97706, #fbbf24); color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .step-content .step-title { font-size: 10px; font-weight: 700; color: #d97706; margin-bottom: 2px; }
-  .step-content .step-text { font-size: 9px; color: #374151; line-height: 1.5; }
-
-  .dose-table { width: 100%; border-collapse: collapse; font-size: 9px; }
-  .dose-table th { background: linear-gradient(135deg, #78350f, #d97706); color: #fff; font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 8px; text-align: left; }
-  .dose-table th:first-child { border-radius: 6px 0 0 0; }
-  .dose-table th:last-child { border-radius: 0 6px 0 0; }
-  .dose-table td { padding: 5px 8px; border-bottom: 1px solid #fef3c7; color: #1f2937; vertical-align: middle; }
-  .dose-table tr:last-child td { border-bottom: none; }
-  .dose-table tr:nth-child(even) td { background: #fffbeb; }
-  .dose-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 8.5px; font-weight: 700; }
-  .dose-init { background: #fef3c7; color: #78350f; }
-  .dose-std  { background: #fde68a; color: #d97706; }
-  .dose-adv  { background: #d97706; color: #fff; }
-
-  .footer { background: linear-gradient(135deg, #27180a 0%, #78350f 100%); padding: 8px 24px; display: flex; align-items: center; justify-content: space-between; }
-  .footer-left { display: flex; align-items: center; gap: 8px; }
-  .footer-left img.logo-pharmafit { height: 36px; object-fit: contain; filter: brightness(1.1) drop-shadow(0 0 4px rgba(217,119,6,0.6)); }
-  .footer-text { font-size: 8px; color: #fde68a; font-weight: 600; }
-  .footer-right { font-size: 7.5px; color: #fef3c7; text-align: right; line-height: 1.4; }
-
-  .protocol-card { background: #fff; border: 1px solid #fde68a; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
-  .protocol-header { background: linear-gradient(135deg, #d97706, #fbbf24); padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; }
-  .protocol-header.dark { background: linear-gradient(135deg, #78350f, #d97706); }
-  .protocol-header.mid { background: linear-gradient(135deg, #d97706, #fde68a); }
-  .protocol-num { font-size: 9px; color: rgba(255,255,255,0.75); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-  .protocol-name { font-size: 13px; font-weight: 800; color: #fff; margin-top: 1px; }
-  .protocol-tag { background: rgba(255,255,255,0.15); color: #fff; font-size: 8px; font-weight: 700; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); }
-  .protocol-body { padding: 10px 14px; }
-  .proto-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
-  .proto-cell { background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 6px; text-align: center; }
-  .proto-cell .pc-val { font-size: 12px; font-weight: 800; color: #d97706; line-height: 1; }
-  .proto-cell .pc-lbl { font-size: 7.5px; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-top: 2px; }
-  .proto-schedule { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
-  .ps-block { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 7px 9px; }
-  .ps-block .ps-title { font-size: 8.5px; font-weight: 700; color: #d97706; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-  .ps-block .ps-item { font-size: 8.5px; color: #374151; line-height: 1.6; padding-left: 8px; position: relative; }
-  .ps-block .ps-item::before { content: '▸'; position: absolute; left: 0; color: #fbbf24; font-size: 8px; }
-  .pr-title { font-size: 9px; font-weight: 700; color: #78350f; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-  .pr-items { display: flex; flex-wrap: wrap; gap: 4px; }
-  .pr-item { background: #fffbeb; border: 1px solid #fbbf24; color: #78350f; font-size: 8px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
-  .warnings-box { background: #fef3c7; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 8px 12px; }
-  .warn-title { font-size: 9px; font-weight: 800; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
-  .warn-items { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
-  .warn-item { font-size: 8.5px; color: #78350f; line-height: 1.5; padding-left: 10px; position: relative; }
-  .warn-item::before { content: '⚠'; position: absolute; left: 0; font-size: 7px; }
-  .cta-block { background: linear-gradient(135deg, #27180a 0%, #78350f 60%, #431c04 100%); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; border: 1px solid rgba(251,191,36,0.25); }
-  .cta-logo img.logo-pharmafit { height: 70px; object-fit: contain; filter: drop-shadow(0 0 12px rgba(217,119,6,0.7)); }
-  .cta-divider { width: 1px; height: 60px; background: rgba(251,191,36,0.3); }
-  .cta-content { flex: 1; }
-  .cta-label { font-size: 8px; color: #fde68a; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 3px; }
-  .cta-title { font-size: 16px; font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 5px; }
-  .cta-title span { color: #fbbf24; }
-  .cta-desc { font-size: 9px; color: #fef3c7; line-height: 1.5; margin-bottom: 8px; }
-  .cta-phone { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #78350f, #d97706); color: #fff; font-size: 13px; font-weight: 800; padding: 7px 16px; border-radius: 6px; letter-spacing: 0.5px; }
-  .refs-section .refs-title { font-size: 9.5px; font-weight: 800; color: #78350f; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .refs-section ol { padding-left: 14px; }
-  .refs-section li { font-size: 8px; color: #6b7280; line-height: 1.65; margin-bottom: 2px; }
-  .refs-section li b { color: #374151; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Informativo Técnico — Radiesse Plus Lido | PharmaFit-PY</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/informativo.css" />
+  <style>
+    :root {
+      --petrol:     #78350F; --petrol-dark: #27180A; --petrol-mid: #D97706;
+      --petrol-lite:#FEF3C7; --petrol-bg:  #FFFBEB;
+      --amber:      #FBBF24; --amber-mid:  #FDE68A;
+      --amber-lite: #FEF3C7; --amber-bg:   #FFFBEB;
+      --gold:       #D97706; --gold-mid:   #FBBF24;
+      --gold-lite:  #FEF3C7; --gold-bg:    #FFFBEB;
+      --white:      #FFFFFF; --gray-1: #F9FAFB; --gray-2: #E5E7EB;
+      --text-dark:  #1f2937; --text-mid: #374151;
+      --shadow:     0 2px 12px rgba(120,53,15,0.12);
+      --header-bg:  linear-gradient(135deg, #27180a 0%, #78350f 45%, #431c04 100%);
+      --header-bar-bg: linear-gradient(90deg, #78350f 0%, #d97706 35%, #fbbf24 65%, #fde68a 100%);
+      --header-small-bg: linear-gradient(135deg, #27180a 0%, #78350f 60%, #431c04 100%);
+      --header-hl:  #fde68a;
+    }
+    body { background: #c8c0a8; }
+    .proto-head.p1 { background: linear-gradient(135deg, var(--petrol-mid), var(--amber)); }
+    .proto-head.p2 { background: linear-gradient(135deg, var(--petrol-mid), var(--amber-mid)); }
+    .proto-head.p3 { background: linear-gradient(135deg, var(--petrol-dark), var(--petrol)); }
+    table.compare-table thead tr { background: linear-gradient(90deg, #78350F 0%, #D97706 100%); }
+  </style>
 </head>
 <body>
 
-<!-- PAGE 1 -->
+<!-- ═══ PÁGINA 1 ═══ -->
 <div class="page">
   <div class="header">
-    <div class="header-left">
-      <div class="header-badge">
-        <div class="header-badge-dot"></div>
-        <span>Hidroxiapatita de Cálcio · Neocolagênese · Bioestimulador · Lidocaína 0,3%</span>
+    <div class="header-inner">
+      <div class="header-logo"><img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" /></div>
+      <div class="header-center">
+        <div class="header-tag">Hidroxiapatita de Cálcio · Neocolagênese · Bioestimulador · Lidocaína 0,3%</div>
+        <div class="header-title">Radiesse <span class="hl">Plus Lido</span></div>
+        <div class="header-subtitle">Filler CaHA + Lidocaína 0,3% · Neocolagênese · Neoelastogênese · Biodegradável</div>
       </div>
-      <div class="header-title">Radiesse <span>Plus Lido</span></div>
-      <div class="header-subtitle">Filler CaHA + Lidocaína 0,3% · Neocolagênese · Neoelastogênese · Biodegradável</div>
-      <div class="header-tags">
-        <span class="tag">CaHA</span>
-        <span class="tag">Neocolagênese</span>
-        <span class="tag">Bioestimulador</span>
-        <span class="tag">Preenchimento</span>
-        <span class="tag">Hiperdiluto</span>
+      <div class="header-badges">
+        <div class="badge-box"><div class="b-label">Composição</div><div class="b-val">CaHA</div></div>
+        <div class="badge-box"><div class="b-label">Duração</div><div class="b-val">12–18 meses</div></div>
+        <div class="badge-box"><div class="b-label">Código</div><div class="b-val">RAD-PL-PFY</div></div>
       </div>
     </div>
-    <div class="header-logo">
-      <img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit Logo">
-      <div class="logo-label">Pharmafit</div>
-    </div>
+    <div class="header-bar"></div>
   </div>
-  <div class="accent-bar"></div>
+
+  <div class="info-strip">
+    <span class="info-chip">CaHA · Bioestimulador</span>
+    <span class="info-chip dark">Neocolagênese</span>
+    <span class="info-text"><strong>Radiesse Plus Lido</strong> — Filler de microesferas CaHA biodegradável com lidocaína 0,3%. Neocolagênese progressiva + volume imediato. Duração 12–18 meses. <strong>Na versão hiperdiluta: bioestimulador corporal de longo prazo.</strong></span>
+  </div>
+
   <div class="content">
-
-    <div>
-      <div class="section-title">
-        <div class="icon">💎</div>
-        <h2>O que é o Radiesse Plus Lido?</h2>
-        <div class="line"></div>
-      </div>
-      <div class="intro-card">
-        <p class="intro-text">
+    <div class="section">
+      <div class="section-title"><span class="st-icon">💎</span><h2>O Que É o Radiesse Plus Lido?</h2><div class="st-line"></div></div>
+      <div class="intro-strip">
+        <div class="intro-icon">💎</div>
+        <div class="intro-text">
           Radiesse Plus Lido é um filler de <strong>microesferas de hidroxiapatita de cálcio (CaHA)</strong> suspensas em gel aquoso de carboximetilcelulose, com <strong>lidocaína 0,3%</strong> para conforto no procedimento. As microesferas CaHA atuam como matriz para neocolagênese (colágeno tipo I e III) e neoelastogênese ao serem gradualmente absorvidas. É <strong>biodegradável, biocompatível, não-animal</strong>. Duração de 12–18 meses. Na versão hiperdiluta, é utilizado como bioestimulador de longo prazo.
-        </p>
-        <div class="spec-grid">
-          <div class="spec-item"><div class="s-val">CaHA</div><div class="s-lbl">Composição</div></div>
-          <div class="spec-item"><div class="s-val">Lido 0,3%</div><div class="s-lbl">Anestésico</div></div>
-          <div class="spec-item"><div class="s-val">Cânula</div><div class="s-lbl">Aplicação</div></div>
-          <div class="spec-item"><div class="s-val">12–18 meses</div><div class="s-lbl">Duração</div></div>
-          <div class="spec-item"><div class="s-val">1:1 a 1:4</div><div class="s-lbl">Hiperdiluto</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <div class="section-title">
-        <div class="icon">⚡</div>
-        <h2>Mecanismo de Ação</h2>
-        <div class="line"></div>
-      </div>
-      <div class="mec-box">
-        <div class="mec-icon">✨</div>
-        <div class="mec-content">
-          <div class="mec-title">CaHA Microesferas → Ativação Fibroblastos → Colágeno I/III + Elastina</div>
-          <div class="mec-text">
-            As microesferas de CaHA (25–45µm) servem como andaime temporário que ativa mecanicamente os fibroblastos dérmicos. Ao serem absorvidas, liberam íons cálcio e fosfato que estimulam síntese de colágeno tipo I e III e elastina — promovendo efeito tensor gradual e progressivo. O gel veículo fornece volume imediato enquanto a neocolagênese ocorre ao longo de semanas.
-          </div>
-          <div class="mec-chain">
-            <span class="mec-step">CaHA injetada</span>
-            <span class="mec-arrow">→</span>
-            <span class="mec-step">Fibroblastos ativados</span>
-            <span class="mec-arrow">→</span>
-            <span class="mec-step">Colágeno I+III ↑</span>
-            <span class="mec-arrow">→</span>
-            <span class="mec-step">Elastina ↑</span>
-            <span class="mec-arrow">→</span>
-            <span class="mec-step">Tensor gradual</span>
+          <div class="spec-grid">
+            <div class="spec-item"><div class="s-val">CaHA</div><div class="s-lbl">Composição</div></div>
+            <div class="spec-item"><div class="s-val">Lido 0,3%</div><div class="s-lbl">Anestésico</div></div>
+            <div class="spec-item"><div class="s-val">Cânula</div><div class="s-lbl">Aplicação</div></div>
+            <div class="spec-item"><div class="s-val">12–18m</div><div class="s-lbl">Duração</div></div>
+            <div class="spec-item"><div class="s-val">1:1 a 1:4</div><div class="s-lbl">Hiperdiluto</div></div>
           </div>
         </div>
       </div>
     </div>
 
-    <div>
-      <div class="section-title">
-        <div class="icon">🔬</div>
-        <h2>Preparo para Hiperdiluto</h2>
-        <div class="line"></div>
-      </div>
-      <div class="recon-steps">
-        <div class="recon-step">
-          <div class="step-num">1</div>
-          <div class="step-content">
-            <div class="step-title">Diluição 1:1 — Preenchimento Cosmético</div>
-            <div class="step-text">Misturar 1ml Radiesse + 1ml SF 0,9% em seringa de 3 vias. Resultado: alta densidade. Para estruturação facial.</div>
-          </div>
-        </div>
-        <div class="recon-step">
-          <div class="step-num">2</div>
-          <div class="step-content">
-            <div class="step-title">Diluição 1:2 — Terapêutico</div>
-            <div class="step-text">1ml Radiesse + 2ml SF 0,9%. Densidade intermediária. Para remodelamento de mãos e bioestimulação moderada.</div>
-          </div>
-        </div>
-        <div class="recon-step">
-          <div class="step-num">3</div>
-          <div class="step-content">
-            <div class="step-title">Diluição 1:4 — Bioestimulação</div>
-            <div class="step-text">1ml Radiesse + 4ml SF 0,9%. Baixa densidade, alto volume. Para bioestimulação corporal e facial extensa.</div>
-          </div>
-        </div>
-        <div class="recon-step">
-          <div class="step-num">4</div>
-          <div class="step-content">
-            <div class="step-title">Homogeneização</div>
-            <div class="step-text">Transferir 10–15 vezes entre as seringas até homogeneização completa. Aplicar imediatamente com cânula 25G.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <div class="section-title">
-        <div class="icon">📊</div>
-        <h2>Tabela de Volumes por Indicação</h2>
-        <div class="line"></div>
-      </div>
-      <table class="dose-table">
-        <thead>
-          <tr>
-            <th>Indicação</th>
-            <th>Volume/Zona</th>
-            <th>Diluição</th>
-            <th>Cânula</th>
-            <th>Sessões</th>
-          </tr>
-        </thead>
+    <div class="section">
+      <div class="section-title"><span class="st-icon">⚡</span><h2>Mecanismo de Ação</h2><div class="st-line"></div></div>
+      <table class="moa">
+        <thead><tr><th>Via de Ação</th><th>Efeito Clínico</th><th style="width:15%">Sistema</th></tr></thead>
         <tbody>
-          <tr>
-            <td><span class="dose-badge dose-init">Preenchimento estrutural</span></td>
-            <td><strong>0,5–1,5ml/zona</strong></td>
-            <td>Puro ou 1:1</td>
-            <td>22–23G</td>
-            <td>1–2</td>
-          </tr>
-          <tr>
-            <td><span class="dose-badge dose-std">Bioestimulação hiperdiluta</span></td>
-            <td><strong>3–6ml/zona</strong></td>
-            <td>1:1 ou 1:2</td>
-            <td>25G</td>
-            <td>3 mensais</td>
-          </tr>
-          <tr>
-            <td><span class="dose-badge dose-adv">Remodelamento corporal</span></td>
-            <td><strong>5–10ml/área</strong></td>
-            <td>1:4</td>
-            <td>25G</td>
-            <td>2–3 mensais</td>
-          </tr>
+          <tr><td>Microesferas CaHA (25–45µm)</td><td>Servem como andaime temporário que ativa mecanicamente os fibroblastos dérmicos para produção de colágeno I e III</td><td>Fibroblasto</td></tr>
+          <tr><td>Liberação de Ca²⁺ e PO₄³⁻</td><td>Ao serem absorvidas, liberam íons cálcio e fosfato que estimulam síntese de colágeno e elastina — efeito tensor gradual</td><td>Matriz dérmica</td></tr>
+          <tr><td>Gel Carboximetilcelulose</td><td>Fornece volume imediato enquanto a neocolagênese ocorre ao longo de semanas — efeito bifásico imediato + progressivo</td><td>Volumizador</td></tr>
+          <tr><td>Neoelastogênese</td><td>Estímulo à produção de elastina por fibroblastos ativados — melhora da elasticidade e firmeza cutânea</td><td>Elastina</td></tr>
+          <tr><td>Lidocaína 0,3%</td><td>Anestésico local integrado à formulação — conforto no procedimento sem necessidade de anestesia adicional</td><td>Anestésico</td></tr>
         </tbody>
       </table>
     </div>
 
-  </div>
-  <div class="accent-bar"></div>
-  <div class="footer">
-    <div class="footer-left">
-      <img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit">
-      <div class="footer-text">Pharmafit · Informativo Técnico</div>
+    <div class="section">
+      <div class="section-title"><span class="st-icon">🔬</span><h2>Preparo para Hiperdiluto</h2><div class="st-line"></div></div>
+      <div class="diss-box">
+        <div class="diss-steps">
+          <div class="diss-step"><div class="step-circle">1</div><div class="step-text"><strong>Diluição 1:1</strong> — 1ml Radiesse + 1ml SF 0,9% · Alta densidade · Estruturação facial</div></div>
+          <div class="diss-step"><div class="step-circle">2</div><div class="step-text"><strong>Diluição 1:2</strong> — 1ml Radiesse + 2ml SF 0,9% · Densidade intermediária · Mãos e bioestimulação</div></div>
+          <div class="diss-step"><div class="step-circle">3</div><div class="step-text"><strong>Diluição 1:4</strong> — 1ml Radiesse + 4ml SF 0,9% · Baixa densidade · Bioestimulação corporal extensa</div></div>
+          <div class="diss-step"><div class="step-circle">4</div><div class="step-text"><strong>Homogeneização</strong> — 10–15 transferências entre seringas de 3 vias · Aplicar imediatamente com cânula 25G</div></div>
+        </div>
+        <table class="dose-table">
+          <thead>
+            <tr><th>Indicação</th><th>Volume/Zona</th><th>Diluição</th><th>Cânula</th><th>Sessões</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="dose-badge dose-trt">Preenchimento estrutural</span></td><td><strong>0,5–1,5ml/zona</strong></td><td>Puro ou 1:1</td><td>22–23G</td><td>1–2</td></tr>
+            <tr><td><span class="dose-badge dose-std">Bioestimulação hiperdiluta</span></td><td><strong>3–6ml/zona</strong></td><td>1:1 ou 1:2</td><td>25G</td><td>3 mensais</td></tr>
+            <tr><td><span class="dose-badge dose-adv">Remodelamento corporal</span></td><td><strong>5–10ml/área</strong></td><td>1:4</td><td>25G</td><td>2–3 mensais</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="footer-right">Radiesse Plus Lido · Filler CaHA<br>Aplicação exclusiva por profissional habilitado</div>
   </div>
+
+  <div class="footer">
+    <div class="footer-brand"><span>PHARMAFIT-PY</span> · Bioestimuladores Premium</div>
+    <div class="footer-code">DOC: RAD-PL-PFY · Rev. 2026</div>
+    <div class="footer-page">1 / 2</div>
+  </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
 </div>
 
-<!-- PAGE 2 -->
+<!-- ═══ PÁGINA 2 ═══ -->
 <div class="page">
-  <div class="header">
-    <div class="header-left">
-      <div class="header-badge">
-        <div class="header-badge-dot"></div>
-        <span>Protocolos Clínicos · Radiesse Plus Lido</span>
-      </div>
-      <div class="header-title">Protocolos <span>de Aplicação</span></div>
-      <div class="header-subtitle">Preenchimento estrutural, bioestimulação hiperdiluta e remodelamento de mãos</div>
+  <div class="header-small">
+    <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" />
+    <div>
+      <div class="hs-title">Radiesse <span>Plus Lido</span> · Protocolos</div>
+      <div class="hs-sub">Filler CaHA · Neocolagênese · Bioestimulação Hiperdiluta</div>
     </div>
-    <div class="header-logo">
-      <img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit Logo">
-      <div class="logo-label">Pharmafit</div>
+    <div class="hs-right">
+      <div class="hs-title" style="font-size:9pt;color:rgba(255,255,255,0.5)">PHARMAFIT-PY</div>
+      <div class="hs-sub">Bioestimuladores Premium</div>
     </div>
   </div>
-  <div class="accent-bar"></div>
+  <div class="header-bar"></div>
+
   <div class="content">
-
-    <div class="protocol-card">
-      <div class="protocol-header">
-        <div>
-          <div class="protocol-num">Protocolo 01</div>
-          <div class="protocol-name">Preenchimento Estrutural</div>
-        </div>
-        <span class="protocol-tag">1–2 Sessões</span>
-      </div>
-      <div class="protocol-body">
-        <div class="proto-grid">
-          <div class="proto-cell"><div class="pc-val">Puro/1:1</div><div class="pc-lbl">Diluição</div></div>
-          <div class="proto-cell"><div class="pc-val">22–23G</div><div class="pc-lbl">Cânula</div></div>
-          <div class="proto-cell"><div class="pc-val">Supraperi.</div><div class="pc-lbl">Plano</div></div>
-          <div class="proto-cell"><div class="pc-val">12–18m</div><div class="pc-lbl">Duração</div></div>
-        </div>
-        <div class="proto-schedule">
-          <div class="ps-block">
-            <div class="ps-title">Áreas de Aplicação</div>
-            <div class="ps-item">Sulco nasogeniano — técnica retrógrada</div>
-            <div class="ps-item">Mento — projeção e definição</div>
-            <div class="ps-item">Mandíbula — contorno e ângulo mandibular</div>
-          </div>
-          <div class="ps-block">
-            <div class="ps-title">Técnica</div>
-            <div class="ps-item">Plano supraperiosteal com cânula</div>
-            <div class="ps-item">Técnica retrógrada com deposição linear</div>
-            <div class="ps-item">Massagem imediata para distribuição</div>
+    <div class="section">
+      <div class="section-title"><span class="st-icon">📋</span><h2>Protocolos de Aplicação</h2><div class="st-line"></div></div>
+      <div class="proto-grid">
+        <div class="proto-card">
+          <div class="proto-head p1"><div class="p-num">Protocolo 01</div><div class="p-title">Preenchimento Estrutural</div><div class="p-icon">💎</div></div>
+          <div class="proto-body">
+            <div class="proto-row"><span class="pr-label">Diluição</span><span class="pr-val">Puro ou 1:1 · Alta densidade</span></div>
+            <div class="proto-row"><span class="pr-label">Cânula</span><span class="pr-val">22–23G · Plano supraperiosteal</span></div>
+            <div class="proto-row"><span class="pr-label">Áreas</span><span class="pr-val">Nasogeniano · Mento · Mandíbula</span></div>
+            <div class="proto-row"><span class="pr-label">Técnica</span><span class="pr-val">Retrógrada com deposição linear</span></div>
+            <div class="proto-row"><span class="pr-label">Sessões</span><span class="pr-val">1–2 sessões</span></div>
+            <div class="proto-row"><span class="pr-label">Duração</span><span class="pr-val">12–18 meses · Neocolagênese progressiva</span></div>
           </div>
         </div>
-        <div class="pr-title">Resultados Esperados</div>
-        <div class="pr-items">
-          <span class="pr-item">Volume imediato</span>
-          <span class="pr-item">Neocolagênese progressiva</span>
-          <span class="pr-item">Definição de contornos</span>
-          <span class="pr-item">Duração 12–18 meses</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="protocol-card">
-      <div class="protocol-header mid">
-        <div>
-          <div class="protocol-num">Protocolo 02</div>
-          <div class="protocol-name">Bioestimulação Hiperdiluta</div>
-        </div>
-        <span class="protocol-tag">3 Sessões Mensais</span>
-      </div>
-      <div class="protocol-body">
-        <div class="proto-grid">
-          <div class="proto-cell"><div class="pc-val">1:1</div><div class="pc-lbl">Diluição SF</div></div>
-          <div class="proto-cell"><div class="pc-val">25G</div><div class="pc-lbl">Cânula</div></div>
-          <div class="proto-cell"><div class="pc-val">Intradérm.</div><div class="pc-lbl">Plano</div></div>
-          <div class="proto-cell"><div class="pc-val">Mensal × 3</div><div class="pc-lbl">Frequência</div></div>
-        </div>
-        <div class="proto-schedule">
-          <div class="ps-block">
-            <div class="ps-title">Indicações</div>
-            <div class="ps-item">Flacidez cutânea leve a moderada</div>
-            <div class="ps-item">Bioestimulação facial e cervical</div>
-            <div class="ps-item">Melhora textura e luminosidade</div>
-          </div>
-          <div class="ps-block">
-            <div class="ps-title">Protocolo de Sessões</div>
-            <div class="ps-item">Sessão 1: avaliação e aplicação inicial</div>
-            <div class="ps-item">Sessão 2 (30 dias): reforço e ajuste</div>
-            <div class="ps-item">Sessão 3 (60 dias): manutenção</div>
+        <div class="proto-card">
+          <div class="proto-head p2"><div class="p-num">Protocolo 02</div><div class="p-title">Bioestimulação Hiperdiluta</div><div class="p-icon">✨</div></div>
+          <div class="proto-body">
+            <div class="proto-row"><span class="pr-label">Diluição</span><span class="pr-val">1:1 ou 1:2 · SF 0,9%</span></div>
+            <div class="proto-row"><span class="pr-label">Cânula</span><span class="pr-val">25G · Plano intradérmico</span></div>
+            <div class="proto-row"><span class="pr-label">Indicação</span><span class="pr-val">Flacidez leve a moderada · textura</span></div>
+            <div class="proto-row"><span class="pr-label">Sessões</span><span class="pr-val">3 sessões mensais (0/30/60 dias)</span></div>
+            <div class="proto-row"><span class="pr-label">Resultado</span><span class="pr-val">Melhora flacidez · elasticidade ↑</span></div>
+            <div class="proto-row"><span class="pr-label">Pleno</span><span class="pr-val">Neocolagênese intensa · rejuvenescimento</span></div>
           </div>
         </div>
-        <div class="pr-title">Resultados Esperados</div>
-        <div class="pr-items">
-          <span class="pr-item">Melhora da flacidez</span>
-          <span class="pr-item">Neocolagênese intensa</span>
-          <span class="pr-item">Elasticidade ↑</span>
-          <span class="pr-item">Rejuvenescimento gradual</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="protocol-card">
-      <div class="protocol-header dark">
-        <div>
-          <div class="protocol-num">Protocolo 03</div>
-          <div class="protocol-name">Remodelamento de Mãos</div>
-        </div>
-        <span class="protocol-tag">1–2 Sessões</span>
-      </div>
-      <div class="protocol-body">
-        <div class="proto-grid">
-          <div class="proto-cell"><div class="pc-val">1–2ml</div><div class="pc-lbl">Por mão</div></div>
-          <div class="proto-cell"><div class="pc-val">25G</div><div class="pc-lbl">Cânula</div></div>
-          <div class="proto-cell"><div class="pc-val">Subdérm.</div><div class="pc-lbl">Plano</div></div>
-          <div class="proto-cell"><div class="pc-val">12–18m</div><div class="pc-lbl">Duração</div></div>
-        </div>
-        <div class="proto-schedule">
-          <div class="ps-block">
-            <div class="ps-title">Técnica</div>
-            <div class="ps-item">Cânula 25G, plano subdérmico dorso das mãos</div>
-            <div class="ps-item">Deposição retrógrada em leque</div>
-            <div class="ps-item">Massagem imediata para distribuição uniforme</div>
-          </div>
-          <div class="ps-block">
-            <div class="ps-title">Indicação</div>
-            <div class="ps-item">Lipoatrofia do dorso das mãos</div>
-            <div class="ps-item">Veias e tendões proeminentes</div>
-            <div class="ps-item">Envelhecimento volumétrico das mãos</div>
+        <div class="proto-card">
+          <div class="proto-head p3"><div class="p-num">Protocolo 03</div><div class="p-title">Remodelamento de Mãos</div><div class="p-icon">🌿</div></div>
+          <div class="proto-body">
+            <div class="proto-row"><span class="pr-label">Volume</span><span class="pr-val">1–2ml por mão</span></div>
+            <div class="proto-row"><span class="pr-label">Diluição</span><span class="pr-val">Puro ou 1:1</span></div>
+            <div class="proto-row"><span class="pr-label">Técnica</span><span class="pr-val">25G · subdérmico · leque retrógrado</span></div>
+            <div class="proto-row"><span class="pr-label">Indicação</span><span class="pr-val">Lipoatrofia · veias proeminentes</span></div>
+            <div class="proto-row"><span class="pr-label">Sessões</span><span class="pr-val">1–2 sessões</span></div>
+            <div class="proto-row"><span class="pr-label">Duração</span><span class="pr-val">12–18 meses · massagem pós-imediata</span></div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="warnings-box">
-      <div class="warn-title">⚠ Advertências e Contraindicações</div>
-      <div class="warn-items">
-        <div class="warn-item">Aplicação exclusiva por profissional treinado em preenchimentos</div>
-        <div class="warn-item">NUNCA injetar por via intravascular — risco de oclusão vascular</div>
-        <div class="warn-item">Contraindicado em infecção ou inflamação local ativa</div>
-        <div class="warn-item">Contraindicado em hipersensibilidade à hidroxiapatita de cálcio</div>
-        <div class="warn-item">Evitar massagem vigorosa nas primeiras 24h pós-procedimento</div>
-        <div class="warn-item">Não aplicar em área com filler permanente pré-existente</div>
+    <div class="section">
+      <div class="section-title"><span class="st-icon">📊</span><h2>Comparativo dos Protocolos</h2><div class="st-line"></div></div>
+      <table class="compare-table">
+        <thead>
+          <tr><th>Parâmetro</th><th>💎 Estrutural</th><th>✨ Hiperdiluto</th><th>🌿 Mãos</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Diluição</td><td>Puro ou 1:1</td><td>1:1 a 1:2</td><td>Puro ou 1:1</td></tr>
+          <tr><td>Cânula</td><td>22–23G supraperiosteal</td><td>25G intradérmico</td><td>25G subdérmico</td></tr>
+          <tr><td>Volume/sessão</td><td>0,5–1,5ml/zona</td><td>3–6ml/zona</td><td>1–2ml/mão</td></tr>
+          <tr><td>Sessões</td><td>1–2</td><td>3 mensais</td><td>1–2</td></tr>
+          <tr><td>Duração</td><td>12–18 meses</td><td>Neocolagênese progressiva</td><td>12–18 meses</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box-card adv">
+        <div class="box-title">⚠️ Advertências e Contraindicações</div>
+        <div class="adv-item"><span class="adv-icon">🔴</span><div class="adv-text"><strong>NUNCA injetar por via intravascular</strong> — risco grave de oclusão vascular. Cânula obrigatória em zonas de risco.</div></div>
+        <div class="adv-item"><span class="adv-icon">🔴</span><div class="adv-text"><strong>Contraindicado</strong> em infecção ativa, inflamação local ou hipersensibilidade à hidroxiapatita de cálcio.</div></div>
+        <div class="adv-item"><span class="adv-icon">🟡</span><div class="adv-text"><strong>Não aplicar</strong> em área com filler permanente pré-existente sem avaliação criteriosa.</div></div>
+        <div class="adv-item"><span class="adv-icon">🟡</span><div class="adv-text"><strong>Massagem vigorosa</strong> nas primeiras 24h pós-procedimento deve ser evitada.</div></div>
+        <div class="adv-item"><span class="adv-icon">⚪</span><div class="adv-text"><strong>Aplicação exclusiva</strong> por profissional treinado em preenchimentos faciais e corporais.</div></div>
       </div>
-    </div>
 
-    <div class="refs-section">
-      <div class="refs-title">Referências Científicas</div>
-      <ol>
-        <li><b>Alam M et al.</b> "Effectiveness of Radiesse (calcium hydroxylapatite) for treatment of acne scars." <i>Dermatol Surg.</i> 2009; 35(s1):469–473.</li>
-        <li><b>Berlin AL et al.</b> "Calcium hydroxylapatite filler for facial rejuvenation." <i>Dermatol Surg.</i> 2006; 32(9):1213–1218.</li>
-        <li><b>Marmur ES et al.</b> "An ultrasonographic analysis of tissue augmented with Radiesse." <i>Dermatol Surg.</i> 2004; 30(6):959–964.</li>
-        <li><b>Bass LS et al.</b> "Calcium hydroxylapatite (Radiesse) for treatment of nasolabial folds." <i>Aesthetic Plast Surg.</i> 2010; 34(3):279–284.</li>
-        <li><b>Loghem JV et al.</b> "Calcium hydroxylapatite: over a decade of clinical experience." <i>J Clin Aesthet Dermatol.</i> 2015; 8(1):38–49.</li>
-        <li><b>Yutskovskaya YA, Kogan EA.</b> "Improved neocollagenesis after diluted calcium hydroxylapatite injections." <i>J Drugs Dermatol.</i> 2017; 16(1):68–74.</li>
-      </ol>
-    </div>
-
-    <div class="cta-block">
-      <div class="cta-logo"><img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit"></div>
-      <div class="cta-divider"></div>
-      <div class="cta-content">
-        <div class="cta-label">Pharmafit · Bioestimuladores</div>
-        <div class="cta-title">Radiesse <span>Plus Lido</span></div>
-        <div class="cta-desc">Filler CaHA biodegradável com lidocaína. Neocolagênese e volume imediato. Referência mundial em bioestimulação.</div>
-        <div class="cta-phone">📲 Consultar Disponibilidade</div>
+    <div class="pharmafit-banner" style="margin-top:16px">
+      <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" class="pf-logo" />
+      <div class="pf-text">
+        <div class="pf-label">Estudo Clínico Elaborado por</div>
+        <div class="pf-brand">Pharmafit<span>-PY</span></div>
+        <div class="pf-tagline">Compostos injetáveis de alta pureza com qualidade farmacêutica.<br>Protocolos personalizados para saúde, performance e bem-estar.</div>
       </div>
+      <a class="pf-cta" href="tel:+12142049853">📞 +1 (214) 204-9853</a>
     </div>
 
+    <div class="box-card ref" style="margin-bottom:0">
+      <div class="box-title">📚 Referências Científicas</div>
+      <ul class="ref-list">
+        <li data-n="1">Alam M et al. "Effectiveness of Radiesse (calcium hydroxylapatite) for treatment of acne scars." <em>Dermatol Surg.</em> 2009; 35(s1):469–473.</li>
+        <li data-n="2">Berlin AL et al. "Calcium hydroxylapatite filler for facial rejuvenation." <em>Dermatol Surg.</em> 2006; 32(9):1213–1218.</li>
+        <li data-n="3">Marmur ES et al. "An ultrasonographic analysis of tissue augmented with Radiesse." <em>Dermatol Surg.</em> 2004; 30(6):959–964.</li>
+        <li data-n="4">Bass LS et al. "Calcium hydroxylapatite (Radiesse) for treatment of nasolabial folds." <em>Aesthetic Plast Surg.</em> 2010; 34(3):279–284.</li>
+        <li data-n="5">Loghem JV et al. "Calcium hydroxylapatite: over a decade of clinical experience." <em>J Clin Aesthet Dermatol.</em> 2015; 8(1):38–49.</li>
+        <li data-n="6">Yutskovskaya YA, Kogan EA. "Improved neocollagenesis after diluted calcium hydroxylapatite injections." <em>J Drugs Dermatol.</em> 2017; 16(1):68–74.</li>
+      </ul>
+    </div>
   </div>
-  <div class="accent-bar"></div>
+
   <div class="footer">
-    <div class="footer-left">
-      <img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit">
-      <div class="footer-text">Pharmafit · Informativo Técnico</div>
-    </div>
-    <div class="footer-right">Radiesse Plus Lido · Filler CaHA<br>Aplicação exclusiva por profissional habilitado</div>
+    <div class="footer-brand"><span>PHARMAFIT-PY</span> · Bioestimuladores Premium</div>
+    <div class="footer-code">DOC: RAD-PL-PFY · Rev. 2026 · Uso Profissional</div>
+    <div class="footer-page">2 / 2</div>
   </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
 </div>
 
 </body>

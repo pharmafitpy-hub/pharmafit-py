@@ -1,3 +1,32 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  INFORMATIVO TÉCNICO — TEMPLATE PHARMAFIT-PY                ║
+  ║  Produto: Line Body 55ml                                    ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  ESTRUTURA GERAL (2 páginas .page):                         ║
+  ║  Pág 1: header → info-strip → "O Que É" → seções técnicas  ║
+  ║  Pág 2: header-small → seções avançadas → pharmafit-banner  ║
+  ║         → referências científicas → footer + footer-note    ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  O QUE CUSTOMIZAR POR PRODUTO:                              ║
+  ║  1. <title> — nome do produto                               ║
+  ║  2. :root — paleta de cores (ver abaixo)                    ║
+  ║  3. body { background } — cor do fundo externo da página    ║
+  ║  4. .header → textos: tag, título, subtítulo, badges        ║
+  ║  5. .info-strip → chips e texto de contexto                 ║
+  ║  6. Seção "O Que É..." → section-title + intro-text         ║
+  ║  7. Conteúdo das seções (componentes em informativo.css)    ║
+  ║  8. .header-small (pág 2) → título e subtítulo              ║
+  ║  9. .footer → brand text e código do documento              ║
+  ║  10. Referências científicas → .ref-list                    ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  NÃO ALTERAR (padronizado para todos os informativos):      ║
+  ║  • .pharmafit-banner — tagline e telefone da Pharmafit-PY   ║
+  ║  • .footer-note — aviso de uso profissional                 ║
+  ║  • Link para ../assets/css/informativo.css                  ║
+  ║  • Fontes: Montserrat + Lato (Google Fonts)                 ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5,584 +34,79 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Informativo Técnico — Line Body 55ml | PharmaFit-PY</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/informativo.css" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --petrol:      #1B4F72;
-      --petrol-dark: #0D2B3E;
-      --petrol-mid:  #2471A3;
-      --petrol-lite: #D6EAF8;
-      --petrol-bg:   #EBF5FB;
-      --amber:       #B7600A;
-      --amber-mid:   #E67E22;
-      --amber-lite:  #FAE5D3;
-      --amber-bg:    #FEF5EC;
-      --gold:        #9A7D0A;
-      --gold-mid:    #D4AC0D;
-      --gold-lite:   #FCF3CF;
-      --gold-bg:     #FEFDE7;
-      --rose:        #922B21;
-      --rose-mid:    #E74C3C;
-      --rose-lite:   #FADBD8;
-      --rose-bg:     #FDEDEC;
-      --plum:        #6C3483;
-      --plum-mid:    #9B59B6;
-      --white:       #FFFFFF;
-      --gray-1:      #F4F6F7;
-      --gray-2:      #D5D8DC;
-      --text-dark:   #1A2530;
-      --text-mid:    #3D566E;
+      --petrol:      #6C3483; --petrol-dark: #4A1A5A; --petrol-mid: #9B59B6;
+      --petrol-lite: #E8DAEF; --petrol-bg:   #F5EEF8;
+      --amber:       #B7600A; --amber-mid:   #E67E22;
+      --amber-lite:  #FAE5D3; --amber-bg:    #FEF5EC;
+      --gold:        #9A7D0A; --gold-mid:    #D4AC0D;
+      --gold-lite:   #FCF3CF; --gold-bg:     #FEFDE7;
+      --white:       #FFFFFF; --gray-1: #F4F6F7; --gray-2: #D5D8DC;
+      --text-dark:   #1A2530; --text-mid: #3D566E;
+      --shadow:      0 2px 12px rgba(74,26,90,0.10);
+      --header-bg:   linear-gradient(135deg, #4A1A5A 0%, #6C3483 50%, #0D2B3E 100%);
+      --header-bar-bg: linear-gradient(90deg, #6C3483 0%, #9B59B6 35%, #F1948A 65%, #E67E22 100%);
+      --header-small-bg: linear-gradient(135deg, #4A1A5A 0%, #6C3483 60%, #0D2B3E 100%);
+      --header-hl:   #C39BD3;
     }
-
-    body {
-      font-family: 'Lato', sans-serif;
-      color: var(--text-dark);
-      background: #c8d8e4;
-      font-size: 10.5pt;
-      line-height: 1.6;
-    }
-
-    .page {
-      width: 210mm;
-      min-height: 297mm;
-      background: #fff;
-      margin: 12mm auto;
-      box-shadow: 0 4px 32px rgba(13,43,62,0.18);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* ─── HEADER ─────────────────────────────────────── */
-    .header {
-      background: linear-gradient(135deg, var(--plum) 0%, var(--petrol) 50%, var(--petrol-dark) 100%);
-      padding: 0;
-      position: relative;
-      overflow: hidden;
-    }
-    .header::before {
-      content: '';
-      position: absolute;
-      top: -40px; right: -40px;
-      width: 220px; height: 220px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.04);
-    }
-    .header::after {
-      content: '';
-      position: absolute;
-      bottom: -60px; left: 30%;
-      width: 160px; height: 160px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.03);
-    }
-    .header-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 28px 14px;
-    }
-    .header-logo img {
-      height: 72px;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
-    }
-    .header-center {
-      text-align: center;
-      flex: 1;
-      padding: 0 20px;
-    }
-    .header-tag {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7pt;
-      font-weight: 600;
-      letter-spacing: 3px;
-      color: rgba(255,255,255,0.55);
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-    .header-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 19pt;
-      font-weight: 800;
-      color: white;
-      line-height: 1.1;
-      letter-spacing: -0.3px;
-    }
-    .header-title span { color: #C39BD3; }
-    .header-subtitle {
-      font-size: 8.5pt;
-      color: rgba(255,255,255,0.62);
-      margin-top: 5px;
-      font-weight: 300;
-      letter-spacing: 0.4px;
-    }
-    .header-badge {
-      text-align: right;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .badge-box {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-family: 'Montserrat', sans-serif;
-    }
-    .badge-box .b-label {
-      font-size: 6pt;
-      color: rgba(255,255,255,0.5);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-    .badge-box .b-val {
-      font-size: 8pt;
-      font-weight: 700;
-      color: white;
-      margin-top: 1px;
-    }
-    .header-bar {
-      height: 4px;
-      background: linear-gradient(90deg, var(--plum) 0%, var(--plum-mid) 35%, #F1948A 65%, var(--amber-mid) 100%);
-    }
-
-    /* ─── FDA STRIP ───────────────────────────────────── */
-    .fda-strip {
-      background: var(--rose-bg);
-      border-bottom: 1px solid var(--rose-lite);
-      padding: 8px 28px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .fda-badge {
-      background: var(--plum);
-      color: white;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7pt;
-      font-weight: 800;
-      padding: 3px 9px;
-      border-radius: 4px;
-      letter-spacing: 1px;
-      white-space: nowrap;
-    }
-    .fda-badge2 {
-      background: var(--petrol);
-      color: white;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7pt;
-      font-weight: 800;
-      padding: 3px 9px;
-      border-radius: 4px;
-      letter-spacing: 1px;
-      white-space: nowrap;
-    }
-    .fda-text {
-      font-size: 8pt;
-      color: var(--plum);
-      font-weight: 400;
-      line-height: 1.4;
-    }
-    .fda-text strong { color: var(--plum); font-weight: 700; }
-
-    /* ─── CONTENT ─────────────────────────────────────── */
-    .content {
-      padding: 22px 28px 28px;
-      flex: 1;
-    }
-
-    /* ─── INTRO STRIP ─────────────────────────────────── */
-    .intro-strip {
-      background: var(--rose-bg);
-      border-left: 5px solid var(--plum-mid);
-      border-radius: 0 8px 8px 0;
-      padding: 12px 16px;
-      margin-bottom: 22px;
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-    }
-    .intro-icon {
-      font-size: 28px;
-      line-height: 1;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-    .intro-text {
-      font-size: 9.5pt;
-      color: var(--text-mid);
-      line-height: 1.55;
-    }
-    .intro-text strong { color: var(--petrol-dark); }
-
-    /* ─── SECTION ─────────────────────────────────────── */
-    .section {
-      margin-bottom: 22px;
-    }
-    .section-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 9.5pt;
-      font-weight: 700;
-      color: var(--white);
-      background: linear-gradient(90deg, var(--plum) 0%, var(--plum-mid) 100%);
-      padding: 7px 14px;
-      border-radius: 6px;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .section-title .num {
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      width: 20px; height: 20px;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 8.5pt;
-      font-weight: 800;
-      flex-shrink: 0;
-    }
-
-    /* ─── MOA TABLE ───────────────────────────────────── */
-    table.moa {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 8.5pt;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    table.moa thead tr { background: var(--plum); }
-    table.moa thead th {
-      padding: 8px 11px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7.5pt;
-      font-weight: 600;
-      color: white;
-      text-align: left;
-      letter-spacing: 0.5px;
-    }
-    table.moa tbody tr:nth-child(odd)  { background: var(--white); }
-    table.moa tbody tr:nth-child(even) { background: var(--gray-1); }
-    table.moa tbody tr:hover           { background: var(--rose-lite); }
-    table.moa tbody td {
-      padding: 7px 11px;
-      color: var(--text-dark);
-      border-bottom: 1px solid var(--gray-2);
-      vertical-align: top;
-      line-height: 1.5;
-    }
-    table.moa tbody td:first-child {
-      font-weight: 700;
-      color: var(--plum);
-      white-space: nowrap;
-      font-size: 8pt;
-    }
-    table.moa tbody td:last-child {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7.5pt;
-      font-weight: 700;
-      color: var(--petrol-mid);
-      text-align: center;
-      white-space: nowrap;
-    }
-
-    /* ─── DISS BOX ────────────────────────────────────── */
-    .diss-box {
-      background: var(--gray-1);
-      border-radius: 8px;
-      border: 1px solid var(--gray-2);
-      padding: 16px;
-    }
-    .diss-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .diss-step {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .step-circle {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: var(--plum);
-      color: white;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 9pt;
-      font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      box-shadow: 0 2px 6px rgba(108,52,131,0.35);
-    }
-    .step-text {
-      font-size: 9pt;
-      color: var(--text-mid);
-      line-height: 1.5;
-      padding-top: 4px;
-    }
-    .step-text strong {
-      color: var(--petrol-dark);
-      font-weight: 700;
-    }
-
-    /* ─── DOSE TABLE ──────────────────────────────────── */
-    .dose-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 8.5pt;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .dose-table thead tr { background: var(--plum-mid); }
-    .dose-table thead th {
-      padding: 7px 11px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7.5pt;
-      font-weight: 700;
-      color: white;
-      text-align: left;
-      letter-spacing: 0.5px;
-    }
-    .dose-table tbody tr:nth-child(odd)  { background: var(--white); }
-    .dose-table tbody tr:nth-child(even) { background: var(--rose-bg); }
-    .dose-table tbody tr:hover           { background: var(--rose-lite); }
-    .dose-table tbody td {
-      padding: 7px 11px;
-      color: var(--text-dark);
-      border-bottom: 1px solid var(--gray-2);
-    }
-    .dose-table tbody td:first-child { font-weight: 600; color: var(--plum); }
-
-    /* ─── PROTO GRID ──────────────────────────────────── */
-    .proto-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
-    }
-    .proto-card {
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.09);
-    }
-    .proto-head {
-      padding: 12px 14px;
-      color: white;
-    }
-    .proto-head.p1 { background: linear-gradient(135deg, var(--plum), var(--plum-mid)); }
-    .proto-head.p2 { background: linear-gradient(135deg, var(--petrol-dark), var(--petrol-mid)); }
+    body { background: #c8d8e4; }
+    .proto-head.p1 { background: linear-gradient(135deg, var(--petrol), var(--petrol-mid)); }
+    .proto-head.p2 { background: linear-gradient(135deg, var(--petrol-dark), var(--petrol)); }
     .proto-head.p3 { background: linear-gradient(135deg, var(--amber), var(--amber-mid)); }
-    .proto-head .ph-num {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7pt;
-      font-weight: 700;
-      letter-spacing: 2px;
-      opacity: 0.65;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-    .proto-head .ph-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 9.5pt;
-      font-weight: 800;
-      line-height: 1.25;
-    }
-    .proto-body {
-      background: var(--gray-1);
-      padding: 12px 14px;
-    }
-    .proto-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 4px 0;
-      border-bottom: 1px solid var(--gray-2);
-      gap: 8px;
-    }
-    .proto-row:last-child { border-bottom: none; }
-    .pr-label {
-      font-size: 7.5pt;
-      color: var(--text-mid);
-      font-weight: 400;
-      flex-shrink: 0;
-    }
-    .pr-val {
-      font-size: 7.5pt;
-      color: var(--petrol-dark);
-      font-weight: 700;
-      text-align: right;
-    }
-
-    /* ─── TWO COL ─────────────────────────────────────── */
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    /* ─── ADV BOX ─────────────────────────────────────── */
-    .adv-box {
-      background: #FEF9E7;
-      border: 1px solid #F9E79F;
-      border-radius: 8px;
-      padding: 14px;
-    }
-    .adv-box .adv-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 8.5pt;
-      font-weight: 700;
-      color: var(--amber);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .adv-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .adv-item:last-child { margin-bottom: 0; }
-    .adv-icon {
-      font-size: 13px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-    .adv-text {
-      font-size: 8.5pt;
-      color: var(--text-mid);
-      line-height: 1.45;
-    }
-    .adv-text strong { color: var(--amber); }
-
-    /* ─── REF BOX ─────────────────────────────────────── */
-    .ref-box {
-      background: var(--petrol-bg);
-      border: 1px solid var(--petrol-lite);
-      border-radius: 8px;
-      padding: 14px;
-    }
-    .ref-box .ref-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 8.5pt;
-      font-weight: 700;
-      color: var(--petrol);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .ref-list {
-      list-style: none;
-      padding: 0;
-    }
-    .ref-list li {
-      font-size: 7.5pt;
-      color: var(--text-mid);
-      padding: 3px 0;
-      border-bottom: 1px solid var(--petrol-lite);
-      line-height: 1.45;
-    }
-    .ref-list li:last-child { border-bottom: none; }
-    .ref-list li::before {
-      content: '▸ ';
-      color: var(--petrol-mid);
-      font-size: 7pt;
-    }
-
-    /* ─── FOOTER ──────────────────────────────────────── */
-    .footer {
-      background: var(--petrol-dark);
-      padding: 10px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .footer-left {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7pt;
-      color: rgba(255,255,255,0.45);
-      letter-spacing: 0.5px;
-    }
-    .footer-center {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7pt;
-      color: rgba(255,255,255,0.3);
-      text-align: center;
-    }
-    .footer-right {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 7pt;
-      color: rgba(255,255,255,0.45);
-      letter-spacing: 0.5px;
-      text-align: right;
-    }
+    .spec-grid .s-val { font-size: 10pt; }
+    .box-card.adv { border-left: 5px solid var(--amber); }
   </style>
 </head>
 <body>
-<div class="page">
 
-  <!-- HEADER -->
+<!-- ═══ PÁGINA 1 ═══ -->
+<div class="page">
   <div class="header">
     <div class="header-inner">
-      <div class="header-logo">
-        <img src="../logo_pharmafit.png" alt="PharmaFit-PY" onerror="this.style.display='none'" />
-      </div>
+      <div class="header-logo"><img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" /></div>
       <div class="header-center">
         <div class="header-tag">Lipolítico Injectable · Remodelamento Corporal · Redução de Gordura Localizada</div>
-        <div class="header-title">Line Body <span>55ml</span></div>
+        <div class="header-title">Line Body <span class="hl">55ml</span></div>
         <div class="header-subtitle">Fosfatidilcolina + Deoxicolato · Dissolução de Adipócitos · Corporal e Facial</div>
       </div>
-      <div class="header-badge">
-        <div class="badge-box">
-          <div class="b-label">Volume</div>
-          <div class="b-val">55ml</div>
-        </div>
-        <div class="badge-box">
-          <div class="b-label">Via</div>
-          <div class="b-val">Injeção IL</div>
-        </div>
-        <div class="badge-box">
-          <div class="b-label">Código</div>
-          <div class="b-val">LINEB-55-PFY</div>
-        </div>
+      <div class="header-badges">
+        <div class="badge-box"><div class="b-label">Volume</div><div class="b-val">55ml</div></div>
+        <div class="badge-box"><div class="b-label">Via</div><div class="b-val">Injeção IL</div></div>
+        <div class="badge-box"><div class="b-label">Código</div><div class="b-val">LINEB-55-PFY</div></div>
       </div>
     </div>
     <div class="header-bar"></div>
   </div>
 
-  <!-- FDA STRIP -->
-  <div class="fda-strip">
-    <span class="fda-badge">StunMedical</span>
-    <span class="fda-badge2">Uso Estético Médico</span>
-    <span class="fda-text">
-      <strong>Line Body StunMedical</strong> — Lipolítico injectable à base de Fosfatidilcolina (PC) + Deoxicolato de Sódio (DC) · Formulação de uso estético médico · Aprovado uso no Paraguai e demais países da região
-    </span>
+  <div class="info-strip">
+    <span class="info-chip">StunMedical</span>
+    <span class="info-chip dark">Uso Estético Médico</span>
+    <span class="info-text"><strong>Line Body StunMedical</strong> — Lipolítico injectable à base de Fosfatidilcolina (PC) + Deoxicolato de Sódio (DC) · Formulação de uso estético médico · Aprovado uso no Paraguai e demais países da região</span>
   </div>
 
-  <!-- CONTENT -->
   <div class="content">
-
-    <!-- INTRO -->
-    <div class="intro-strip">
-      <div class="intro-icon">💉</div>
-      <div class="intro-text">
-        <strong>Line Body</strong> é um produto lipolítico injectable à base de <strong>Fosfatidilcolina (PC)</strong> e <strong>Deoxicolato de Sódio (DC)</strong>, formulados para dissolução mecânica e química de adipócitos em gorduras localizadas. A fosfatidilcolina desestrutura a membrana dos adipócitos, enquanto o deoxicolato de sódio (surfactante bile) rompe a membrana celular, resultando na liberação e metabolização dos lipídeos pelo sistema linfático. Indicado para liporredeução localizada em diversas regiões corporais e faciais.
+    <div class="section">
+      <div class="section-title"><span class="st-icon">💉</span><h2>O Que É o Line Body?</h2><div class="st-line"></div></div>
+      <div class="intro-strip">
+        <div class="intro-icon">💉</div>
+        <div class="intro-text">
+          <strong>Line Body</strong> é um produto lipolítico injectable à base de <strong>Fosfatidilcolina (PC)</strong> e <strong>Deoxicolato de Sódio (DC)</strong>, formulados para dissolução mecânica e química de adipócitos em gorduras localizadas. A fosfatidilcolina desestrutura a membrana dos adipócitos, enquanto o deoxicolato de sódio (surfactante bile) rompe a membrana celular, resultando na liberação e metabolização dos lipídeos pelo sistema linfático. Indicado para liporredeução localizada em diversas regiões corporais e faciais.
+          <div class="spec-grid">
+            <div class="spec-item"><div class="s-val">55ml</div><div class="s-lbl">Volume</div></div>
+            <div class="spec-item"><div class="s-val">PC+DC</div><div class="s-lbl">Princípios ativos</div></div>
+            <div class="spec-item"><div class="s-val">IL</div><div class="s-lbl">Via</div></div>
+            <div class="spec-item"><div class="s-val">0,2ml</div><div class="s-lbl">Por ponto</div></div>
+            <div class="spec-item"><div class="s-val">30G×8mm</div><div class="s-lbl">Agulha</div></div>
+            <div class="spec-item"><div class="s-val">Permanente</div><div class="s-lbl">Resultado</div></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- SECTION 1: MECANISMO DE AÇÃO -->
     <div class="section">
-      <div class="section-title"><span class="num">1</span> Mecanismo de Ação</div>
+      <div class="section-title"><span class="st-icon">⚗️</span><h2>Mecanismo de Ação</h2><div class="st-line"></div></div>
       <table class="moa">
         <thead>
           <tr>
@@ -621,9 +145,8 @@
       </table>
     </div>
 
-    <!-- SECTION 2: TÉCNICA DE APLICAÇÃO -->
     <div class="section">
-      <div class="section-title"><span class="num">2</span> Técnica de Aplicação e Dosagem</div>
+      <div class="section-title"><span class="st-icon">💧</span><h2>Técnica de Aplicação e Dosagem</h2><div class="st-line"></div></div>
       <div class="diss-box">
         <div class="diss-steps">
           <div class="diss-step">
@@ -685,137 +208,116 @@
         </table>
       </div>
     </div>
-
-    <!-- SECTION 3: PROTOCOLOS -->
-    <div class="section">
-      <div class="section-title"><span class="num">3</span> Protocolos Clínicos</div>
-      <div class="proto-grid">
-        <div class="proto-card">
-          <div class="proto-head p1">
-            <div class="ph-num">Protocolo 01</div>
-            <div class="ph-title">Abdômen e Flancos</div>
-          </div>
-          <div class="proto-body">
-            <div class="proto-row">
-              <span class="pr-label">Volume</span>
-              <span class="pr-val">20–40ml/sessão</span>
-            </div>
-            <div class="proto-row">
-              <span class="pr-label">Sessões</span>
-              <span class="pr-val">3–5 sessões</span>
-            </div>
-            <div class="proto-row">
-              <span class="pr-label">Intervalo</span>
-              <span class="pr-val">3–4 semanas</span>
-            </div>
-            <div class="proto-row">
-              <span class="pr-label">Pós-sessão</span>
-              <span class="pr-val">Drenagem 48h</span>
-            </div>
-          </div>
-        </div>
-        <div class="proto-card">
-          <div class="proto-head p2">
-            <div class="ph-num">Protocolo 02</div>
-            <div class="ph-title">Papada Submentoniana</div>
-          </div>
-          <div class="proto-body">
-            <div class="proto-row">
-              <span class="pr-label">Volume</span>
-              <span class="pr-val">2–5ml/sessão</span>
-            </div>
-            <div class="proto-row">
-              <span class="pr-label">Sessões</span>
-              <span class="pr-val">2–3 sessões</span>
-            </div>
-            <div class="proto-row">
-              <span class="pr-label">Intervalo</span>
-              <span class="pr-val">6–8 semanas</span>
-            </div>
-            <div class="proto-row">
-              <span class="pr-label">Objetivo</span>
-              <span class="pr-val">Duplo queixo</span>
-            </div>
-          </div>
-        </div>
-        <div class="proto-card">
-          <div class="proto-head p3">
-            <div class="ph-num">Protocolo 03</div>
-            <div class="ph-title">Liporredeução Corporal Ampla</div>
-          </div>
-          <div class="proto-body">
-            <div class="proto-row">
-              <span class="pr-label">Volume total</span>
-              <span class="pr-val">40–55ml/sessão</span>
-            </div>
-            <div class="proto-row">
-              <span class="pr-label">Sessões</span>
-              <span class="pr-val">4–6 sessões</span>
-            </div>
-            <div class="proto-row">
-              <span class="pr-label">Intervalo</span>
-              <span class="pr-val">Mensal</span>
-            </div>
-            <div class="proto-row">
-              <span class="pr-label">Áreas</span>
-              <span class="pr-val">Braços+costas+flancos</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TWO COL: PRECAUÇÕES + REFERÊNCIAS -->
-    <div class="two-col">
-      <div class="adv-box">
-        <div class="adv-title">⚠️ Precauções e Contraindicações</div>
-        <div class="adv-item">
-          <span class="adv-icon">🚫</span>
-          <span class="adv-text"><strong>Não aplicar</strong> em áreas com infecção ativa, queloides ou sobre musculatura diretamente</span>
-        </div>
-        <div class="adv-item">
-          <span class="adv-icon">🔴</span>
-          <span class="adv-text"><strong>Reações esperadas:</strong> hematoma, edema e eritema locais por 3–7 dias — informar o paciente previamente</span>
-        </div>
-        <div class="adv-item">
-          <span class="adv-icon">🤰</span>
-          <span class="adv-text"><strong>Contraindicado</strong> em gravidez, lactação, dislipidemia grave e alergia a soja (PC derivado de soja)</span>
-        </div>
-        <div class="adv-item">
-          <span class="adv-icon">🫀</span>
-          <span class="adv-text"><strong>Não aplicar</strong> próximo a estruturas vasculonervosas — conhecer anatomia antes de tratar</span>
-        </div>
-        <div class="adv-item">
-          <span class="adv-icon">☀️</span>
-          <span class="adv-text"><strong>Evitar exposição solar</strong> na área tratada por 2 semanas após sessão</span>
-        </div>
-      </div>
-      <div class="ref-box">
-        <div class="ref-title">📋 Dados Técnicos do Produto</div>
-        <ul class="ref-list">
-          <li>Fabricante: StunMedical — Line Body</li>
-          <li>Princípio ativo: PC (Fosfatidilcolina) + DC (Deoxicolato)</li>
-          <li>Volume: 55ml por frasco</li>
-          <li>Apresentação: Solução injectable</li>
-          <li>Agulha recomendada: 30G × 8mm</li>
-          <li>Volume por ponto: 0,1–0,2ml IL</li>
-          <li>Conservar: temperatura ambiente (15–25°C)</li>
-          <li>Evitar luz direta e calor excessivo</li>
-          <li>Uso exclusivo de médicos e cirurgiões</li>
-          <li>Código: LINEB-55-PFY · PharmaFit-PY</li>
-        </ul>
-      </div>
-    </div>
-
-  </div><!-- /content -->
-
-  <!-- FOOTER -->
-  <div class="footer">
-    <div class="footer-left">PharmaFit-PY · Laboratorio Farmacéutico</div>
-    <div class="footer-center">Documento técnico informativo · Uso exclusivo de profissionais habilitados · Aplicação sob responsabilidade médica</div>
-    <div class="footer-right">LINEB-55-PFY · Rev. 2026</div>
   </div>
 
+  <div class="footer">
+    <div class="footer-brand"><span>PHARMAFIT-PY</span> · Laboratorio Farmacéutico</div>
+    <div class="footer-code">DOC: LINEB-55-PFY · Rev. 2026</div>
+    <div class="footer-page">1 / 2</div>
+  </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
 </div>
+
+<!-- ═══ PÁGINA 2 ═══ -->
+<div class="page">
+  <div class="header-small">
+    <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" />
+    <div>
+      <div class="hs-title">Line Body <span>55ml</span> · Protocolos Clínicos</div>
+      <div class="hs-sub">Lipolítico PC+DC · Redução de Gordura Localizada</div>
+    </div>
+    <div class="hs-right">
+      <div class="hs-title" style="font-size:9pt;color:rgba(255,255,255,0.5)">PHARMAFIT-PY</div>
+      <div class="hs-sub">Laboratorio Farmacéutico</div>
+    </div>
+  </div>
+  <div class="header-bar"></div>
+
+  <div class="content">
+    <div class="section">
+      <div class="section-title"><span class="st-icon">📋</span><h2>Protocolos Clínicos</h2><div class="st-line"></div></div>
+      <div class="proto-grid">
+        <div class="proto-card">
+          <div class="proto-head p1"><div class="p-num">Protocolo 01</div><div class="p-title">Abdômen e Flancos</div><div class="p-icon">🏃</div></div>
+          <div class="proto-body">
+            <div class="proto-row"><span class="pr-label">Volume</span><span class="pr-val">20–40ml/sessão</span></div>
+            <div class="proto-row"><span class="pr-label">Sessões</span><span class="pr-val">3–5 sessões</span></div>
+            <div class="proto-row"><span class="pr-label">Intervalo</span><span class="pr-val">3–4 semanas</span></div>
+            <div class="proto-row"><span class="pr-label">Pós-sessão</span><span class="pr-val">Drenagem 48h</span></div>
+            <div class="proto-row"><span class="pr-label">Pontos</span><span class="pr-val">0,2ml/ponto IL · 1cm espaçados</span></div>
+            <div class="proto-row"><span class="pr-label">Resultado</span><span class="pr-val">Redução de medidas e volume abdominal</span></div>
+          </div>
+        </div>
+        <div class="proto-card">
+          <div class="proto-head p2"><div class="p-num">Protocolo 02</div><div class="p-title">Papada Submentoniana</div><div class="p-icon">😌</div></div>
+          <div class="proto-body">
+            <div class="proto-row"><span class="pr-label">Volume</span><span class="pr-val">2–5ml/sessão</span></div>
+            <div class="proto-row"><span class="pr-label">Sessões</span><span class="pr-val">2–3 sessões</span></div>
+            <div class="proto-row"><span class="pr-label">Intervalo</span><span class="pr-val">6–8 semanas</span></div>
+            <div class="proto-row"><span class="pr-label">Objetivo</span><span class="pr-val">Duplo queixo</span></div>
+            <div class="proto-row"><span class="pr-label">Pontos</span><span class="pr-val">0,1ml/ponto · área delicada</span></div>
+            <div class="proto-row"><span class="pr-label">Cuidado</span><span class="pr-val">Anatomia vascular — técnica precisa</span></div>
+          </div>
+        </div>
+        <div class="proto-card">
+          <div class="proto-head p3"><div class="p-num">Protocolo 03</div><div class="p-title">Liporredeução Corporal Ampla</div><div class="p-icon">🌿</div></div>
+          <div class="proto-body">
+            <div class="proto-row"><span class="pr-label">Volume total</span><span class="pr-val">40–55ml/sessão</span></div>
+            <div class="proto-row"><span class="pr-label">Sessões</span><span class="pr-val">4–6 sessões</span></div>
+            <div class="proto-row"><span class="pr-label">Intervalo</span><span class="pr-val">Mensal</span></div>
+            <div class="proto-row"><span class="pr-label">Áreas</span><span class="pr-val">Braços+costas+flancos</span></div>
+            <div class="proto-row"><span class="pr-label">Pós-sessão</span><span class="pr-val">Drenagem linfática + compressão</span></div>
+            <div class="proto-row"><span class="pr-label">Resultado</span><span class="pr-val">Remodelamento corporal global</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="box-card adv">
+        <div class="box-title">⚠️ Precauções e Contraindicações</div>
+        <div class="adv-item"><span class="adv-icon">🚫</span><div class="adv-text"><strong>Não aplicar</strong> em áreas com infecção ativa, queloides ou sobre musculatura diretamente</div></div>
+        <div class="adv-item"><span class="adv-icon">🔴</span><div class="adv-text"><strong>Reações esperadas:</strong> hematoma, edema e eritema locais por 3–7 dias — informar o paciente previamente</div></div>
+        <div class="adv-item"><span class="adv-icon">🤰</span><div class="adv-text"><strong>Contraindicado</strong> em gravidez, lactação, dislipidemia grave e alergia a soja (PC derivado de soja)</div></div>
+        <div class="adv-item"><span class="adv-icon">🫀</span><div class="adv-text"><strong>Não aplicar</strong> próximo a estruturas vasculonervosas — conhecer anatomia antes de tratar</div></div>
+        <div class="adv-item"><span class="adv-icon">☀️</span><div class="adv-text"><strong>Evitar exposição solar</strong> na área tratada por 2 semanas após sessão</div></div>
+      </div>
+
+    <div class="pharmafit-banner" style="margin-top:16px">
+      <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" class="pf-logo" />
+      <div class="pf-text">
+        <div class="pf-label">Estudo Clínico Elaborado por</div>
+        <div class="pf-brand">Pharmafit<span>-PY</span></div>
+        <div class="pf-tagline">Compostos injetáveis de alta pureza com qualidade farmacêutica.<br>Protocolos personalizados para saúde, performance e bem-estar.</div>
+      </div>
+      <a class="pf-cta" href="tel:+12142049853">📞 +1 (214) 204-9853</a>
+    </div>
+
+    <div class="box-card ref" style="margin-bottom:0">
+      <div class="box-title">📋 Referências e Dados Técnicos</div>
+      <ul class="ref-list">
+        <li data-n="1">Fabricante: StunMedical — Line Body</li>
+        <li data-n="2">Princípio ativo: PC (Fosfatidilcolina) + DC (Deoxicolato)</li>
+        <li data-n="3">Volume: 55ml por frasco</li>
+        <li data-n="4">Apresentação: Solução injectable</li>
+        <li data-n="5">Agulha recomendada: 30G × 8mm</li>
+        <li data-n="6">Volume por ponto: 0,1–0,2ml IL</li>
+        <li data-n="7">Conservar: temperatura ambiente (15–25°C)</li>
+        <li data-n="8">Evitar luz direta e calor excessivo</li>
+        <li data-n="9">Uso exclusivo de médicos e cirurgiões</li>
+        <li data-n="10">Rotstein H et al. "Phosphatidylcholine and sodium deoxycholate for fat dissolving." <em>Dermatol Surg.</em> 2009; 35(3):468–474.</li>
+        <li data-n="11">Salti G et al. "A new method of treating localized fat: phosphatidylcholine injection." <em>Aesthet Surg J.</em> 2008; 28(5):512–514.</li>
+        <li data-n="12">Código: LINEB-55-PFY · PharmaFit-PY</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-brand"><span>PHARMAFIT-PY</span> · Laboratorio Farmacéutico</div>
+    <div class="footer-code">DOC: LINEB-55-PFY · Rev. 2026 · Uso Profissional</div>
+    <div class="footer-page">2 / 2</div>
+  </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
+</div>
+
 </body>
 </html>

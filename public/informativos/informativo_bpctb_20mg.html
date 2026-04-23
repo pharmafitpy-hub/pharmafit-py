@@ -1,3 +1,34 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  INFORMATIVO TÉCNICO — TEMPLATE PHARMAFIT-PY                ║
+  ║  Produto: BPC-157 + TB-500 Blend 20mg                       ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  ESTRUTURA GERAL (2 páginas .page):                         ║
+  ║  Pág 1: header → info-strip → "O Que É" → seções técnicas  ║
+  ║  Pág 2: header-small → seções avançadas → pharmafit-banner  ║
+  ║         → referências científicas → footer + footer-note    ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  O QUE CUSTOMIZAR POR PRODUTO:                              ║
+  ║  1. <title> — nome do produto                               ║
+  ║  2. :root — paleta de cores (ver abaixo)                    ║
+  ║     Tema azul/âmbar      → ex: Tirzepatida 120mg            ║
+  ║     Tema escuro/ouro     → ex: Durateston                   ║
+  ║  3. body { background } — cor do fundo externo da página    ║
+  ║  4. .header → textos: tag, título, subtítulo, badges        ║
+  ║  5. .info-strip → chips e texto de contexto                 ║
+  ║  6. Seção "O Que É..." → section-title + intro-text         ║
+  ║  7. Conteúdo das seções (componentes em informativo.css)    ║
+  ║  8. .header-small (pág 2) → título e subtítulo              ║
+  ║  9. .footer → brand text e código do documento              ║
+  ║  10. Referências científicas → .ref-list                    ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  NÃO ALTERAR (padronizado para todos os informativos):      ║
+  ║  • .pharmafit-banner — tagline e telefone da Pharmafit-PY   ║
+  ║  • .footer-note — aviso de uso profissional                 ║
+  ║  • Link para ../assets/css/informativo.css                  ║
+  ║  • Fontes: Montserrat + Lato (Google Fonts)                 ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5,162 +36,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Informativo Técnico — BPC-157 + TB-500 20mg | PharmaFit-PY</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/informativo.css" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --petrol: #1B4F72; --petrol-dark: #0D2B3E; --petrol-mid: #2471A3; --petrol-lite: #D6EAF8; --petrol-bg: #EBF5FB;
-      --green: #1A7A4A; --green-mid: #27AE60; --green-lite: #D5F5E3; --green-bg: #EAFAF1;
-      --teal: #117864; --teal-mid: #17A589; --teal-lite: #D0ECE7; --teal-bg: #E8F8F5;
-      --white: #FFFFFF; --gray-1: #F4F6F7; --gray-2: #D5D8DC; --text-dark: #1A2530; --text-mid: #3D566E;
+      --petrol:     #1B4F72; --petrol-dark: #0D2B3E; --petrol-mid: #2471A3;
+      --petrol-lite:#D6EAF8; --petrol-bg:  #EBF5FB;
+      --amber:      #1A7A4A; --amber-mid:  #27AE60;
+      --amber-lite: #D5F5E3; --amber-bg:   #EAFAF1;
+      --gold:       #117864; --gold-mid:   #17A589;
+      --gold-lite:  #D0ECE7; --gold-bg:    #E8F8F5;
+      --white:      #FFFFFF; --gray-1: #F4F6F7; --gray-2: #D5D8DC;
+      --text-dark:  #1A2530; --text-mid: #3D566E;
+      --shadow:     0 2px 12px rgba(13,43,62,0.10);
+      --header-bg:  linear-gradient(135deg, #0D2B3E 0%, #1B4F72 30%, #145A32 60%, #0E6655 85%, #17A589 100%);
+      --header-bar-bg: linear-gradient(90deg, #1A7A4A 0%, #27AE60 25%, #76D7C4 50%, #17A589 70%, #2471A3 90%, #1B4F72 100%);
+      --header-small-bg: linear-gradient(135deg, #0D2B3E 0%, #1B4F72 40%, #145A32 70%, #0E6655 100%);
+      --header-hl:  #76D7C4;
     }
-    body { font-family: 'Lato', sans-serif; color: var(--text-dark); background: #c8d8e4; font-size: 10.5pt; line-height: 1.6; }
-    .page { width: 210mm; min-height: 297mm; background: var(--white); margin: 12mm auto; box-shadow: 0 4px 32px rgba(13,43,62,0.18); position: relative; overflow: hidden; display: flex; flex-direction: column; }
-
-    /* HEADER — gradient mescla verde+teal */
-    .header { background: linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol) 30%, #145A32 60%, #0E6655 85%, #17A589 100%); padding: 0; position: relative; overflow: hidden; flex-shrink: 0; }
-    .header::before { content:''; position:absolute; top:-40px; right:-40px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,0.04); }
-    .orb-blend { position:absolute; top:8px; right:150px; width:100px; height:100px; border-radius:50%; background:radial-gradient(circle, rgba(23,165,137,0.25) 0%, rgba(39,174,96,0.15) 50%, transparent 70%); }
-    .header-inner { display:flex; align-items:center; justify-content:space-between; padding:16px 28px 12px; }
-    .header-logo img { height:70px; filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3)); }
-    .header-center { text-align:center; flex:1; padding:0 20px; }
-    .header-tag { font-family:'Montserrat',sans-serif; font-size:6.5pt; font-weight:600; letter-spacing:3px; color:rgba(255,255,255,0.5); text-transform:uppercase; margin-bottom:4px; }
-    .header-title { font-family:'Montserrat',sans-serif; font-size:19pt; font-weight:800; color:white; line-height:1.05; letter-spacing:2px; }
-    .header-title .green-text { color:#82E0AA; text-shadow:0 0 20px rgba(130,224,170,0.5); }
-    .header-title .teal-text { color:#76D7C4; text-shadow:0 0 20px rgba(118,215,196,0.5); }
-    .header-title .sep { color:rgba(255,255,255,0.3); margin:0 6px; }
-    .header-subtitle { font-size:8pt; color:rgba(255,255,255,0.65); margin-top:5px; font-weight:300; letter-spacing:0.5px; }
-    .header-badge { text-align:right; }
-    .badge-box { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:8px 12px; font-family:'Montserrat',sans-serif; margin-bottom:6px; }
-    .badge-box .b-label { font-size:6pt; color:rgba(255,255,255,0.5); letter-spacing:1.5px; text-transform:uppercase; }
-    .badge-box .b-val { font-size:8.5pt; font-weight:700; color:white; margin-top:2px; }
-    .badge-box .b-val span { color:#76D7C4; font-size:13pt; font-weight:800; }
-    .header-bar { height:4px; background:linear-gradient(90deg, var(--green) 0%, var(--green-mid) 25%, #76D7C4 50%, var(--teal-mid) 70%, var(--petrol-mid) 90%, var(--petrol) 100%); }
-
-    /* SYNERGY STRIP */
-    .syn-strip { background:linear-gradient(90deg, var(--green-bg) 0%, var(--teal-bg) 100%); border-bottom:1px solid var(--teal-lite); padding:6px 28px; display:flex; align-items:center; gap:14px; font-size:8pt; }
-    .syn-badge { background:linear-gradient(90deg, var(--green) 0%, var(--teal) 100%); color:white; font-family:'Montserrat',sans-serif; font-size:7pt; font-weight:800; letter-spacing:1px; padding:3px 9px; border-radius:4px; white-space:nowrap; }
-    .syn-text { color:var(--text-mid); }
-    .syn-text strong { color:var(--teal); }
-
-    .content { padding:16px 26px 20px; flex:1; }
-
-    .intro-strip { background:linear-gradient(135deg, var(--green-bg) 0%, var(--teal-bg) 100%); border-left:5px solid var(--teal-mid); border-radius:0 8px 8px 0; padding:11px 16px; margin-bottom:16px; display:flex; align-items:center; gap:14px; }
-    .intro-icon { font-size:26px; line-height:1; flex-shrink:0; }
-    .intro-text { font-size:9pt; color:var(--text-mid); line-height:1.5; }
-    .intro-text strong { color:var(--petrol-dark); }
-
-    .section { margin-bottom:15px; }
-    .section-title { font-family:'Montserrat',sans-serif; font-size:9.5pt; font-weight:700; color:var(--white); background:linear-gradient(90deg, var(--petrol) 0%, var(--petrol-mid) 100%); padding:6px 14px; border-radius:6px; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
-    .section-title .num { background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:8.5pt; font-weight:800; flex-shrink:0; }
-
-    /* BLEND CARDS — lado a lado */
-    .blend-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-    .comp-card { border:1px solid var(--gray-2); border-radius:8px; overflow:hidden; }
-    .comp-card-header { padding:8px 14px; display:flex; align-items:center; gap:10px; }
-    .comp-card-header.bpc { background:linear-gradient(90deg, var(--petrol-dark) 0%, var(--green) 100%); }
-    .comp-card-header.tb  { background:linear-gradient(90deg, var(--petrol-dark) 0%, var(--teal) 100%); }
-    .comp-card-header .comp-icon { font-size:16px; }
-    .comp-card-header .comp-name { font-family:'Montserrat',sans-serif; font-size:9pt; font-weight:700; color:white; }
-    .comp-card-header .comp-name span { font-size:7pt; font-weight:400; color:rgba(255,255,255,0.65); margin-left:6px; }
-    .comp-card-body { background:var(--gray-1); padding:9px 14px; display:grid; grid-template-columns:1fr 1fr; gap:5px 14px; }
-    .comp-item { font-size:8pt; color:var(--text-mid); line-height:1.35; }
-    .comp-item strong { color:var(--petrol-dark); font-size:7.5pt; display:block; }
-
-    /* SYNERGY BOX */
-    .syn-box { background:linear-gradient(135deg, var(--green-bg) 0%, var(--teal-bg) 100%); border:1.5px solid var(--teal-lite); border-radius:8px; padding:12px 16px; margin-bottom:12px; }
-    .syn-box-title { font-family:'Montserrat',sans-serif; font-size:8.5pt; font-weight:800; color:var(--teal); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
-    .syn-items { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-    .syn-item { display:flex; align-items:flex-start; gap:8px; font-size:8pt; }
-    .syn-item .s-icon { font-size:14px; flex-shrink:0; }
-    .syn-item .s-text { color:var(--text-mid); line-height:1.4; }
-    .syn-item .s-text strong { color:var(--petrol-dark); }
-
-    table.moa { width:100%; border-collapse:collapse; font-size:8.5pt; }
-    table.moa thead tr { background:linear-gradient(90deg, var(--green) 0%, var(--teal) 100%); color:white; }
-    table.moa thead th { padding:7px 10px; text-align:left; font-family:'Montserrat',sans-serif; font-size:7.5pt; font-weight:700; letter-spacing:0.5px; }
-    table.moa tbody tr:nth-child(odd) { background:var(--gray-1); }
-    table.moa tbody tr:nth-child(even) { background:var(--white); }
-    table.moa tbody td { padding:6px 10px; color:var(--text-dark); border-bottom:1px solid var(--gray-2); vertical-align:top; }
-    table.moa tbody td:first-child { font-weight:700; color:var(--teal); width:28%; }
-    table.moa tbody td .tag { display:inline-block; font-size:7pt; font-weight:700; padding:1px 6px; border-radius:4px; margin-top:2px; }
-    table.moa tbody td .tag.bpc { background:var(--green-lite); color:var(--green); }
-    table.moa tbody td .tag.tb  { background:var(--teal-lite); color:var(--teal); }
-    table.moa tbody td .tag.both { background:linear-gradient(90deg,var(--green-lite),var(--teal-lite)); color:var(--petrol-dark); }
-
-    .diss-box { background:linear-gradient(135deg, var(--green-bg) 0%, var(--teal-bg) 100%); border:1.5px solid var(--petrol-lite); border-radius:10px; padding:14px 18px; }
-    .diss-steps { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-bottom:14px; }
-    .diss-step { text-align:center; }
-    .diss-step .step-circle { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--green) 0%, var(--teal-mid) 100%); color:white; font-family:'Montserrat',sans-serif; font-size:13pt; font-weight:800; display:flex; align-items:center; justify-content:center; margin:0 auto 5px; box-shadow:0 2px 8px rgba(27,79,114,0.25); }
-    .diss-step .step-text { font-size:7pt; color:var(--text-mid); line-height:1.3; }
-    .diss-step .step-text strong { color:var(--petrol-dark); display:block; }
-    .dose-table { width:100%; border-collapse:collapse; font-size:8.5pt; }
-    .dose-table thead tr { background:linear-gradient(90deg, var(--green) 0%, var(--teal) 100%); color:white; }
-    .dose-table thead th { padding:6px 10px; font-family:'Montserrat',sans-serif; font-size:7pt; font-weight:700; letter-spacing:0.5px; text-align:center; }
-    .dose-table tbody tr:nth-child(odd) { background:var(--teal-bg); }
-    .dose-table tbody tr:nth-child(even) { background:var(--white); }
-    .dose-table tbody td { padding:5px 10px; text-align:center; border-bottom:1px solid var(--teal-lite); }
-    .dose-table tbody td:first-child { font-weight:700; color:var(--teal); }
-
-    .footer { background:var(--petrol-dark); padding:8px 28px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-    .footer-brand { font-family:'Montserrat',sans-serif; font-size:7pt; font-weight:600; color:rgba(255,255,255,0.5); letter-spacing:1.5px; text-transform:uppercase; }
-    .footer-brand span { color:#76D7C4; }
-    .footer-code { font-size:6.5pt; color:rgba(255,255,255,0.35); letter-spacing:1px; }
-    .footer-page { font-size:7pt; color:rgba(255,255,255,0.4); font-family:'Montserrat',sans-serif; font-weight:600; }
-
-    .header-small { background:linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol) 40%, #145A32 70%, #0E6655 100%); padding:10px 28px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-    .header-small img { height:42px; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
-    .header-small .hs-title { font-family:'Montserrat',sans-serif; font-size:11pt; font-weight:800; color:white; letter-spacing:1.5px; }
-    .header-small .hs-title .g { color:#82E0AA; }
-    .header-small .hs-title .t { color:#76D7C4; }
-    .header-small .hs-sub { font-size:7pt; color:rgba(255,255,255,0.5); font-weight:300; }
-    .header-small .hs-right { text-align:right; }
-
-    .proto-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
-    .proto-card { border-radius:10px; overflow:hidden; box-shadow:0 2px 10px rgba(13,43,62,0.1); }
-    .proto-head { padding:9px 12px; color:white; font-family:'Montserrat',sans-serif; }
-    .proto-head.p1 { background:linear-gradient(135deg, #1A5276 0%, var(--green) 100%); }
-    .proto-head.p2 { background:linear-gradient(135deg, var(--green) 0%, var(--teal-mid) 100%); }
-    .proto-head.p3 { background:linear-gradient(135deg, var(--teal) 0%, #2980B9 100%); }
-    .proto-head .p-num { font-size:6pt; font-weight:600; letter-spacing:2px; opacity:0.7; text-transform:uppercase; margin-bottom:2px; }
-    .proto-head .p-title { font-size:8.5pt; font-weight:800; line-height:1.2; }
-    .proto-head .p-icon { font-size:18px; float:right; margin-top:-24px; opacity:0.8; }
-    .proto-body { background:var(--gray-1); padding:10px 12px; }
-    .proto-row { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:5px; font-size:8pt; border-bottom:1px dashed var(--gray-2); padding-bottom:4px; }
-    .proto-row:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
-    .proto-row .pr-label { color:var(--text-mid); font-size:7pt; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; min-width:52px; }
-    .proto-row .pr-val { color:var(--text-dark); font-size:7.5pt; text-align:right; line-height:1.3; }
-    .proto-row .pr-val strong { color:var(--petrol-dark); }
-
-    table.comp-table { width:100%; border-collapse:collapse; font-size:8pt; margin-bottom:14px; }
-    table.comp-table thead tr { background:linear-gradient(90deg, var(--petrol-dark) 0%, var(--green) 50%, var(--teal) 100%); color:white; }
-    table.comp-table thead th { padding:7px 10px; font-family:'Montserrat',sans-serif; font-size:7.5pt; font-weight:700; letter-spacing:0.4px; text-align:center; }
-    table.comp-table thead th:first-child { text-align:left; }
-    table.comp-table tbody tr:nth-child(odd) { background:var(--gray-1); }
-    table.comp-table tbody tr:nth-child(even) { background:var(--white); }
-    table.comp-table tbody td { padding:6px 10px; border-bottom:1px solid var(--gray-2); text-align:center; vertical-align:middle; }
-    table.comp-table tbody td:first-child { text-align:left; font-weight:700; color:var(--text-dark); }
-
-    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
-    .supl-box { background:linear-gradient(135deg, var(--teal-bg) 0%, #F8F9FA 100%); border:1.5px solid var(--teal-lite); border-radius:8px; padding:12px 14px; }
-    .supl-box .box-title { font-family:'Montserrat',sans-serif; font-size:8pt; font-weight:800; color:var(--teal); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-    .supl-item { display:flex; align-items:flex-start; gap:8px; margin-bottom:6px; font-size:8pt; }
-    .supl-item .si-icon { font-size:14px; flex-shrink:0; }
-    .supl-item .si-text { color:var(--text-mid); line-height:1.4; }
-    .supl-item .si-text strong { color:var(--text-dark); }
-    .adv-box { background:#FEF9E7; border:1.5px solid #F9CA24; border-radius:8px; padding:12px 14px; }
-    .adv-box .box-title { font-family:'Montserrat',sans-serif; font-size:8pt; font-weight:800; color:#B7770D; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-    .adv-item { display:flex; align-items:flex-start; gap:6px; margin-bottom:5px; font-size:8pt; }
-    .adv-item .adv-icon { font-size:12px; flex-shrink:0; margin-top:1px; }
-    .adv-item .adv-text { color:var(--text-mid); line-height:1.4; }
-    .adv-item .adv-text strong { color:#7D6608; }
-    .ref-box { background:var(--gray-1); border:1px solid var(--gray-2); border-radius:8px; padding:10px 14px; }
-    .ref-box .box-title { font-family:'Montserrat',sans-serif; font-size:8pt; font-weight:800; color:var(--petrol); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-    .ref-list { list-style:none; padding:0; }
-    .ref-list li { font-size:7pt; color:var(--text-mid); line-height:1.45; padding:3px 0 3px 16px; border-bottom:1px dashed var(--gray-2); position:relative; }
-    .ref-list li:last-child { border-bottom:none; }
-    .ref-list li::before { content:attr(data-n); position:absolute; left:0; color:var(--teal); font-weight:700; font-size:7pt; }
-    .ref-list li em { color:var(--petrol); font-style:italic; }
-    @media print { body { background:white; } .page { margin:0; box-shadow:none; page-break-after:always; } }
+    body { background: #c8d8e4; }
+    .proto-head.p1 { background: linear-gradient(135deg, #1A5276 0%, var(--amber) 100%); }
+    .proto-head.p2 { background: linear-gradient(135deg, var(--amber) 0%, var(--gold-mid) 100%); }
+    .proto-head.p3 { background: linear-gradient(135deg, var(--gold) 0%, #2980B9 100%); }
+    .orb-blend { position: absolute; top: 8px; right: 150px; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, rgba(23,165,137,0.25) 0%, rgba(39,174,96,0.15) 50%, transparent 70%); }
+    .header-title .green-text { color: #82E0AA; text-shadow: 0 0 20px rgba(130,224,170,0.5); }
+    .header-title .teal-text  { color: #76D7C4; text-shadow: 0 0 20px rgba(118,215,196,0.5); }
+    .header-title .sep { color: rgba(255,255,255,0.3); margin: 0 6px; }
+    .syn-strip { background: linear-gradient(90deg, var(--amber-bg) 0%, var(--gold-bg) 100%); border-bottom: 1px solid var(--gold-lite); padding: 6px 28px; display: flex; align-items: center; gap: 14px; font-size: 8pt; }
+    .syn-badge { background: linear-gradient(90deg, var(--amber) 0%, var(--gold) 100%); color: white; font-family: 'Montserrat', sans-serif; font-size: 7pt; font-weight: 800; letter-spacing: 1px; padding: 3px 9px; border-radius: 4px; white-space: nowrap; }
+    .syn-text { color: var(--text-mid); }
+    .syn-text strong { color: var(--gold); }
+    .syn-box { background: linear-gradient(135deg, var(--amber-bg) 0%, var(--gold-bg) 100%); border: 1.5px solid var(--gold-lite); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; }
+    .syn-box-title { font-family: 'Montserrat', sans-serif; font-size: 8.5pt; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .syn-items { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .syn-item { display: flex; align-items: flex-start; gap: 8px; font-size: 8pt; }
+    .syn-item .s-icon { font-size: 14px; flex-shrink: 0; }
+    .syn-item .s-text { color: var(--text-mid); line-height: 1.4; }
+    .syn-item .s-text strong { color: var(--petrol-dark); }
   </style>
 </head>
 <body>
@@ -170,7 +81,7 @@
   <div class="header">
     <div class="orb-blend"></div>
     <div class="header-inner">
-      <div class="header-logo"><img src="../logo_pharmafit.png" alt="PharmaFit-PY" /></div>
+      <div class="header-logo"><img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" /></div>
       <div class="header-center">
         <div class="header-tag">Informativo Técnico · Blend de Peptídeos · Alta Performance</div>
         <div class="header-title">
@@ -178,7 +89,7 @@
         </div>
         <div class="header-subtitle">Body Protection Compound 157 · Thymosin Beta-4 · Blend de Reparo Local + Regeneração Sistêmica</div>
       </div>
-      <div class="header-badge">
+      <div class="header-badges">
         <div class="badge-box"><div class="b-label">Blend Total</div><div class="b-val"><span>20</span> mg</div></div>
         <div class="badge-box"><div class="b-label">Composição</div><div class="b-val">10mg + 10mg</div></div>
         <div class="badge-box"><div class="b-label">Código</div><div class="b-val">BPCTB-20-PFY</div></div>
@@ -194,41 +105,29 @@
   </div>
 
   <div class="content">
+    <div class="section">
+      <div class="section-title"><span class="st-icon">⚡</span><h2>O Que É o Blend BPC-157 + TB-500?</h2><div class="st-line"></div></div>
     <div class="intro-strip">
       <div class="intro-icon">⚡</div>
       <div class="intro-text">
         O <strong>Blend BPC-157 + TB-500</strong> é considerado o protocolo de reparo tecidual mais completo disponível na medicina regenerativa com peptídeos. O <strong>BPC-157</strong> age localmente via sistema NO, receptores FAK e modulação do VEGF, com efeito imediato em mucosa GI, tendões e neuroproteção. O <strong>TB-500</strong> age sistemicamente via regulação da actina G, mobilizando células-tronco para qualquer sítio de lesão no organismo. Juntos, os dois peptídeos cobrem simultaneamente reparo <strong>local + sistêmico, agudo + crônico, vascular + neural</strong>.
       </div>
     </div>
+    </div>
 
     <div class="section">
-      <div class="section-title"><span class="num">1</span> Perfil dos Componentes Ativos</div>
-      <div class="blend-grid">
-        <div class="comp-card">
-          <div class="comp-card-header bpc">
-            <span class="comp-icon">🛡️</span>
-            <div class="comp-name">BPC-157 <span>10mg · Ação Local</span></div>
-          </div>
-          <div class="comp-card-body">
-            <div class="comp-item"><strong>Sequência</strong>GEPPPGKPADDAGLV</div>
-            <div class="comp-item"><strong>PM</strong>1.419,5 g/mol</div>
-            <div class="comp-item"><strong>Meia-vida</strong>~4h (SC)</div>
-            <div class="comp-item"><strong>Ação principal</strong>Local · GI · Tendão</div>
-          </div>
-        </div>
-        <div class="comp-card">
-          <div class="comp-card-header tb">
-            <span class="comp-icon">🔄</span>
-            <div class="comp-name">TB-500 <span>10mg · Ação Sistêmica</span></div>
-          </div>
-          <div class="comp-card-body">
-            <div class="comp-item"><strong>Derivado de</strong>Timosina Beta-4</div>
-            <div class="comp-item"><strong>PM</strong>4.963,5 g/mol</div>
-            <div class="comp-item"><strong>Meia-vida</strong>~4–6h (SC)</div>
-            <div class="comp-item"><strong>Ação principal</strong>Sistêmica · Músculo · Stem</div>
-          </div>
-        </div>
-      </div>
+      <div class="section-title"><span class="st-icon">🔬</span><h2>Perfil dos Componentes Ativos</h2><div class="st-line"></div></div>
+      <table class="compare-table">
+        <thead><tr><th>Propriedade</th><th>🛡️ BPC-157</th><th>🔄 TB-500</th></tr></thead>
+        <tbody>
+          <tr><td>Dose no blend</td><td>10mg</td><td>10mg</td></tr>
+          <tr><td>Peso Molecular</td><td>1.419,5 g/mol</td><td>4.963,5 g/mol</td></tr>
+          <tr><td>Meia-vida (SC)</td><td>~4h</td><td>~4–6h</td></tr>
+          <tr><td>Ação principal</td><td>Local · GI · Tendão · Neuro</td><td>Sistêmica · Músculo · Stem cells</td></tr>
+          <tr><td>Via de ação</td><td>NO · FAK-paxillin · VEGF</td><td>Actina G · HIF-1α · integrina</td></tr>
+          <tr><td>Biodisponibilidade</td><td>Alta SC/IM/Oral</td><td>Alta SC/IM</td></tr>
+        </tbody>
+      </table>
 
       <!-- SINERGIA -->
       <div class="syn-box">
@@ -243,7 +142,7 @@
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="num">2</span> Mecanismo de Ação — Blend Combinado</div>
+      <div class="section-title"><span class="st-icon">⚗️</span><h2>Mecanismo de Ação — Blend Combinado</h2><div class="st-line"></div></div>
       <table class="moa">
         <thead><tr><th>Alvo Terapêutico</th><th>Ação do Blend BPC+TB</th><th>Origem</th></tr></thead>
         <tbody>
@@ -258,7 +157,7 @@
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="num">3</span> Reconstituição — Blend 20mg / 2ml</div>
+      <div class="section-title"><span class="st-icon">💧</span><h2>Reconstituição — Blend 20mg / 2ml</h2><div class="st-line"></div></div>
       <div class="diss-box">
         <div class="diss-steps">
           <div class="diss-step"><div class="step-circle">1</div><div class="step-text"><strong>Higienizar</strong>Álcool 70% na tampa</div></div>
@@ -285,12 +184,13 @@
     <div class="footer-code">DOC: BPCTB-20-PFY · Rev. Mar/2026</div>
     <div class="footer-page">1 / 2</div>
   </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
 </div>
 
 <!-- ═══ PÁGINA 2 — VERSO ═══ -->
 <div class="page">
   <div class="header-small">
-    <img src="../logo_pharmafit.png" alt="PharmaFit-PY" />
+    <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" />
     <div>
       <div class="hs-title"><span class="g">BPC</span>-157 + <span class="t">TB</span>-500 · Protocolos Clínicos</div>
       <div class="hs-sub">Blend 20mg · Reparo Local + Regeneração Sistêmica</div>
@@ -301,7 +201,7 @@
 
   <div class="content">
     <div class="section">
-      <div class="section-title"><span class="num">4</span> Protocolos de Uso Clínico</div>
+      <div class="section-title"><span class="st-icon">📋</span><h2>Protocolos de Uso Clínico</h2><div class="st-line"></div></div>
       <div class="proto-grid">
         <div class="proto-card">
           <div class="proto-head p1"><div class="p-num">Protocolo 01</div><div class="p-title">Lesão Aguda & Pós-Cirurgia</div><div class="p-icon">🏥</div></div>
@@ -340,8 +240,8 @@
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="num">5</span> Comparativo dos Protocolos</div>
-      <table class="comp-table">
+      <div class="section-title"><span class="st-icon">📊</span><h2>Comparativo dos Protocolos</h2><div class="st-line"></div></div>
+      <table class="compare-table">
         <thead><tr><th>Parâmetro</th><th>🏥 Lesão Aguda</th><th>🔁 Crônico</th><th>🏆 Atletas</th></tr></thead>
         <tbody>
           <tr><td>Dose de carga</td><td>1ml (5+5mg)</td><td>0,5ml (2,5+2,5mg)</td><td>Sem carga</td></tr>
@@ -355,14 +255,14 @@
     </div>
 
     <div class="two-col">
-      <div class="supl-box">
+      <div class="box-card supl">
         <div class="box-title">⚗️ Suplementação Recomendada</div>
         <div class="supl-item"><span class="si-icon">🔵</span><div class="si-text"><strong>Zinco 30mg/dia</strong> — cofator essencial para síntese proteica, reparo celular e modulação imune. Obrigatório em todos os protocolos do blend.</div></div>
         <div class="supl-item"><span class="si-icon">🟠</span><div class="si-text"><strong>Vitamina C 1g/dia</strong> — cofator da síntese de colágeno · suporte antioxidante durante o reparo tecidual acelerado.</div></div>
         <div class="supl-item"><span class="si-icon">🟤</span><div class="si-text"><strong>Colágeno Hidrolisado 10g/dia</strong> — substrato direto para regeneração de tendão, ligamento e cartilagem.</div></div>
         <div class="supl-item"><span class="si-icon">🟢</span><div class="si-text"><strong>L-Glutamina 5g/dia</strong> — essencial no protocolo GI. Combustível dos enterócitos e suporte à barreira intestinal.</div></div>
       </div>
-      <div class="adv-box">
+      <div class="box-card adv">
         <div class="box-title">⚠️ Advertências & Contraindicações</div>
         <div class="adv-item"><span class="adv-icon">🔴</span><div class="adv-text"><strong>Neoplasias ativas</strong> — contraindicado. Ambos os peptídeos possuem ação angiogênica e mobilizadora que pode favorecer proliferação tumoral.</div></div>
         <div class="adv-item"><span class="adv-icon">🔴</span><div class="adv-text"><strong>Gravidez e lactação</strong> — contraindicado. Ausência de estudos de segurança.</div></div>
@@ -372,7 +272,17 @@
       </div>
     </div>
 
-    <div class="ref-box">
+    <div class="pharmafit-banner">
+      <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" class="pf-logo" />
+      <div class="pf-text">
+        <div class="pf-label">Estudo Clínico Elaborado por</div>
+        <div class="pf-brand">Pharmafit<span>-PY</span></div>
+        <div class="pf-tagline">Compostos injetáveis de alta pureza com qualidade farmacêutica.<br>Protocolos personalizados para saúde, performance e bem-estar.</div>
+      </div>
+      <a class="pf-cta" href="tel:+12142049853">📞 +1 (214) 204-9853</a>
+    </div>
+
+    <div class="box-card ref">
       <div class="box-title">📚 Referências Científicas</div>
       <ul class="ref-list">
         <li data-n="1">Sikiric P et al. (2018). <em>Brain-gut Axis and Pentadecapeptide BPC 157: Theoretical and Practical Implications.</em> Curr Neuropharmacol. 16(10):1523–1548.</li>
@@ -391,6 +301,7 @@
     <div class="footer-code">DOC: BPCTB-20-PFY · Rev. Mar/2026 · Uso Profissional</div>
     <div class="footer-page">2 / 2</div>
   </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
 </div>
 </body>
 </html>

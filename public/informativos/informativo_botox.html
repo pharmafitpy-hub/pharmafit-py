@@ -1,551 +1,283 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  INFORMATIVO TÉCNICO — TEMPLATE PHARMAFIT-PY                ║
+  ║  Produto: Botox Allergan 100UI                              ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  ESTRUTURA GERAL (2 páginas .page):                         ║
+  ║  Pág 1: header → info-strip → "O Que É" → seções técnicas  ║
+  ║  Pág 2: header-small → seções avançadas → pharmafit-banner  ║
+  ║         → referências científicas → footer + footer-note    ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  NÃO ALTERAR (padronizado para todos os informativos):      ║
+  ║  • .pharmafit-banner — tagline e telefone da Pharmafit-PY   ║
+  ║  • .footer-note — aviso de uso profissional                 ║
+  ║  • Link para ../assets/css/informativo.css                  ║
+  ║  • Fontes: Montserrat + Lato (Google Fonts)                 ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Botox Allergan 100UI — Informativo Técnico | Pharmafit</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #c8c8c8; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; gap: 40px; }
-  .page { width: 794px; min-height: 1123px; background: #ffffff; position: relative; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.18); display: flex; flex-direction: column; }
-
-  /* HEADER — preto premium + dourado */
-  .header { background: linear-gradient(135deg, #000000 0%, #111827 45%, #0d1117 100%); padding: 20px 24px 18px; display: flex; align-items: flex-start; justify-content: space-between; position: relative; overflow: hidden; }
-  .header::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 78% 35%, rgba(245,158,11,0.20) 0%, transparent 55%), radial-gradient(circle at 15% 75%, rgba(55,65,81,0.25) 0%, transparent 45%); }
-  .header-left { position: relative; z-index: 1; flex: 1; }
-  .header-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(245,158,11,0.16); border: 1px solid rgba(245,158,11,0.40); border-radius: 20px; padding: 3px 10px; margin-bottom: 8px; }
-  .header-badge span { color: #fde68a; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
-  .header-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: #f59e0b; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-  .header-title { font-size: 36px; font-weight: 900; letter-spacing: -1px; line-height: 1; color: #ffffff; text-shadow: 0 2px 12px rgba(245,158,11,0.45); }
-  .header-title span { color: #f59e0b; }
-  .header-subtitle { font-size: 11.5px; color: #9ca3af; font-weight: 500; margin-top: 4px; letter-spacing: 0.3px; }
-  .header-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
-  .tag { background: rgba(55,65,81,0.50); border: 1px solid rgba(156,163,175,0.35); color: #d1d5db; font-size: 9px; font-weight: 700; letter-spacing: 1px; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
-  .tag.gold { background: rgba(245,158,11,0.16); border-color: rgba(245,158,11,0.38); color: #fde68a; }
-  .header-logo { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  .header-logo img.logo-pharmafit { width: 100px; height: 100px; object-fit: contain; border-radius: 12px; border: 2px solid rgba(245,158,11,0.55); background: transparent; filter: drop-shadow(0 0 10px rgba(245,158,11,0.5)); }
-  .logo-label { font-size: 8px; color: #fde68a; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; text-align: center; }
-
-  /* ACCENT BAR */
-  .accent-bar { height: 4px; background: linear-gradient(90deg, #111827, #374151, #f59e0b, #fde68a, #374151, #111827); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
-  @keyframes shimmer { 0%{background-position:0% 0%} 100%{background-position:200% 0%} }
-
-  .content { flex: 1; padding: 18px 24px 14px; display: flex; flex-direction: column; gap: 14px; }
-  .section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .section-title .icon { width: 26px; height: 26px; border-radius: 6px; background: linear-gradient(135deg, #374151, #f59e0b); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
-  .section-title h2 { font-size: 13px; font-weight: 800; color: #111827; text-transform: uppercase; letter-spacing: 0.8px; }
-  .section-title .line { flex: 1; height: 1px; background: linear-gradient(90deg, #f59e0b, transparent); }
-
-  .intro-card { background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border: 1px solid #d1d5db; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 12px 14px; }
-  .intro-text { font-size: 10.5px; line-height: 1.65; color: #1f2937; margin-bottom: 10px; }
-  .spec-grid { display: flex; gap: 8px; flex-wrap: wrap; }
-  .spec-item { background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 10px; text-align: center; flex: 1; min-width: 88px; }
-  .spec-item .s-val { font-size: 14px; font-weight: 800; color: #111827; line-height: 1; }
-  .spec-item .s-val.gold { color: #d97706; }
-  .spec-item .s-lbl { font-size: 8px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
-
-  /* PREMIUM BADGE */
-  .premium-box { background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border-radius: 8px; padding: 11px 14px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(245,158,11,0.3); }
-  .prem-icon { font-size: 28px; flex-shrink: 0; }
-  .prem-content .prem-title { font-size: 10px; font-weight: 800; color: #fde68a; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
-  .prem-content .prem-text { font-size: 9.5px; color: #d1d5db; line-height: 1.6; }
-  .prem-chain { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
-  .prem-step { background: rgba(245,158,11,0.14); border: 1px solid rgba(245,158,11,0.35); color: #fde68a; font-size: 8px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
-  .prem-arrow { color: #f59e0b; font-size: 10px; font-weight: 900; }
-
-  .recon-steps { display: flex; flex-direction: column; gap: 6px; }
-  .recon-step { display: flex; align-items: flex-start; gap: 10px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 7px; padding: 8px 10px; }
-  .step-num { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #374151, #f59e0b); color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .step-content .step-title { font-size: 10px; font-weight: 700; color: #374151; margin-bottom: 2px; }
-  .step-content .step-text { font-size: 9px; color: #374151; line-height: 1.5; }
-
-  .dose-table { width: 100%; border-collapse: collapse; font-size: 9px; }
-  .dose-table th { background: linear-gradient(135deg, #111827, #374151); color: #fff; font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 8px; text-align: left; }
-  .dose-table th:first-child { border-radius: 6px 0 0 0; }
-  .dose-table th:last-child { border-radius: 0 6px 0 0; }
-  .dose-table td { padding: 5px 8px; border-bottom: 1px solid #f3f4f6; color: #1f2937; vertical-align: middle; }
-  .dose-table tr:last-child td { border-bottom: none; }
-  .dose-table tr:nth-child(even) td { background: #f9fafb; }
-  .dose-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 8.5px; font-weight: 700; }
-  .dose-init { background: #f3f4f6; color: #111827; }
-  .dose-std  { background: #e5e7eb; color: #374151; }
-  .dose-adv  { background: #374151; color: #fff; }
-  .dose-gold { background: #f59e0b; color: #fff; }
-
-  .footer { background: linear-gradient(135deg, #000000 0%, #111827 100%); padding: 8px 24px; display: flex; align-items: center; justify-content: space-between; }
-  .footer-left { display: flex; align-items: center; gap: 8px; }
-  .footer-left img.logo-pharmafit { height: 36px; object-fit: contain; filter: brightness(1.1) drop-shadow(0 0 4px rgba(245,158,11,0.5)); }
-  .footer-text { font-size: 8px; color: #fde68a; font-weight: 600; }
-  .footer-right { font-size: 7.5px; color: #9ca3af; text-align: right; line-height: 1.4; }
-
-  .protocol-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
-  .protocol-header { background: linear-gradient(135deg, #1f2937, #374151); padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; }
-  .protocol-header.gold { background: linear-gradient(135deg, #374151, #f59e0b); }
-  .protocol-header.mid { background: linear-gradient(135deg, #111827, #1f2937); }
-  .protocol-num { font-size: 9px; color: rgba(255,255,255,0.65); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-  .protocol-name { font-size: 13px; font-weight: 800; color: #fff; margin-top: 1px; }
-  .protocol-tag { background: rgba(255,255,255,0.15); color: #fff; font-size: 8px; font-weight: 700; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); }
-  .protocol-tag.gold-tag { background: rgba(245,158,11,0.25); border-color: rgba(245,158,11,0.5); color: #fde68a; }
-  .protocol-body { padding: 10px 14px; }
-  .proto-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
-  .proto-cell { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px; text-align: center; }
-  .proto-cell .pc-val { font-size: 12px; font-weight: 800; color: #111827; line-height: 1; }
-  .proto-cell .pc-val.gold { color: #d97706; }
-  .proto-cell .pc-lbl { font-size: 7.5px; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-top: 2px; }
-  .proto-schedule { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
-  .ps-block { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 7px 9px; }
-  .ps-block .ps-title { font-size: 8.5px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-  .ps-block .ps-title.gold { color: #d97706; }
-  .ps-block .ps-item { font-size: 8.5px; color: #374151; line-height: 1.6; padding-left: 8px; position: relative; }
-  .ps-block .ps-item::before { content: '▸'; position: absolute; left: 0; color: #f59e0b; font-size: 8px; }
-  .pr-title { font-size: 9px; font-weight: 700; color: #111827; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-  .pr-items { display: flex; flex-wrap: wrap; gap: 4px; }
-  .pr-item { background: #f3f4f6; border: 1px solid #d1d5db; color: #374151; font-size: 8px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
-  .pr-item.gold { background: #fef3c7; border-color: #fbbf24; color: #78350f; }
-
-  /* CONVERSION TABLE */
-  .compare-table { width: 100%; border-collapse: collapse; font-size: 9px; }
-  .compare-table th { background: linear-gradient(135deg, #111827, #374151); color: #fff; font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 8px; text-align: center; }
-  .compare-table th:first-child { text-align: left; border-radius: 6px 0 0 0; }
-  .compare-table th:last-child { border-radius: 0 6px 0 0; }
-  .compare-table td { padding: 5px 8px; border-bottom: 1px solid #f3f4f6; color: #1f2937; text-align: center; }
-  .compare-table td:first-child { text-align: left; font-weight: 600; color: #111827; }
-  .compare-table tr:last-child td { border-bottom: none; }
-  .compare-table tr:nth-child(even) td { background: #f9fafb; }
-
-  .warnings-box { background: #fef3c7; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 8px 12px; }
-  .warn-title { font-size: 9px; font-weight: 800; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
-  .warn-items { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
-  .warn-item { font-size: 8.5px; color: #78350f; line-height: 1.5; padding-left: 10px; position: relative; }
-  .warn-item::before { content: '⚠'; position: absolute; left: 0; font-size: 7px; }
-
-  .cta-block { background: linear-gradient(135deg, #000000 0%, #111827 60%, #0d1117 100%); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; border: 1px solid rgba(245,158,11,0.30); }
-  .cta-logo img.logo-pharmafit { height: 70px; object-fit: contain; filter: drop-shadow(0 0 12px rgba(245,158,11,0.6)); }
-  .cta-divider { width: 1px; height: 60px; background: rgba(245,158,11,0.3); }
-  .cta-content { flex: 1; }
-  .cta-label { font-size: 8px; color: #fde68a; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 3px; }
-  .cta-title { font-size: 16px; font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 5px; }
-  .cta-title span { color: #f59e0b; }
-  .cta-desc { font-size: 9px; color: #9ca3af; line-height: 1.5; margin-bottom: 8px; }
-  .cta-phone { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #374151, #f59e0b); color: #fff; font-size: 13px; font-weight: 800; padding: 7px 16px; border-radius: 6px; letter-spacing: 0.5px; }
-
-  .refs-section .refs-title { font-size: 9.5px; font-weight: 800; color: #111827; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .refs-section ol { padding-left: 14px; }
-  .refs-section li { font-size: 8px; color: #6b7280; line-height: 1.65; margin-bottom: 2px; }
-  .refs-section li b { color: #374151; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Informativo Técnico — Botox Allergan 100UI | PharmaFit-PY</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/informativo.css" />
+  <style>
+    :root {
+      --petrol:      #1A1A2E; --petrol-dark: #0D0D1A; --petrol-mid: #16213E;
+      --petrol-lite: #F5F5FF; --petrol-bg:   #FAFAFE;
+      --amber:       #B8860B; --amber-mid:   #D4AF37;
+      --amber-lite:  #FDF5DC; --amber-bg:    #FFFDF0;
+      --gold:        #C8A400; --gold-mid:    #E6C100;
+      --gold-lite:   #FFF9CC; --gold-bg:     #FFFCE5;
+      --white:       #FFFFFF; --gray-1: #F4F6F7; --gray-2: #D5D8DC;
+      --text-dark:   #1A2530; --text-mid: #3D566E;
+      --shadow:      0 2px 12px rgba(13,13,26,0.14);
+      --header-bg:        linear-gradient(135deg, #000000 0%, #111827 40%, #1f2937 65%, #B8860B 85%, #D4AF37 100%);
+      --header-small-bg:  linear-gradient(135deg, #000000 0%, #111827 50%, #B8860B 80%, #D4AF37 100%);
+      --header-bar-bg:    linear-gradient(90deg, #111827 0%, #374151 20%, #B8860B 50%, #D4AF37 75%, #B8860B 100%);
+      --header-hl:        #F5C842;
+    }
+    body { background: #c8c8c8; }
+    .proto-head.p1 { background: linear-gradient(135deg, #374151 0%, #B8860B 100%); }
+    .proto-head.p2 { background: linear-gradient(135deg, #111827 0%, #374151 100%); }
+    .proto-head.p3 { background: linear-gradient(135deg, #0D0D1A 0%, #B8860B 100%); }
+  </style>
 </head>
 <body>
 
-<!-- PAGE 1 -->
+<!-- ═══ PÁGINA 1 ═══ -->
 <div class="page">
   <div class="header">
-    <div class="header-left">
-      <div class="header-badge">
-        <div class="header-badge-dot"></div>
-        <span>OnabotulinumtoxinA · Padrão Ouro · Allergan · Referência Mundial</span>
+    <div class="header-inner">
+      <div class="header-logo"><img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" /></div>
+      <div class="header-center">
+        <div class="header-tag">Informativo Técnico · OnabotulinumtoxinA · Padrão Ouro Mundial</div>
+        <div class="header-title">BOTOX <span class="hl">Allergan</span></div>
+        <div class="header-subtitle">OnabotulinumtoxinA · 100UI · Allergan AbbVie · Padrão Ouro em Toxina Botulínica</div>
       </div>
-      <div class="header-title">Botox <span>Allergan</span></div>
-      <div class="header-subtitle">OnabotulinumtoxinA · 100UI · Allergan AbbVie · Padrão Ouro Mundial em Toxina Botulínica</div>
-      <div class="header-tags">
-        <span class="tag gold">OnabotulinumtoxinA</span>
-        <span class="tag">Allergan</span>
-        <span class="tag gold">Padrão Ouro</span>
-        <span class="tag">Referência</span>
-        <span class="tag">Anti-rugas</span>
+      <div class="header-badges">
+        <div class="badge-box"><div class="b-label">Apresentação</div><div class="b-val"><span>100</span> UI</div></div>
+        <div class="badge-box"><div class="b-label">Diluição</div><div class="b-val">5UI / 0,1ml</div></div>
+        <div class="badge-box"><div class="b-label">Código</div><div class="b-val">BTX-ALL-PFY</div></div>
       </div>
     </div>
-    <div class="header-logo">
-      <img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit Logo">
-      <div class="logo-label">Pharmafit</div>
-    </div>
+    <div class="header-bar"></div>
   </div>
-  <div class="accent-bar"></div>
+
+  <div class="info-strip">
+    <span class="info-chip">ONABOTULINUM · PADRÃO OURO</span>
+    <span class="info-chip dark">ALLERGAN · ABBVIE</span>
+    <span class="info-text">OnabotulinumtoxinA com o maior banco de dados de segurança e eficácia do mundo. Efeito visível em <strong>3–5 dias</strong>, pico em 2 semanas, duração 3–6 meses. Referência de comparação para todas as demais toxinas — <strong>1UI Botox = 2,5–3UI Dysport</strong>.</span>
+  </div>
+
   <div class="content">
-
-    <div>
-      <div class="section-title">
-        <div class="icon">⭐</div>
-        <h2>Botox Allergan — O Padrão Ouro</h2>
-        <div class="line"></div>
-      </div>
-      <div class="intro-card">
-        <p class="intro-text">
-          Botox Allergan (OnabotulinumtoxinA) é a <strong>toxina botulínica de referência mundial</strong>, com o maior banco de dados de segurança e eficácia entre todas as formulações disponíveis. Desenvolvida pela Allergan (AbbVie), é o ponto de comparação para todas as outras toxinas — incluindo Dysport (ratio 2,5–3:1) e Nabota. Efeito visível em <strong>3–5 dias</strong>, pico em 2 semanas, duração 3–6 meses. 1UI Botox = 2,5–3UI Dysport.
-        </p>
-        <div class="spec-grid">
-          <div class="spec-item"><div class="s-val gold">100UI</div><div class="s-lbl">Por frasco</div></div>
-          <div class="spec-item"><div class="s-val">IM/SC</div><div class="s-lbl">Via</div></div>
-          <div class="spec-item"><div class="s-val">SF 0,9%</div><div class="s-lbl">Diluente</div></div>
-          <div class="spec-item"><div class="s-val">5UI/0,1ml</div><div class="s-lbl">Diluição padrão</div></div>
-          <div class="spec-item"><div class="s-val">3–6 meses</div><div class="s-lbl">Duração</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <div class="section-title">
-        <div class="icon">⚡</div>
-        <h2>Mecanismo de Ação</h2>
-        <div class="line"></div>
-      </div>
-      <div class="premium-box">
-        <div class="prem-icon">🏆</div>
-        <div class="prem-content">
-          <div class="prem-title">Bt-A → Clivagem SNAP-25 → Bloqueio Vesicular ACh → Paralisia Reversível</div>
-          <div class="prem-text">
-            A OnabotulinumtoxinA cliva especificamente a proteína SNAP-25 do complexo SNARE na terminação nervosa pré-sináptica colinérgica. Sem a SNAP-25 funcional, as vesículas de acetilcolina não conseguem fundir-se com a membrana e liberar ACh. Resultado: bloqueio neuromuscular reversível e preciso — a base farmacológica do padrão ouro estético mundial.
-          </div>
-          <div class="prem-chain">
-            <span class="prem-step">Bt-A Allergan</span>
-            <span class="prem-arrow">→</span>
-            <span class="prem-step">Clivagem SNAP-25</span>
-            <span class="prem-arrow">→</span>
-            <span class="prem-step">Bloqueio ACh</span>
-            <span class="prem-arrow">→</span>
-            <span class="prem-step">Paralisia reversível</span>
-            <span class="prem-arrow">→</span>
-            <span class="prem-step">Padrão ouro</span>
+    <div class="section">
+      <div class="section-title"><span class="st-icon">⭐</span><h2>O Que É o Botox Allergan?</h2><div class="st-line"></div></div>
+      <div class="intro-strip">
+        <div class="intro-icon">💉</div>
+        <div class="intro-text">
+          O <strong>Botox Allergan</strong> (OnabotulinumtoxinA) é a <strong>toxina botulínica de referência mundial</strong>, desenvolvida pela Allergan (AbbVie), com o maior banco de dados de segurança e eficácia entre todas as formulações disponíveis. É o ponto de comparação para todas as outras toxinas — incluindo Dysport (ratio 2,5–3:1) e Nabota. Age bloqueando a liberação de acetilcolina na junção neuromuscular, promovendo paralisia muscular reversível e seletiva. Indicada para rugas dinâmicas, hiperhidrose, bruxismo, lifting não-cirúrgico e diversas indicações terapêuticas.
+          <div class="spec-grid">
+            <div class="spec-item"><div class="s-val">100UI</div><div class="s-lbl">Por frasco</div></div>
+            <div class="spec-item"><div class="s-val">IM/SC</div><div class="s-lbl">Via</div></div>
+            <div class="spec-item"><div class="s-val">SF 0,9%</div><div class="s-lbl">Diluente</div></div>
+            <div class="spec-item"><div class="s-val">5UI/0,1ml</div><div class="s-lbl">Diluição padrão</div></div>
+            <div class="spec-item"><div class="s-val">3–6 meses</div><div class="s-lbl">Duração</div></div>
+            <div class="spec-item"><div class="s-val">1:1</div><div class="s-lbl">Ratio (referência)</div></div>
           </div>
         </div>
       </div>
     </div>
 
-    <div>
-      <div class="section-title">
-        <div class="icon">🧪</div>
-        <h2>Reconstituição — Técnica Padrão</h2>
-        <div class="line"></div>
+    <div class="section">
+      <div class="section-title"><span class="st-icon">⚡</span><h2>Mecanismo de Ação</h2><div class="st-line"></div></div>
+      <div class="mec-grid">
+        <div class="mec-card">
+          <div class="mec-icon">🏆</div>
+          <div class="mec-title">Clivagem SNAP-25</div>
+          <div class="mec-text">A OnabotulinumtoxinA cliva especificamente a proteína SNAP-25 do complexo SNARE na terminação nervosa pré-sináptica colinérgica. Sem a SNAP-25 funcional, as vesículas de acetilcolina não conseguem fundir-se com a membrana e liberar ACh.</div>
+        </div>
+        <div class="mec-card">
+          <div class="mec-icon">🔬</div>
+          <div class="mec-title">Bloqueio Neuromuscular</div>
+          <div class="mec-text">Resultado do bloqueio de ACh: paralisia neuromuscular reversível e precisa — base farmacológica do padrão ouro estético mundial. O bloqueio é seletivo, afetando apenas as fibras musculares próximas ao ponto de injeção.</div>
+        </div>
+        <div class="mec-card">
+          <div class="mec-icon">♻️</div>
+          <div class="mec-title">Reversibilidade</div>
+          <div class="mec-text">A paralisia é temporária: novos brotamentos axonais restabelecem a transmissão colinérgica em 3–6 meses. Não há dano permanente à fibra nervosa ou muscular — a proteína SNAP-25 é regenerada gradualmente.</div>
+        </div>
       </div>
-      <div class="recon-steps">
-        <div class="recon-step">
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="st-icon">🧪</span><h2>Reconstituição — Técnica Padrão</h2><div class="st-line"></div></div>
+      <div class="uso-steps">
+        <div class="uso-step">
           <div class="step-num">1</div>
           <div class="step-content">
             <div class="step-title">Diluição padrão — 100UI</div>
-            <div class="step-text">2ml SF 0,9% estéril sem conservante → 5UI/0,1ml. Para menor concentração: 4ml → 2,5UI/0,1ml.</div>
+            <div class="step-text">Adicionar <strong>2ml de SF 0,9% estéril sem conservante</strong> → 5UI/0,1ml. Para menor concentração: 4ml → 2,5UI/0,1ml. Use SF refrigerado (4–8°C) para reduzir desnaturação e dor na injeção.</div>
           </div>
         </div>
-        <div class="recon-step">
+        <div class="uso-step">
           <div class="step-num">2</div>
           <div class="step-content">
-            <div class="step-title">SF gelado preferencialmente</div>
-            <div class="step-text">SF refrigerado (4–8°C) reduz desnaturação e dor na injeção. Injetar pela parede do frasco sob pressão negativa.</div>
+            <div class="step-title">Técnica de adição do diluente</div>
+            <div class="step-text">Injetar SF lentamente pela <strong>parede do frasco</strong> sob pressão negativa. A pressão interna puxa a solução suavemente, preservando a estrutura proteica da toxina.</div>
           </div>
         </div>
-        <div class="recon-step">
+        <div class="uso-step">
           <div class="step-num">3</div>
           <div class="step-content">
             <div class="step-title">Nunca agitar</div>
-            <div class="step-text">Girar suavemente até dissolver. Solução límpida e incolor. Agitação desnatura a toxina e reduz potência.</div>
+            <div class="step-text">Girar suavemente até dissolver completamente. Solução deve ser <strong>límpida e incolor</strong>. Agitação desnatura a toxina e reduz potência — nunca use vórtex ou agitação vigorosa.</div>
           </div>
         </div>
-        <div class="recon-step">
+        <div class="uso-step">
           <div class="step-num">4</div>
           <div class="step-content">
             <div class="step-title">Usar em até 4 horas</div>
-            <div class="step-text">Após reconstituição, usar em até 4h conservando a 2–8°C. Descartar resíduos seguindo normas de biossegurança.</div>
+            <div class="step-text">Após reconstituição, usar em até <strong>4 horas</strong> conservando a 2–8°C. Descartar resíduos seguindo normas de biossegurança. Não recongelar após reconstituição.</div>
           </div>
         </div>
       </div>
     </div>
 
-    <div>
-      <div class="section-title">
-        <div class="icon">📊</div>
-        <h2>Tabela de Doses por Área</h2>
-        <div class="line"></div>
-      </div>
-      <table class="dose-table">
-        <thead>
-          <tr>
-            <th>Área / Indicação</th>
-            <th>Dose Botox</th>
-            <th>Equiv. Dysport</th>
-            <th>Pontos</th>
-            <th>Duração</th>
-          </tr>
-        </thead>
+    <div class="section">
+      <div class="section-title"><span class="st-icon">📊</span><h2>Tabela de Doses por Área</h2><div class="st-line"></div></div>
+      <table class="moa">
+        <thead><tr><th>Área / Indicação</th><th>Dose Botox</th><th>Equiv. Dysport</th><th>Pontos</th><th style="width:12%;text-align:center">Duração</th></tr></thead>
         <tbody>
-          <tr>
-            <td><span class="dose-badge dose-init">Glabela</span></td>
-            <td><strong>20–25UI</strong></td>
-            <td>50–70UI Dys</td>
-            <td>5 pontos</td>
-            <td>3–4 meses</td>
-          </tr>
-          <tr>
-            <td><span class="dose-badge dose-init">Frontal (testa)</span></td>
-            <td><strong>10–20UI</strong></td>
-            <td>30–50UI Dys</td>
-            <td>4–6 pontos</td>
-            <td>3–4 meses</td>
-          </tr>
-          <tr>
-            <td><span class="dose-badge dose-std">Periorbital</span></td>
-            <td><strong>12–24UI</strong></td>
-            <td>30–60UI Dys</td>
-            <td>3–4/lado</td>
-            <td>3–4 meses</td>
-          </tr>
-          <tr>
-            <td><span class="dose-badge dose-std">Masseter (bruxismo)</span></td>
-            <td><strong>25–30UI/lado</strong></td>
-            <td>62–90UI Dys</td>
-            <td>3–5 pontos</td>
-            <td>4–6 meses</td>
-          </tr>
-          <tr>
-            <td><span class="dose-badge dose-gold">Axilas (hiperhidrose)</span></td>
-            <td><strong>50UI/axila</strong></td>
-            <td>125–150UI Dys</td>
-            <td>25 pts × 2UI</td>
-            <td>6–9 meses</td>
-          </tr>
+          <tr><td><strong>Glabela</strong></td><td><strong>20–25UI</strong></td><td>50–70UI Dys</td><td>5 pontos</td><td style="text-align:center">3–4 meses</td></tr>
+          <tr><td><strong>Frontal (testa)</strong></td><td><strong>10–20UI</strong></td><td>30–50UI Dys</td><td>4–6 pontos</td><td style="text-align:center">3–4 meses</td></tr>
+          <tr><td><strong>Periorbital (pés de galinha)</strong></td><td><strong>12–24UI</strong></td><td>30–60UI Dys</td><td>3–4/lado</td><td style="text-align:center">3–4 meses</td></tr>
+          <tr><td><strong>Masseter (bruxismo)</strong></td><td><strong>25–30UI/lado</strong></td><td>62–90UI Dys</td><td>3–5 pontos</td><td style="text-align:center">4–6 meses</td></tr>
+          <tr><td><strong>Axilas (hiperhidrose)</strong></td><td><strong>50UI/axila</strong></td><td>125–150UI Dys</td><td>25 pts × 2UI</td><td style="text-align:center">6–9 meses</td></tr>
         </tbody>
       </table>
     </div>
+  </div>
 
-  </div>
-  <div class="accent-bar"></div>
   <div class="footer">
-    <div class="footer-left">
-      <img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit">
-      <div class="footer-text">Pharmafit · Informativo Técnico</div>
-    </div>
-    <div class="footer-right">Botox Allergan 100UI · OnabotulinumtoxinA · AbbVie<br>Aplicação exclusiva por profissional habilitado</div>
+    <div class="footer-brand"><span>PHARMAFIT-PY</span> · Toxinas Botulínicas Premium</div>
+    <div class="footer-code">DOC: BTX-ALL-PFY · Rev. Mar/2026</div>
+    <div class="footer-page">1 / 2</div>
   </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
 </div>
 
-<!-- PAGE 2 -->
+<!-- ═══ PÁGINA 2 ═══ -->
 <div class="page">
-  <div class="header">
-    <div class="header-left">
-      <div class="header-badge">
-        <div class="header-badge-dot"></div>
-        <span>Protocolos Clínicos · Botox Allergan 100UI</span>
-      </div>
-      <div class="header-title">Protocolos <span>de Aplicação</span></div>
-      <div class="header-subtitle">Face completa, lifting, hiperhidrose, bruxismo e tabela de conversão</div>
+  <div class="header-small">
+    <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" />
+    <div>
+      <div class="hs-title">BOTOX <span>Allergan</span> · Protocolos</div>
+      <div class="hs-sub">OnabotulinumtoxinA · 100UI · Padrão Ouro</div>
     </div>
-    <div class="header-logo">
-      <img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit Logo">
-      <div class="logo-label">Pharmafit</div>
+    <div class="hs-right">
+      <div class="hs-title" style="font-size:9pt;color:rgba(255,255,255,0.5)">PHARMAFIT-PY</div>
+      <div class="hs-sub">Informativo Técnico · Página 2</div>
     </div>
   </div>
-  <div class="accent-bar"></div>
+  <div class="header-bar"></div>
+
   <div class="content">
-
-    <div class="protocol-card">
-      <div class="protocol-header gold">
-        <div>
-          <div class="protocol-num">Protocolo 01</div>
-          <div class="protocol-name">Face Completa Padrão — Resultado Natural</div>
-        </div>
-        <span class="protocol-tag gold-tag">50–70UI total</span>
-      </div>
-      <div class="protocol-body">
-        <div class="proto-grid">
-          <div class="proto-cell"><div class="pc-val gold">20–25UI</div><div class="pc-lbl">Glabela</div></div>
-          <div class="proto-cell"><div class="pc-val gold">10–20UI</div><div class="pc-lbl">Frontal</div></div>
-          <div class="proto-cell"><div class="pc-val gold">12–24UI</div><div class="pc-lbl">Periorbital</div></div>
-          <div class="proto-cell"><div class="pc-val gold">50–70UI</div><div class="pc-lbl">Total</div></div>
-        </div>
-        <div class="proto-schedule">
-          <div class="ps-block">
-            <div class="ps-title gold">Técnica Premium</div>
-            <div class="ps-item">Glabela: 5 pontos — corrugador + procerus</div>
-            <div class="ps-item">Frontal: linha horizontal superior, conservador</div>
-            <div class="ps-item">Periorbital: leque orbital, SC superficial</div>
-          </div>
-          <div class="ps-block">
-            <div class="ps-title">Pós-procedimento</div>
-            <div class="ps-item">Não deitar por 4h</div>
-            <div class="ps-item">Evitar exercício intenso 24h</div>
-            <div class="ps-item">Retorno 15 dias para avaliação e retoques</div>
+    <div class="section">
+      <div class="section-title"><span class="st-icon">🗂️</span><h2>Protocolos de Aplicação Clínica</h2><div class="st-line"></div></div>
+      <div class="proto-grid">
+        <div class="proto-card">
+          <div class="proto-head p1"><div class="p-num">Protocolo 01</div><div class="p-title">Face Completa — Resultado Natural</div><div class="p-icon">✨</div></div>
+          <div class="proto-body">
+            <div class="proto-row"><span class="pr-label">Total</span><span class="pr-val"><strong>50–70UI</strong> por sessão</span></div>
+            <div class="proto-row"><span class="pr-label">Glabela</span><span class="pr-val">20–25UI · 5 pontos (corrugador + procerus)</span></div>
+            <div class="proto-row"><span class="pr-label">Frontal</span><span class="pr-val">10–20UI · linha horizontal superior, conservador</span></div>
+            <div class="proto-row"><span class="pr-label">Periorbital</span><span class="pr-val">12–24UI · leque orbital, SC superficial</span></div>
+            <div class="proto-row"><span class="pr-label">Pós-proc.</span><span class="pr-val">Não deitar 4h · evitar exercício 24h</span></div>
+            <div class="proto-row"><span class="pr-label">Retorno</span><span class="pr-val">15 dias para avaliação e retoques</span></div>
           </div>
         </div>
-        <div class="pr-title">Resultados Esperados</div>
-        <div class="pr-items">
-          <span class="pr-item gold">Resultado natural e harmonioso</span>
-          <span class="pr-item">Suavização de rugas dinâmicas</span>
-          <span class="pr-item">Efeito visível em 3–5 dias</span>
-          <span class="pr-item">Duração 3–4 meses</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="protocol-card">
-      <div class="protocol-header mid">
-        <div>
-          <div class="protocol-num">Protocolo 02</div>
-          <div class="protocol-name">Lifting e Harmonização Facial</div>
-        </div>
-        <span class="protocol-tag">15–30UI</span>
-      </div>
-      <div class="protocol-body">
-        <div class="proto-grid">
-          <div class="proto-cell"><div class="pc-val">DAO</div><div class="pc-lbl">Canto labial</div></div>
-          <div class="proto-cell"><div class="pc-val">Mentalis</div><div class="pc-lbl">Queixo</div></div>
-          <div class="proto-cell"><div class="pc-val">Platisma</div><div class="pc-lbl">Pescoço</div></div>
-          <div class="proto-cell"><div class="pc-val">15–30UI</div><div class="pc-lbl">Total</div></div>
-        </div>
-        <div class="proto-schedule">
-          <div class="ps-block">
-            <div class="ps-title">Técnica Lifting</div>
-            <div class="ps-item">DAO: 2–3UI bilateral — eleva canto labial</div>
-            <div class="ps-item">Nefertiti lift: platisma em linha mandibular</div>
-            <div class="ps-item">Frontalis lateral: levanta sobrancelha</div>
-          </div>
-          <div class="ps-block">
-            <div class="ps-title">Indicações</div>
-            <div class="ps-item">Canto oral descaído (sorriso triste)</div>
-            <div class="ps-item">Sobrancelha ptótica leve</div>
-            <div class="ps-item">Flacidez cervical inicial (Nefertiti)</div>
+        <div class="proto-card">
+          <div class="proto-head p2"><div class="p-num">Protocolo 02</div><div class="p-title">Lifting e Harmonização Facial</div><div class="p-icon">🌿</div></div>
+          <div class="proto-body">
+            <div class="proto-row"><span class="pr-label">Total</span><span class="pr-val"><strong>15–30UI</strong> complementares</span></div>
+            <div class="proto-row"><span class="pr-label">DAO</span><span class="pr-val">2–3UI bilateral — eleva canto labial</span></div>
+            <div class="proto-row"><span class="pr-label">Mentalis</span><span class="pr-val">Queixo — reduz "casca de laranja"</span></div>
+            <div class="proto-row"><span class="pr-label">Platisma</span><span class="pr-val">Nefertiti lift · linha mandibular</span></div>
+            <div class="proto-row"><span class="pr-label">Frontalis</span><span class="pr-val">Lateral: levanta sobrancelha lateral</span></div>
+            <div class="proto-row"><span class="pr-label">Indicação</span><span class="pr-val">Canto oral descaído · ptose leve · Nefertiti</span></div>
           </div>
         </div>
-        <div class="pr-title">Resultados Esperados</div>
-        <div class="pr-items">
-          <span class="pr-item">Lifting não-cirúrgico</span>
-          <span class="pr-item">Elevação de canto oral</span>
-          <span class="pr-item">Contorno mandibular</span>
-          <span class="pr-item">Rejuvenescimento global</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="protocol-card">
-      <div class="protocol-header">
-        <div>
-          <div class="protocol-num">Protocolo 03</div>
-          <div class="protocol-name">Hiperhidrose + Bruxismo — Sessão Única</div>
-        </div>
-        <span class="protocol-tag">Funcional + Estético</span>
-      </div>
-      <div class="protocol-body">
-        <div class="proto-grid">
-          <div class="proto-cell"><div class="pc-val gold">50UI</div><div class="pc-lbl">Por axila</div></div>
-          <div class="proto-cell"><div class="pc-val gold">25 pts</div><div class="pc-lbl">Por axila</div></div>
-          <div class="proto-cell"><div class="pc-val gold">25–30UI</div><div class="pc-lbl">Por masseter</div></div>
-          <div class="proto-cell"><div class="pc-val gold">6–9 meses</div><div class="pc-lbl">Duração</div></div>
-        </div>
-        <div class="proto-schedule">
-          <div class="ps-block">
-            <div class="ps-title gold">Hiperhidrose Axilar</div>
-            <div class="ps-item">50UI/axila em grade de 25 pontos × 2UI</div>
-            <div class="ps-item">Técnica intradérmica papular</div>
-            <div class="ps-item">Teste Minor para mapeamento</div>
-          </div>
-          <div class="ps-block">
-            <div class="ps-title gold">Bruxismo + Slimming Facial</div>
-            <div class="ps-item">25–30UI/masseter — IM profunda bilateral</div>
-            <div class="ps-item">Efeito estético (slimming) em 4–6 semanas</div>
-            <div class="ps-item">Alívio bruxismo/DTM em 2–3 semanas</div>
+        <div class="proto-card">
+          <div class="proto-head p3"><div class="p-num">Protocolo 03</div><div class="p-title">Hiperhidrose + Bruxismo — Sessão Única</div><div class="p-icon">⚕️</div></div>
+          <div class="proto-body">
+            <div class="proto-row"><span class="pr-label">Hiperhidrose</span><span class="pr-val"><strong>50UI/axila</strong> · grade 25 pontos × 2UI</span></div>
+            <div class="proto-row"><span class="pr-label">Técnica</span><span class="pr-val">Intradérmica papular · Teste Minor antes</span></div>
+            <div class="proto-row"><span class="pr-label">Bruxismo</span><span class="pr-val"><strong>25–30UI/masseter</strong> · IM profunda bilateral</span></div>
+            <div class="proto-row"><span class="pr-label">Slimming</span><span class="pr-val">Efeito estético em 4–6 semanas</span></div>
+            <div class="proto-row"><span class="pr-label">DTM</span><span class="pr-val">Alívio bruxismo/DTM em 2–3 semanas</span></div>
+            <div class="proto-row"><span class="pr-label">Duração</span><span class="pr-val"><strong>6–9 meses</strong> (hiperhidrose)</span></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- TABELA DE CONVERSÃO -->
-    <div>
-      <div class="section-title">
-        <div class="icon">🔢</div>
-        <h2>Tabela de Conversão — Botox × Dysport × Nabota</h2>
-        <div class="line"></div>
-      </div>
+    <div class="section">
+      <div class="section-title"><span class="st-icon">📈</span><h2>Tabela de Conversão — Botox × Dysport × Nabota</h2><div class="st-line"></div></div>
       <table class="compare-table">
         <thead>
-          <tr>
-            <th>Produto</th>
-            <th>Fabricante</th>
-            <th>Tipo</th>
-            <th>Ratio vs Botox</th>
-            <th>Frasco</th>
-            <th>Difusão</th>
-          </tr>
+          <tr><th>Produto</th><th>Fabricante</th><th>Tipo</th><th>Ratio vs Botox</th><th>Frasco</th><th>Difusão</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td><strong>Botox Allergan</strong></td>
-            <td>AbbVie</td>
-            <td>OnaBotulinumTxA</td>
-            <td><strong>1:1 (referência)</strong></td>
-            <td>100UI</td>
-            <td>Padrão</td>
-          </tr>
-          <tr>
-            <td><strong>Dysport Ipsen</strong></td>
-            <td>Ipsen</td>
-            <td>AboBotulinumTxA</td>
-            <td><strong>2,5–3:1</strong></td>
-            <td>300/500UI</td>
-            <td>Alta</td>
-          </tr>
-          <tr>
-            <td><strong>Nabota Daewoong</strong></td>
-            <td>Daewoong</td>
-            <td>OnaBotulinumTxA-like</td>
-            <td><strong>~1:1</strong></td>
-            <td>100/150UI</td>
-            <td>Padrão</td>
-          </tr>
-          <tr>
-            <td><strong>Israderm BTX</strong></td>
-            <td>Israderm</td>
-            <td>BotulinumTxA</td>
-            <td><strong>~1:1</strong></td>
-            <td>150UI</td>
-            <td>Controlada</td>
-          </tr>
+          <tr><td><strong>Botox Allergan</strong></td><td>AbbVie</td><td>OnaBotulinumTxA</td><td><span class="check">1:1 (referência)</span></td><td>100UI</td><td>Padrão</td></tr>
+          <tr><td><strong>Dysport Ipsen</strong></td><td>Ipsen</td><td>AboBotulinumTxA</td><td>2,5–3:1</td><td>300/500UI</td><td><span class="check">Alta</span></td></tr>
+          <tr><td><strong>Nabota Daewoong</strong></td><td>Daewoong</td><td>OnaBotulinumTxA-like</td><td>~1:1</td><td>100/150UI</td><td>Padrão</td></tr>
+          <tr><td><strong>Israderm BTX</strong></td><td>Israderm</td><td>BotulinumTxA</td><td>~1:1</td><td>150UI</td><td>Controlada</td></tr>
         </tbody>
       </table>
     </div>
 
-    <div class="warnings-box">
-      <div class="warn-title">⚠ Advertências e Contraindicações</div>
-      <div class="warn-items">
-        <div class="warn-item">Hipersensibilidade à albumina humana ou à toxina botulínica</div>
-        <div class="warn-item">Contraindicado em gestação e amamentação</div>
-        <div class="warn-item">Contraindicado em distúrbios neuromusculares (miastenia, ELA)</div>
-        <div class="warn-item">Conservar a 2–8°C; usar em até 4h após reconstituição</div>
-        <div class="warn-item">Não aplicar em área com infecção ativa</div>
-        <div class="warn-item">Aplicação exclusiva por profissional médico habilitado</div>
+    <div class="box-card adv">
+      <div class="box-title">⚠️ Advertências &amp; Contraindicações</div>
+      <div class="adv-item"><span class="adv-icon">🔴</span><div class="adv-text"><strong>Hipersensibilidade</strong> à albumina humana ou à toxina botulínica tipo A — contraindicação absoluta.</div></div>
+      <div class="adv-item"><span class="adv-icon">🔴</span><div class="adv-text"><strong>Gestação e amamentação</strong> — contraindicado. Risco teratogênico não estabelecido; evitar em mulheres grávidas ou lactantes.</div></div>
+      <div class="adv-item"><span class="adv-icon">🔴</span><div class="adv-text"><strong>Doenças neuromusculares</strong> (miastenia gravis, síndrome de Eaton-Lambert, ELA) — contraindicação absoluta. Risco de paralisia generalizada.</div></div>
+      <div class="adv-item"><span class="adv-icon">🟡</span><div class="adv-text"><strong>Área com infecção ativa</strong> — não aplicar. Aguardar resolução completa do processo infeccioso local.</div></div>
+      <div class="adv-item"><span class="adv-icon">🟡</span><div class="adv-text"><strong>Conservação</strong> — 2–8°C antes da reconstituição. Usar em até 4h após diluição. Não recongelar.</div></div>
+      <div class="adv-item"><span class="adv-icon">⚪</span><div class="adv-text"><strong>Aplicação exclusiva</strong> por médico ou profissional de saúde habilitado em procedimentos injetáveis.</div></div>
+    </div>
+
+    <div class="pharmafit-banner" style="margin-top:16px">
+      <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" class="pf-logo" />
+      <div class="pf-text">
+        <div class="pf-label">Estudo Clínico Elaborado por</div>
+        <div class="pf-brand">Pharmafit<span>-PY</span></div>
+        <div class="pf-tagline">Compostos injetáveis de alta pureza com qualidade farmacêutica.<br>Protocolos personalizados para saúde, performance e bem-estar.</div>
       </div>
+      <a class="pf-cta" href="tel:+12142049853">📞 +1 (214) 204-9853</a>
     </div>
 
-    <div class="refs-section">
-      <div class="refs-title">Referências Científicas</div>
-      <ol>
-        <li><b>Carruthers A, Carruthers J.</b> "Treatment of glabellar frown lines with C. botulinum-A exotoxin." <i>J Dermatol Surg Oncol.</i> 1992; 18(1):17–21.</li>
-        <li><b>Jankovic J.</b> "Botulinum toxin: state of the art." <i>Mov Disord.</i> 2017; 32(8):1131–1138.</li>
-        <li><b>Binder WJ et al.</b> "Botulinum toxin type A (Botox) for treatment of migraine headaches." <i>Plast Reconstr Surg.</i> 2000; 105(6):1948–1955.</li>
-        <li><b>Naumann M, Lowe NJ.</b> "Botulinum toxin type A in treatment of bilateral primary axillary hyperhidrosis." <i>BMJ.</i> 2001; 323(7313):596–599.</li>
-        <li><b>Comella CL et al.</b> "Botulinum toxins in neurological disease." <i>Muscle Nerve.</i> 2000; 23(8):1259–1268.</li>
-        <li><b>Allergan Inc.</b> "Botox (onabotulinumtoxinA) Prescribing Information." <i>Allergan, Inc., Irvine, CA.</i> 2023.</li>
-      </ol>
+    <div class="box-card ref">
+      <div class="box-title">📚 Referências Científicas</div>
+      <ul class="ref-list">
+        <li data-n="1">Carruthers A, Carruthers J. (1992). <em>Treatment of glabellar frown lines with C. botulinum-A exotoxin.</em> J Dermatol Surg Oncol. 18(1):17–21.</li>
+        <li data-n="2">Jankovic J. (2017). <em>Botulinum toxin: state of the art.</em> Mov Disord. 32(8):1131–1138.</li>
+        <li data-n="3">Binder WJ et al. (2000). <em>Botulinum toxin type A (Botox) for treatment of migraine headaches.</em> Plast Reconstr Surg. 105(6):1948–1955.</li>
+        <li data-n="4">Naumann M, Lowe NJ. (2001). <em>Botulinum toxin type A in treatment of bilateral primary axillary hyperhidrosis: randomised, parallel group, double blind, placebo controlled trial.</em> BMJ. 323(7313):596–599.</li>
+        <li data-n="5">Comella CL et al. (2000). <em>Botulinum toxins in neurological disease.</em> Muscle Nerve. 23(8):1259–1268.</li>
+        <li data-n="6">Allergan Inc. (2023). <em>Botox (onabotulinumtoxinA) Prescribing Information.</em> Allergan, Inc., Irvine, CA.</li>
+      </ul>
     </div>
-
-    <div class="cta-block">
-      <div class="cta-logo"><img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit"></div>
-      <div class="cta-divider"></div>
-      <div class="cta-content">
-        <div class="cta-label">Pharmafit · Padrão Ouro em Toxinas Botulínicas</div>
-        <div class="cta-title">Botox <span>Allergan 100UI</span></div>
-        <div class="cta-desc">OnabotulinumtoxinA Allergan — referência mundial com o maior banco de segurança e eficácia comprovada.</div>
-        <div class="cta-phone">📲 Consultar Disponibilidade</div>
-      </div>
-    </div>
-
   </div>
-  <div class="accent-bar"></div>
+
   <div class="footer">
-    <div class="footer-left">
-      <img class="logo-pharmafit" src="../../pharmafit_b2c/logo_pharmafit.png" alt="Pharmafit">
-      <div class="footer-text">Pharmafit · Informativo Técnico</div>
-    </div>
-    <div class="footer-right">Botox Allergan 100UI · OnabotulinumtoxinA · AbbVie<br>Aplicação exclusiva por profissional habilitado</div>
+    <div class="footer-brand"><span>PHARMAFIT-PY</span> · Toxinas Botulínicas Premium</div>
+    <div class="footer-code">DOC: BTX-ALL-PFY · Rev. Mar/2026 · Uso Profissional</div>
+    <div class="footer-page">2 / 2</div>
   </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
 </div>
 
 </body>

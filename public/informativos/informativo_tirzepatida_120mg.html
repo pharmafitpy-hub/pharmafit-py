@@ -5,179 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Informativo Técnico — Tirzepatida 120mg | PharmaFit-PY</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/informativo.css" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --petrol: #1B4F72; --petrol-dark: #0D2B3E; --petrol-mid: #2471A3; --petrol-lite: #D6EAF8; --petrol-bg: #EBF5FB;
-      --amber: #B7600A; --amber-mid: #E67E22; --amber-lite: #FAE5D3; --amber-bg: #FEF5EC;
-      --gold: #9A7D0A; --gold-mid: #D4AC0D; --gold-lite: #FCF3CF; --gold-bg: #FEFDE7;
-      --orange: #CA6F1E; --orange-lite: #FAE5D3;
-      --white: #FFFFFF; --gray-1: #F4F6F7; --gray-2: #D5D8DC; --text-dark: #1A2530; --text-mid: #3D566E;
+      --petrol:     #1B4F72; --petrol-dark: #0D2B3E; --petrol-mid: #2471A3;
+      --petrol-lite:#D6EAF8; --petrol-bg:  #EBF5FB;
+      --amber:      #B7600A; --amber-mid:  #E67E22;
+      --amber-lite: #FAE5D3; --amber-bg:   #FEF5EC;
+      --gold:       #9A7D0A; --gold-mid:   #D4AC0D;
+      --gold-lite:  #FCF3CF; --gold-bg:    #FEFDE7;
+      --white:      #FFFFFF; --gray-1: #F4F6F7; --gray-2: #D5D8DC;
+      --text-dark:  #1A2530; --text-mid: #3D566E;
+      --shadow:     0 2px 12px rgba(13,43,62,0.10);
+      --header-bg:  linear-gradient(135deg, #0D2B3E 0%, #1A3A5C 30%, #7D4A0A 60%, #B7600A 80%, #E67E22 100%);
+      --header-small-bg: linear-gradient(135deg, #0D2B3E 0%, #1B4F72 35%, #7D4A0A 70%, #B7600A 100%);
+      --header-hl:  #FDEBD0;
     }
-    body { font-family: 'Lato', sans-serif; color: var(--text-dark); background: #c8d8e4; font-size: 10.5pt; line-height: 1.6; }
-    .page { width: 210mm; min-height: 297mm; background: var(--white); margin: 12mm auto; box-shadow: 0 4px 32px rgba(13,43,62,0.18); position: relative; overflow: hidden; display: flex; flex-direction: column; }
-
-    /* HEADER */
-    .header { background: linear-gradient(135deg, var(--petrol-dark) 0%, #1A3A5C 30%, #7D4A0A 60%, var(--amber) 80%, var(--amber-mid) 100%); padding: 0; position: relative; overflow: hidden; flex-shrink: 0; }
-    .header::before { content:''; position:absolute; top:-40px; right:-40px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,0.04); }
-    .orb-amber { position:absolute; top:8px; right:155px; width:90px; height:90px; border-radius:50%; background:radial-gradient(circle, rgba(230,126,34,0.3) 0%, transparent 70%); }
-    .header-inner { display:flex; align-items:center; justify-content:space-between; padding:16px 28px 12px; }
-    .header-logo img { height:70px; filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3)); }
-    .header-center { text-align:center; flex:1; padding:0 20px; }
-    .header-tag { font-family:'Montserrat',sans-serif; font-size:6.5pt; font-weight:600; letter-spacing:3px; color:rgba(255,255,255,0.5); text-transform:uppercase; margin-bottom:4px; }
-    .header-title { font-family:'Montserrat',sans-serif; font-size:20pt; font-weight:800; color:white; line-height:1.05; letter-spacing:2px; }
-    .header-title .amber-text { color:#FDEBD0; text-shadow:0 0 22px rgba(253,235,208,0.55); }
-    .header-subtitle { font-size:8.5pt; color:rgba(255,255,255,0.65); margin-top:5px; font-weight:300; letter-spacing:0.5px; }
-    .header-badge { text-align:right; }
-    .badge-box { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:8px 12px; font-family:'Montserrat',sans-serif; margin-bottom:6px; }
-    .badge-box .b-label { font-size:6pt; color:rgba(255,255,255,0.5); letter-spacing:1.5px; text-transform:uppercase; }
-    .badge-box .b-val { font-size:8.5pt; font-weight:700; color:white; margin-top:2px; }
-    .badge-box .b-val span { color:#FDEBD0; font-size:13pt; font-weight:800; }
-    .header-bar { height:4px; background:linear-gradient(90deg, var(--petrol) 0%, var(--petrol-mid) 20%, var(--amber) 50%, var(--gold-mid) 75%, var(--amber-mid) 100%); }
-
-    /* FDA STRIP */
-    .fda-strip { background:linear-gradient(90deg, var(--amber-bg) 0%, var(--gold-bg) 100%); border-bottom:1px solid var(--amber-lite); padding:6px 28px; display:flex; align-items:center; gap:12px; font-size:8pt; }
-    .fda-badge { background:linear-gradient(90deg, var(--amber) 0%, var(--amber-mid) 100%); color:white; font-family:'Montserrat',sans-serif; font-size:7pt; font-weight:800; letter-spacing:1px; padding:3px 9px; border-radius:4px; white-space:nowrap; }
-    .fda-badge2 { background:linear-gradient(90deg, var(--gold) 0%, var(--gold-mid) 100%); color:white; font-family:'Montserrat',sans-serif; font-size:7pt; font-weight:800; letter-spacing:1px; padding:3px 9px; border-radius:4px; white-space:nowrap; }
-    .fda-text { color:var(--text-mid); }
-    .fda-text strong { color:var(--amber); }
-
-    .content { padding:16px 26px 20px; flex:1; }
-    .intro-strip { background:linear-gradient(135deg, var(--amber-bg) 0%, var(--petrol-bg) 100%); border-left:5px solid var(--amber-mid); border-radius:0 8px 8px 0; padding:11px 16px; margin-bottom:16px; display:flex; align-items:center; gap:14px; }
-    .intro-icon { font-size:26px; line-height:1; flex-shrink:0; }
-    .intro-text { font-size:9pt; color:var(--text-mid); line-height:1.5; }
-    .intro-text strong { color:var(--petrol-dark); }
-
-    .section { margin-bottom:15px; }
-    .section-title { font-family:'Montserrat',sans-serif; font-size:9.5pt; font-weight:700; color:var(--white); background:linear-gradient(90deg, var(--petrol) 0%, var(--petrol-mid) 100%); padding:6px 14px; border-radius:6px; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
-    .section-title .num { background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:8.5pt; font-weight:800; flex-shrink:0; }
-
-    /* DUAL AGONIST DIAGRAM */
-    .dual-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-    .dual-card { border:1px solid var(--gray-2); border-radius:8px; overflow:hidden; }
-    .dual-card-header { padding:8px 14px; display:flex; align-items:center; gap:10px; }
-    .dual-card-header.gip  { background:linear-gradient(90deg, var(--petrol-dark) 0%, var(--amber) 100%); }
-    .dual-card-header.glp1 { background:linear-gradient(90deg, var(--petrol-dark) 0%, var(--gold) 100%); }
-    .dual-card-header .dc-icon { font-size:16px; }
-    .dual-card-header .dc-name { font-family:'Montserrat',sans-serif; font-size:9pt; font-weight:700; color:white; }
-    .dual-card-header .dc-name span { font-size:7pt; font-weight:400; color:rgba(255,255,255,0.65); margin-left:6px; }
-    .dual-card-body { background:var(--gray-1); padding:9px 14px; display:grid; grid-template-columns:1fr 1fr; gap:5px 14px; }
-    .comp-item { font-size:8pt; color:var(--text-mid); line-height:1.35; }
-    .comp-item strong { color:var(--petrol-dark); font-size:7.5pt; display:block; }
-
-    /* DIFF BOX — vs GLP-1 puro */
-    .diff-box { background:linear-gradient(135deg, var(--gold-bg) 0%, var(--amber-bg) 100%); border:1.5px solid var(--gold-lite); border-radius:8px; padding:12px 16px; margin-bottom:12px; }
-    .diff-box-title { font-family:'Montserrat',sans-serif; font-size:8.5pt; font-weight:800; color:var(--amber); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
-    .diff-items { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-    .diff-item { display:flex; align-items:flex-start; gap:8px; font-size:8pt; }
-    .diff-item .d-icon { font-size:14px; flex-shrink:0; }
-    .diff-item .d-text { color:var(--text-mid); line-height:1.4; }
-    .diff-item .d-text strong { color:var(--petrol-dark); }
-
-    table.moa { width:100%; border-collapse:collapse; font-size:8.5pt; }
-    table.moa thead tr { background:linear-gradient(90deg, var(--amber) 0%, var(--amber-mid) 100%); color:white; }
-    table.moa thead th { padding:7px 10px; text-align:left; font-family:'Montserrat',sans-serif; font-size:7.5pt; font-weight:700; letter-spacing:0.5px; }
-    table.moa tbody tr:nth-child(odd) { background:var(--gray-1); }
-    table.moa tbody tr:nth-child(even) { background:var(--white); }
-    table.moa tbody td { padding:6px 10px; color:var(--text-dark); border-bottom:1px solid var(--gray-2); vertical-align:top; }
-    table.moa tbody td:first-child { font-weight:700; color:var(--amber); width:30%; }
-    table.moa tbody td .tag { display:inline-block; font-size:7pt; font-weight:700; padding:1px 6px; border-radius:4px; margin-top:2px; }
-    table.moa tbody td .tag.a { background:var(--amber-lite); color:var(--amber); }
-    table.moa tbody td .tag.g { background:var(--gold-lite); color:var(--gold); }
-    table.moa tbody td .tag.b { background:var(--petrol-lite); color:var(--petrol); }
-
-    /* DISSOLUÇÃO */
-    .diss-box { background:linear-gradient(135deg, var(--amber-bg) 0%, var(--petrol-bg) 100%); border:1.5px solid var(--petrol-lite); border-radius:10px; padding:14px 18px; }
-    .diss-steps { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-bottom:14px; }
-    .diss-step { text-align:center; }
-    .diss-step .step-circle { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--petrol) 0%, var(--amber) 100%); color:white; font-family:'Montserrat',sans-serif; font-size:13pt; font-weight:800; display:flex; align-items:center; justify-content:center; margin:0 auto 5px; box-shadow:0 2px 8px rgba(27,79,114,0.25); }
-    .diss-step .step-text { font-size:7pt; color:var(--text-mid); line-height:1.3; }
-    .diss-step .step-text strong { color:var(--petrol-dark); display:block; }
-    .dose-table { width:100%; border-collapse:collapse; font-size:8.5pt; }
-    .dose-table thead tr { background:linear-gradient(90deg, var(--amber) 0%, var(--amber-mid) 100%); color:white; }
-    .dose-table thead th { padding:6px 10px; font-family:'Montserrat',sans-serif; font-size:7pt; font-weight:700; letter-spacing:0.5px; text-align:center; }
-    .dose-table tbody tr:nth-child(odd) { background:var(--amber-bg); }
-    .dose-table tbody tr:nth-child(even) { background:var(--white); }
-    .dose-table tbody td { padding:5px 10px; text-align:center; border-bottom:1px solid var(--amber-lite); }
-    .dose-table tbody td:first-child { font-weight:700; color:var(--amber); }
-    .dose-table tbody td .note { font-size:6.5pt; color:var(--text-mid); display:block; font-style:italic; }
-
-    .footer { background:var(--petrol-dark); padding:8px 28px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-    .footer-brand { font-family:'Montserrat',sans-serif; font-size:7pt; font-weight:600; color:rgba(255,255,255,0.5); letter-spacing:1.5px; text-transform:uppercase; }
-    .footer-brand span { color:#FDEBD0; }
-    .footer-code { font-size:6.5pt; color:rgba(255,255,255,0.35); letter-spacing:1px; }
-    .footer-page { font-size:7pt; color:rgba(255,255,255,0.4); font-family:'Montserrat',sans-serif; font-weight:600; }
-
-    /* VERSO */
-    .header-small { background:linear-gradient(135deg, var(--petrol-dark) 0%, var(--petrol) 35%, #7D4A0A 70%, var(--amber) 100%); padding:10px 28px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-    .header-small img { height:42px; filter:drop-shadow(0 1px 4px rgba(0,0,0,0.3)); }
-    .header-small .hs-title { font-family:'Montserrat',sans-serif; font-size:12pt; font-weight:800; color:white; letter-spacing:1.5px; }
-    .header-small .hs-title span { color:#FDEBD0; }
-    .header-small .hs-sub { font-size:7pt; color:rgba(255,255,255,0.5); font-weight:300; }
-    .header-small .hs-right { text-align:right; }
-
-    .proto-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
-    .proto-card { border-radius:10px; overflow:hidden; box-shadow:0 2px 10px rgba(13,43,62,0.1); }
-    .proto-head { padding:9px 12px; color:white; font-family:'Montserrat',sans-serif; }
-    .proto-head.p1 { background:linear-gradient(135deg, #1A5276 0%, var(--amber) 100%); }
-    .proto-head.p2 { background:linear-gradient(135deg, var(--amber) 0%, var(--gold-mid) 100%); }
-    .proto-head.p3 { background:linear-gradient(135deg, var(--gold) 0%, #27AE60 100%); }
-    .proto-head .p-num { font-size:6pt; font-weight:600; letter-spacing:2px; opacity:0.7; text-transform:uppercase; margin-bottom:2px; }
-    .proto-head .p-title { font-size:8.5pt; font-weight:800; line-height:1.2; }
-    .proto-head .p-icon { font-size:18px; float:right; margin-top:-24px; opacity:0.8; }
-    .proto-body { background:var(--gray-1); padding:10px 12px; }
-    .proto-row { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:5px; font-size:8pt; border-bottom:1px dashed var(--gray-2); padding-bottom:4px; }
-    .proto-row:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
-    .proto-row .pr-label { color:var(--text-mid); font-size:7pt; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; min-width:52px; }
-    .proto-row .pr-val { color:var(--text-dark); font-size:7.5pt; text-align:right; line-height:1.3; }
-    .proto-row .pr-val strong { color:var(--petrol-dark); }
-
-    /* ESCALONAMENTO */
-    .escal-box { background:linear-gradient(135deg, var(--amber-bg) 0%, var(--gold-bg) 100%); border:1.5px solid var(--amber-lite); border-radius:8px; padding:12px 16px; margin-bottom:14px; }
-    .escal-box .box-title { font-family:'Montserrat',sans-serif; font-size:8.5pt; font-weight:800; color:var(--amber); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
-    .escal-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; }
-    .escal-step { text-align:center; }
-    .escal-step .e-circle { width:38px; height:38px; border-radius:50%; margin:0 auto 4px; display:flex; align-items:center; justify-content:center; font-family:'Montserrat',sans-serif; font-size:9pt; font-weight:800; color:white; }
-    .escal-step .e-circle.s1 { background:#D5DBDB; color:#555; }
-    .escal-step .e-circle.s2 { background:#E59866; }
-    .escal-step .e-circle.s3 { background:#CA6F1E; }
-    .escal-step .e-circle.s4 { background:#B7500A; }
-    .escal-step .e-circle.s5 { background:#9C4000; }
-    .escal-step .e-circle.s6 { background:#784212; }
-    .escal-step .e-dose { font-size:7.5pt; font-weight:700; color:var(--petrol-dark); }
-    .escal-step .e-week { font-size:6.5pt; color:var(--text-mid); }
-    .escal-step .e-vol  { font-size:6.5pt; color:var(--amber); font-weight:700; }
-
-    table.comp-table { width:100%; border-collapse:collapse; font-size:8pt; margin-bottom:14px; }
-    table.comp-table thead tr { background:linear-gradient(90deg, var(--petrol-dark) 0%, var(--amber) 100%); color:white; }
-    table.comp-table thead th { padding:7px 10px; font-family:'Montserrat',sans-serif; font-size:7pt; font-weight:700; letter-spacing:0.4px; text-align:center; }
-    table.comp-table thead th:first-child { text-align:left; }
-    table.comp-table tbody tr:nth-child(odd) { background:var(--gray-1); }
-    table.comp-table tbody tr:nth-child(even) { background:var(--white); }
-    table.comp-table tbody td { padding:5px 10px; border-bottom:1px solid var(--gray-2); text-align:center; vertical-align:middle; font-size:7.5pt; }
-    table.comp-table tbody td:first-child { text-align:left; font-weight:700; }
-
-    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
-    .supl-box { background:linear-gradient(135deg, var(--amber-bg) 0%, #F8F9FA 100%); border:1.5px solid var(--amber-lite); border-radius:8px; padding:12px 14px; }
-    .supl-box .box-title { font-family:'Montserrat',sans-serif; font-size:8pt; font-weight:800; color:var(--amber); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-    .supl-item { display:flex; align-items:flex-start; gap:8px; margin-bottom:6px; font-size:8pt; }
-    .supl-item .si-icon { font-size:14px; flex-shrink:0; }
-    .supl-item .si-text { color:var(--text-mid); line-height:1.4; }
-    .supl-item .si-text strong { color:var(--text-dark); }
-    .adv-box { background:#FEF9E7; border:1.5px solid #F9CA24; border-radius:8px; padding:12px 14px; }
-    .adv-box .box-title { font-family:'Montserrat',sans-serif; font-size:8pt; font-weight:800; color:#B7770D; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-    .adv-item { display:flex; align-items:flex-start; gap:6px; margin-bottom:5px; font-size:8pt; }
-    .adv-item .adv-icon { font-size:12px; flex-shrink:0; margin-top:1px; }
-    .adv-item .adv-text { color:var(--text-mid); line-height:1.4; }
-    .adv-item .adv-text strong { color:#7D6608; }
-    .ref-box { background:var(--gray-1); border:1px solid var(--gray-2); border-radius:8px; padding:10px 14px; }
-    .ref-box .box-title { font-family:'Montserrat',sans-serif; font-size:8pt; font-weight:800; color:var(--petrol); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-    .ref-list { list-style:none; padding:0; }
-    .ref-list li { font-size:7pt; color:var(--text-mid); line-height:1.45; padding:3px 0 3px 16px; border-bottom:1px dashed var(--gray-2); position:relative; }
-    .ref-list li:last-child { border-bottom:none; }
-    .ref-list li::before { content:attr(data-n); position:absolute; left:0; color:var(--amber); font-weight:700; font-size:7pt; }
-    .ref-list li em { color:var(--petrol); font-style:italic; }
-    @media print { body { background:white; } .page { margin:0; box-shadow:none; page-break-after:always; } }
+    body { background: #c8d8e4; }
   </style>
 </head>
 <body>
@@ -187,13 +31,13 @@
   <div class="header">
     <div class="orb-amber"></div>
     <div class="header-inner">
-      <div class="header-logo"><img src="../logo_pharmafit.png" alt="PharmaFit-PY" /></div>
+      <div class="header-logo"><img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" /></div>
       <div class="header-center">
-        <div class="header-tag">Informativo Técnico — Peptídeo Dual Agonista · Alta Performance Metabólica</div>
-        <div class="header-title"><span class="amber-text">TIRZEPATIDA</span></div>
+        <div class="header-tag">Informativo Técnico · Peptídeo Dual Agonista · Alta Performance Metabólica</div>
+        <div class="header-title"><span class="hl">TIRZEPATIDA</span></div>
         <div class="header-subtitle">Dual Agonista GIP/GLP-1 · Controle Glicêmico · Perda de Peso · Saúde Metabólica</div>
       </div>
-      <div class="header-badge">
+      <div class="header-badges">
         <div class="badge-box"><div class="b-label">Concentração</div><div class="b-val"><span>120</span> mg</div></div>
         <div class="badge-box"><div class="b-label">Dissolução</div><div class="b-val">4ml → 30mg/ml</div></div>
         <div class="badge-box"><div class="b-label">Código</div><div class="b-val">TIRZ-120-PFY</div></div>
@@ -202,23 +46,23 @@
     <div class="header-bar"></div>
   </div>
 
-  <!-- FDA STRIP -->
-  <div class="fda-strip">
-    <span class="fda-badge">FDA — MOUNJARO® DM2</span>
-    <span class="fda-badge2">FDA — ZEPBOUND® OBESIDADE</span>
-    <span class="fda-text">Tirzepatida aprovada pelo FDA em 2022 (Mounjaro®) para DM2 e 2023 (Zepbound®) para obesidade — <strong>único dual agonista GIP+GLP-1 aprovado no mundo</strong>. Eficácia superior a todos os GLP-1 isolados em estudos de fase III (SURMOUNT e SURPASS).</span>
+  <div class="info-strip">
+    <span class="info-chip">FDA — MOUNJARO® DM2</span>
+    <span class="info-chip gold">FDA — ZEPBOUND® OBESIDADE</span>
+    <span class="info-text">Tirzepatida aprovada pelo FDA em 2022 (Mounjaro®) para DM2 e 2023 (Zepbound®) para obesidade — <strong>único dual agonista GIP+GLP-1 aprovado no mundo</strong>. Eficácia superior a todos os GLP-1 isolados em estudos de fase III (SURMOUNT e SURPASS).</span>
   </div>
 
   <div class="content">
+    <div class="section">
+      <div class="section-title"><span class="st-icon">🧬</span><h2>O Que É a Tirzepatida?</h2><div class="st-line"></div></div>
     <div class="intro-strip">
       <div class="intro-icon">⚡</div>
-      <div class="intro-text">
-        A <strong>Tirzepatida</strong> é um peptídeo sintético de 39 aminoácidos que age simultaneamente nos receptores <strong>GIP (Glucose-dependent Insulinotropic Polypeptide)</strong> e <strong>GLP-1 (Glucagon-Like Peptide-1)</strong>, dois hormônios incretínicos fundamentais do eixo intestino-pâncreas-cérebro. Ao ativar <strong>ambos os receptores de forma sinérgica</strong>, a tirzepatida supera a eficácia dos agonistas GLP-1 isolados (semaglutida, liraglutida) em redução de HbA1c, perda de peso corporal e melhora de marcadores metabólicos — com redução de peso de <strong>até 22,5% do peso corporal</strong> nos estudos SURMOUNT-1.
-      </div>
+      <div class="intro-text">A <strong>Tirzepatida</strong> é um peptídeo sintético de 39 aminoácidos que age simultaneamente nos receptores <strong>GIP (Glucose-dependent Insulinotropic Polypeptide)</strong> e <strong>GLP-1 (Glucagon-Like Peptide-1)</strong>, dois hormônios incretínicos fundamentais do eixo intestino-pâncreas-cérebro. Ao ativar <strong>ambos os receptores de forma sinérgica</strong>, a tirzepatida supera a eficácia dos agonistas GLP-1 isolados (semaglutida, liraglutida) em redução de HbA1c, perda de peso corporal e melhora de marcadores metabólicos — com redução de peso de <strong>até 22,5% do peso corporal</strong> nos estudos SURMOUNT-1.</div>
+    </div>
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="num">1</span> Perfil do Dual Agonista — GIP + GLP-1</div>
+      <div class="section-title"><span class="st-icon">🟠</span><h2>Perfil do Dual Agonista — GIP + GLP-1</h2><div class="st-line"></div></div>
       <div class="dual-grid">
         <div class="dual-card">
           <div class="dual-card-header gip">
@@ -245,7 +89,6 @@
           </div>
         </div>
       </div>
-
       <div class="diff-box">
         <div class="diff-box-title">🔬 Tirzepatida vs. GLP-1 Isolado — Por que é superior?</div>
         <div class="diff-items">
@@ -258,7 +101,7 @@
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="num">2</span> Mecanismo de Ação Científico</div>
+      <div class="section-title"><span class="st-icon">⚗️</span><h2>Mecanismo de Ação Científico</h2><div class="st-line"></div></div>
       <table class="moa">
         <thead><tr><th>Via de Ação</th><th>Efeito Clínico</th><th>Receptor</th></tr></thead>
         <tbody>
@@ -273,7 +116,7 @@
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="num">3</span> Reconstituição — Tirzepatida 120mg / 4ml</div>
+      <div class="section-title"><span class="st-icon">💧</span><h2>Reconstituição — Tirzepatida 120mg / 4ml</h2><div class="st-line"></div></div>
       <div class="diss-box">
         <div class="diss-steps">
           <div class="diss-step"><div class="step-circle">1</div><div class="step-text"><strong>Higienizar</strong>Álcool 70% na tampa</div></div>
@@ -302,27 +145,29 @@
     <div class="footer-code">DOC: TIRZ-120-PFY · Rev. Mar/2026</div>
     <div class="footer-page">1 / 2</div>
   </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
 </div>
 
 <!-- ═══ PÁGINA 2 — VERSO ═══ -->
 <div class="page">
   <div class="header-small">
-    <img src="../logo_pharmafit.png" alt="PharmaFit-PY" />
+    <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" />
     <div>
       <div class="hs-title"><span>TIRZEPATIDA</span> · Protocolos Clínicos</div>
       <div class="hs-sub">Dual Agonista GIP/GLP-1 · 120mg · 30mg/ml reconstituído</div>
     </div>
-    <div class="hs-right"><div class="hs-title" style="font-size:9pt;color:rgba(255,255,255,0.5);">PHARMAFIT-PY</div><div class="hs-sub">Peptídeos de Alta Performance</div></div>
+    <div class="hs-right">
+      <div class="hs-title" style="font-size:9pt;color:rgba(255,255,255,0.5)">PHARMAFIT-PY</div>
+      <div class="hs-sub">Peptídeos de Alta Performance</div>
+    </div>
   </div>
   <div class="header-bar"></div>
 
   <div class="content">
-
-    <!-- ESCALONAMENTO VISUAL -->
     <div class="section">
-      <div class="section-title"><span class="num">4</span> Escalonamento de Dose — Protocolo Padrão (1x/semana SC)</div>
+      <div class="section-title"><span class="st-icon">📈</span><h2>Escalonamento de Dose — Protocolo Padrão (1×/semana SC)</h2><div class="st-line"></div></div>
       <div class="escal-box">
-        <div class="box-title">📈 Escalonamento Progressivo — Máxima Eficácia com Mínima Intolerância</div>
+        <div class="box-title" style="color:var(--amber)">📈 Escalonamento Progressivo — Máxima Eficácia com Mínima Intolerância</div>
         <div class="escal-grid">
           <div class="escal-step"><div class="e-circle s1">2,5</div><div class="e-dose">2,5 mg</div><div class="e-week">Sem. 1–4</div><div class="e-vol">0,08ml</div></div>
           <div class="escal-step"><div class="e-circle s2">5</div><div class="e-dose">5 mg</div><div class="e-week">Sem. 5–8</div><div class="e-vol">0,17ml</div></div>
@@ -335,7 +180,7 @@
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="num">5</span> Protocolos de Uso Clínico</div>
+      <div class="section-title"><span class="st-icon">📋</span><h2>Protocolos de Uso Clínico</h2><div class="st-line"></div></div>
       <div class="proto-grid">
         <div class="proto-card">
           <div class="proto-head p1"><div class="p-num">Protocolo 01</div><div class="p-title">Emagrecimento Acelerado</div><div class="p-icon">🚀</div></div>
@@ -374,7 +219,7 @@
     </div>
 
     <div class="two-col">
-      <div class="supl-box">
+      <div class="box-card supl">
         <div class="box-title">⚗️ Suplementação Recomendada</div>
         <div class="supl-item"><span class="si-icon">🔵</span><div class="si-text"><strong>Zinco 30mg/dia</strong> — suporte ao metabolismo da insulina e função das células β pancreáticas. Essencial em todos os protocolos.</div></div>
         <div class="supl-item"><span class="si-icon">🟡</span><div class="si-text"><strong>Vitamina D3 5.000 UI/dia</strong> — melhora sensibilidade à insulina e reduz inflamação metabólica. Deficiência é comum em obesos.</div></div>
@@ -382,7 +227,7 @@
         <div class="supl-item"><span class="si-icon">🟣</span><div class="si-text"><strong>Magnésio Glicinato 400mg/noite</strong> — reduz resistência à insulina e melhora qualidade do sono. Suporte ao eixo metabólico.</div></div>
         <div class="supl-item"><span class="si-icon">🟠</span><div class="si-text"><strong>Ômega-3 3g/dia (EPA+DHA)</strong> — reduz triglicerídeos, inflamação hepática e melhora perfil cardiometabólico.</div></div>
       </div>
-      <div class="adv-box">
+      <div class="box-card adv">
         <div class="box-title">⚠️ Advertências & Contraindicações</div>
         <div class="adv-item"><span class="adv-icon">🔴</span><div class="adv-text"><strong>Carcinoma medular de tireoide (CMT)</strong> — contraindicação absoluta. Histórico pessoal ou familiar de CMT ou NEM tipo 2.</div></div>
         <div class="adv-item"><span class="adv-icon">🔴</span><div class="adv-text"><strong>Pancreatite aguda/crônica</strong> — contraindicado. Risco de exacerbação. Monitorar amilase e lipase.</div></div>
@@ -393,12 +238,22 @@
       </div>
     </div>
 
-    <div class="ref-box">
+    <div class="pharmafit-banner">
+      <img src="../assets/img/logo_pharmafit.png" alt="PharmaFit-PY" class="pf-logo" />
+      <div class="pf-text">
+        <div class="pf-label">Estudo Clínico Elaborado por</div>
+        <div class="pf-brand">Pharmafit<span>-PY</span></div>
+        <div class="pf-tagline">Compostos injetáveis de alta pureza com qualidade farmacêutica.<br>Protocolos personalizados para saúde, performance e bem-estar.</div>
+      </div>
+      <a class="pf-cta" href="tel:+12142049853">📞 +1 (214) 204-9853</a>
+    </div>
+
+    <div class="box-card ref">
       <div class="box-title">📚 Referências Científicas</div>
       <ul class="ref-list">
         <li data-n="1">Jastreboff AM et al. (2022). <em>Tirzepatide Once Weekly for the Treatment of Obesity (SURMOUNT-1).</em> N Engl J Med. 387(3):205–216.</li>
         <li data-n="2">Frías JP et al. (2021). <em>Tirzepatide versus Semaglutide Once Weekly in Patients with Type 2 Diabetes (SURPASS-2).</em> N Engl J Med. 385(6):503–515.</li>
-        <li data-n="3">Ludvik B et al. (2021). <em>Tirzepatide as second-line therapy for type 2 diabetes (SURPASS-3).</em> Lancet. 398(10300):583–598.</li>
+        <li data-n="3">Ludvik B et al. (2021). <em>Tirzepatida as second-line therapy for type 2 diabetes (SURPASS-3).</em> Lancet. 398(10300):583–598.</li>
         <li data-n="4">Del Prato S et al. (2021). <em>Tirzepatide versus insulin glargine in type 2 diabetes and increased cardiovascular risk (SURPASS-4).</em> Lancet. 398(10313):1811–1824.</li>
         <li data-n="5">Dahl D et al. (2022). <em>Effect of Subcutaneous Tirzepatide vs Placebo Added to Titrated Insulin Glargine on Glycemic Control in Patients With Type 2 Diabetes (SURPASS-5).</em> JAMA. 327(6):534–545.</li>
         <li data-n="6">FDA Drug Approval — Mounjaro® (tirzepatide). (2022). NDA 215866. U.S. Food & Drug Administration.</li>
@@ -412,6 +267,8 @@
     <div class="footer-code">DOC: TIRZ-120-PFY · Rev. Mar/2026 · Uso Profissional</div>
     <div class="footer-page">2 / 2</div>
   </div>
+  <div class="footer-note">Documento informativo — não substitui prescrição médica · © 2026 Pharmafit-PY · Todos os direitos reservados</div>
 </div>
+
 </body>
 </html>
