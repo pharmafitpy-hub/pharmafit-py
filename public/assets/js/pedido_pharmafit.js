@@ -1,5 +1,4 @@
 // FRETE_TABELA, buscarCEP e mascaraCep → frete.js
-};
 let freteValor = 0;
 let freteMetodo = '';
 let freteCep = '';
