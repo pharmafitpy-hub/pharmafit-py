@@ -1028,10 +1028,11 @@ function renderCupons() {
   tbody.innerHTML = lista.length === 0
     ? `<tr><td colspan="9" class="empty-msg">Nenhum cupom encontrado</td></tr>`
     : lista.map(c => {
-        const beneficios = [
-          c.parcelamento === 'SIM' ? `<span class="badge badge-on" style="font-size:10px">3x s/j</span>` : '',
-          c.freteAcima   ? `<span class="badge badge-on" style="font-size:10px">🚚 +R$${esc(c.freteAcima)}</span>` : '',
-        ].filter(Boolean).join(' ') || '<span style="color:var(--text2);font-size:11px">—</span>';
+        const parcBadge  = `<span class="badge ${c.parcelamento === 'SIM' ? 'badge-on' : 'badge-off'}"
+          style="font-size:10px;${c.parcelamento !== 'SIM' ? 'opacity:.35' : ''}" title="3x sem juros">3x</span>`;
+        const freteBadge = `<span class="badge ${c.freteAcima ? 'badge-on' : 'badge-off'}"
+          style="font-size:10px;${!c.freteAcima ? 'opacity:.35' : ''}" title="${c.freteAcima ? `Frete grátis +R$${esc(c.freteAcima)}` : 'Sem frete grátis'}">🚚</span>`;
+        const beneficios = `${parcBadge} ${freteBadge}`;
         return `
       <tr>
         <td><strong>${esc(c.codigo)}</strong></td>
