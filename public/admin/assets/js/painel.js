@@ -8,6 +8,10 @@ window.App = {
   produtos:      [],
   stats:         {},
   admins:        [],
+  cupons:        [],
+  relatorio:     null,
+  kanbanPeriod:  'all',
+  charts:        {},
   view:          'kanban',
   drawerOrderId: null,
 };
@@ -62,6 +66,20 @@ async function loadAll() {
   await Promise.all([loadPedidos(), loadClientes(), loadProdutos(), loadStats()]);
 }
 
+async function loadCupons() {
+  try {
+    const data = await API.listarCupons();
+    if (data.ok) App.cupons = data.cupons;
+  } catch(e) {}
+}
+
+async function loadRelatorio() {
+  try {
+    const data = await API.relatorio();
+    if (data.ok) App.relatorio = data.dados;
+  } catch(e) {}
+}
+
 async function loadPedidos() {
   try {
     const data = await API.pedidos();
@@ -113,6 +131,8 @@ function renderCurrentView() {
   if (App.view === 'kanban')   renderKanban();
   if (App.view === 'clientes') renderClientes();
   if (App.view === 'produtos') renderProdutos();
+  if (App.view === 'cupons')   { loadCupons().then(renderCupons); }
+  if (App.view === 'relatorio') { loadRelatorio().then(renderRelatorio); }
   if (App.view === 'config')   { loadAdmins().then(renderConfig); }
 }
 
@@ -146,16 +166,34 @@ function isStuck(order) {
 }
 
 // ── KANBAN ────────────────────────────────────────────────────────────────────
+function setKanbanPeriod(btn) {
+  App.kanbanPeriod = btn.dataset.period;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderKanban();
+}
+
 function renderKanban() {
   renderStats();
-  const q          = (document.getElementById('kanban-search')?.value || '').toLowerCase().trim();
-  const allPedidos = q
-    ? App.pedidos.filter(p =>
-        (p.clinica   || '').toLowerCase().includes(q) ||
-        (p.produtos  || '').toLowerCase().includes(q) ||
-        (p.telefone  || '').includes(q) ||
-        (p.data      || '').includes(q))
-    : App.pedidos;
+  const q   = (document.getElementById('kanban-search')?.value || '').toLowerCase().trim();
+  const pag = (document.getElementById('filter-pagamento')?.value || '').toLowerCase();
+  const now = Date.now();
+  const periodMs = { today: 86400000, week: 604800000, month: 2592000000 };
+
+  const allPedidos = App.pedidos.filter(p => {
+    if (q && !(
+      (p.clinica  || '').toLowerCase().includes(q) ||
+      (p.produtos || '').toLowerCase().includes(q) ||
+      (p.telefone || '').includes(q) ||
+      (p.data     || '').includes(q))) return false;
+    if (pag && !(p.pagamento || '').toLowerCase().includes(pag)) return false;
+    if (App.kanbanPeriod !== 'all') {
+      const m = String(p.data || '').match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})/);
+      const d = m ? new Date(+m[3], +m[2]-1, +m[1], +m[4], +m[5]) : new Date(p.data);
+      if (isNaN(d) || (now - d.getTime()) > periodMs[App.kanbanPeriod]) return false;
+    }
+    return true;
+  });
 
   const cancelados = allPedidos.filter(p => p.status === 'Cancelado');
   const board      = document.getElementById('kanban-board');
@@ -485,8 +523,9 @@ function renderClientes() {
         (c.responsavel || '').toLowerCase().includes(q))
     : App.clientes;
 
+  document.getElementById('clientes-count').textContent = `${lista.length} clientes`;
   tbody.innerHTML = lista.length === 0
-    ? `<tr><td colspan="5" class="empty-msg">Nenhum cliente encontrado</td></tr>`
+    ? `<tr><td colspan="6" class="empty-msg">Nenhum cliente encontrado</td></tr>`
     : lista.map(c => `
       <tr>
         <td><strong>${esc(c.clinica)}</strong></td>
@@ -497,6 +536,10 @@ function renderClientes() {
           ${c.telefone
             ? `<a href="https://wa.me/55${c.telefone.replace(/\D/g,'')}" target="_blank" class="btn-xs">WhatsApp</a>`
             : '—'}
+        </td>
+        <td style="display:flex;gap:4px">
+          <button class="btn-xs" onclick="abrirHistoricoCliente('${escAttr(c.cpf||c.email)}','${escAttr(c.clinica)}')">📋 Pedidos</button>
+          <button class="btn-xs" onclick="abrirEditarCliente(${JSON.stringify(c).replace(/"/g,'&quot;')})">✏️ Editar</button>
         </td>
       </tr>`).join('');
 }
@@ -511,7 +554,7 @@ function renderProdutos() {
     : App.produtos;
 
   tbody.innerHTML = lista.length === 0
-    ? `<tr><td colspan="5" class="empty-msg">Nenhum produto encontrado</td></tr>`
+    ? `<tr><td colspan="6" class="empty-msg">Nenhum produto encontrado</td></tr>`
     : lista.map(p => {
         const est = p.variantes?.length > 0
           ? p.variantes.reduce((s, v) => s + (parseInt(v.estoque) || 0), 0)
@@ -529,6 +572,7 @@ function renderProdutos() {
             </td>
             <td>R$ ${formatNum(p.preco)}</td>
             <td><span class="badge ${est > 0 ? 'badge-on' : 'badge-off'}">${est > 0 ? 'Ativo' : 'Esgotado'}</span></td>
+            <td><button class="btn-xs" onclick="abrirEditarProduto('${escAttr(p.id)}')">✏️ Editar</button></td>
           </tr>`;
       }).join('');
 }
@@ -631,4 +675,372 @@ function showToast(msg, type = 'success') {
   el.textContent = msg;
   clearTimeout(el._timer);
   el._timer = setTimeout(() => el.classList.remove('toast-visible'), 3000);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal(html) {
+  const box = document.getElementById('modal-box');
+  const ov  = document.getElementById('modal-overlay');
+  box.innerHTML = html;
+  box.classList.add('open');
+  ov.classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-box').classList.remove('open');
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ── CSV EXPORT ────────────────────────────────────────────────────────────────
+function exportarCSV() {
+  const cols = ['ID','Data','Clínica','Responsável','Telefone','Email','Cidade','Estado',
+    'Produtos','Total','Pagamento','Parcelas','Cupom','Status','Rastreio','FreteMetodo','FreteValor'];
+  const rows = App.pedidos.map(p => [
+    p.id, p.data, p.clinica, p.responsavel, p.telefone, p.email_cli,
+    p.cidade, p.estado, (p.produtos||'').replace(/\n/g,' | '),
+    p.total, p.pagamento, p.parcelas, p.cupom, p.status, p.rastreio, p.freteMetodo, p.freteValor,
+  ].map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(','));
+  const csv  = [cols.join(','), ...rows].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `pedidos_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ── CUPONS ────────────────────────────────────────────────────────────────────
+function renderCupons() {
+  const tbody = document.getElementById('cupons-tbody');
+  if (!tbody) return;
+  const q = (document.getElementById('busca-cupons')?.value || '').toLowerCase();
+  const lista = q ? App.cupons.filter(c => c.codigo.toLowerCase().includes(q) || (c.vendedora||'').toLowerCase().includes(q)) : App.cupons;
+
+  const statusCls = { Ativo: 'badge-on', Desativado: 'badge-off', Expirado: 'badge-off' };
+  tbody.innerHTML = lista.length === 0
+    ? `<tr><td colspan="8" class="empty-msg">Nenhum cupom encontrado</td></tr>`
+    : lista.map(c => `
+      <tr>
+        <td><strong>${esc(c.codigo)}</strong></td>
+        <td>${esc(c.tipo === '%' ? '% Desconto' : 'Preço Fixo')}</td>
+        <td>${c.tipo === '%' ? c.valor + '%' : '—'}</td>
+        <td style="font-size:12px;color:var(--text2)">${esc(c.validade)}</td>
+        <td style="font-size:12px;color:var(--text2)">${esc(c.vendedora || '—')}</td>
+        <td style="text-align:center">${c.usos}</td>
+        <td><span class="badge ${statusCls[c.status] || 'badge-off'}">${esc(c.status)}</span></td>
+        <td>
+          <button class="btn-xs ${c.status === 'Ativo' ? 'btn-xs-danger' : ''}"
+            onclick="toggleCupomAdmin('${escAttr(c.codigo)}','${c.status}')">
+            ${c.status === 'Ativo' ? 'Desativar' : 'Ativar'}
+          </button>
+        </td>
+      </tr>`).join('');
+}
+
+function toggleFormCupom() {
+  const p = document.getElementById('cupom-form-panel');
+  p.classList.toggle('hidden');
+}
+
+function toggleCupomTipo() {
+  const tipo = document.getElementById('nc-tipo').value;
+  document.getElementById('nc-valor-wrap').style.display = tipo === '%' ? '' : 'none';
+}
+
+async function salvarCupomAdmin(e) {
+  e.preventDefault();
+  const msg = document.getElementById('nc-status');
+  msg.textContent = '';
+  const params = {
+    codigo:              document.getElementById('nc-codigo').value.trim(),
+    tipo:                document.getElementById('nc-tipo').value,
+    valor:               document.getElementById('nc-valor').value,
+    produtos:            document.getElementById('nc-produtos').value.trim() || 'todos',
+    validade:            document.getElementById('nc-validade').value.trim() || 'INDETERMINADO',
+    frete_gratis_acima:  document.getElementById('nc-frete').value || '',
+    parcelamento:        document.getElementById('nc-parc').checked ? 'SIM' : 'NAO',
+  };
+  try {
+    const data = await API.criarCupom(params);
+    if (data.ok) {
+      showToast(`Cupom ${data.codigo} criado!`);
+      e.target.reset();
+      toggleFormCupom();
+      await loadCupons();
+      renderCupons();
+    } else {
+      msg.textContent = data.erro || 'Erro ao criar';
+      msg.style.color = 'var(--danger)';
+    }
+  } catch(ex) {
+    msg.textContent = 'Erro de conexão';
+    msg.style.color = 'var(--danger)';
+  }
+}
+
+async function toggleCupomAdmin(codigo, statusAtual) {
+  const label = statusAtual === 'Ativo' ? 'desativar' : 'ativar';
+  if (!confirm(`Deseja ${label} o cupom ${codigo}?`)) return;
+  try {
+    await API.toggleCupom(codigo);
+    await loadCupons();
+    renderCupons();
+    showToast(`Cupom ${codigo} ${statusAtual === 'Ativo' ? 'desativado' : 'ativado'}`);
+  } catch(e) {
+    showToast('Erro ao alterar cupom', 'error');
+  }
+}
+
+// ── PRODUTO — EDIÇÃO COMPLETA ─────────────────────────────────────────────────
+function abrirEditarProduto(prodId) {
+  const p = App.produtos.find(x => x.id === prodId);
+  if (!p) return;
+  openModal(`
+    <div class="modal-header">
+      <span>✏️ Editar Produto — ${esc(p.nome)}</span>
+      <button onclick="closeModal()">✕</button>
+    </div>
+    <form class="cfg-form" onsubmit="salvarProduto(event,'${escAttr(prodId)}')">
+      <div class="cfg-row">
+        <div class="field-inline"><label>Nome</label><input id="ep-nome" value="${escAttr(p.nome)}"/></div>
+        <div class="field-inline"><label>Concentração / Dose</label><input id="ep-conc" value="${escAttr(p.conc||'')}"/></div>
+      </div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>Preço Base (R$)</label><input type="number" step="0.01" id="ep-preco" value="${p.preco||0}"/></div>
+        <div class="field-inline"><label>Estoque</label><input type="number" id="ep-estoque" value="${p.variantes?.length ? '' : (p.estoque||0)}" ${p.variantes?.length ? 'disabled placeholder="via variantes"' : ''}/></div>
+      </div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>Laboratório</label><input id="ep-lab" value="${escAttr(p.lab||'')}"/></div>
+        <div class="field-inline"><label>Status</label>
+          <select id="ep-ativo">
+            <option value="true" ${p.estoque > 0 ? 'selected' : ''}>Ativo</option>
+            <option value="false" ${p.estoque <= 0 ? 'selected' : ''}>Inativo</option>
+          </select>
+        </div>
+      </div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>Promo — Preço (R$)</label><input type="number" step="0.01" id="ep-promo-preco" value="${p.promo_preco||''}"/></div>
+        <div class="field-inline"><label>Desconto Promo (%)</label><input type="number" id="ep-promo-pct" value="${p.promo_pct||''}"/></div>
+        <div class="field-inline"><label>Fim da Promo (dd/mm/aaaa)</label><input id="ep-promo-fim" value="${escAttr(p.promo_fim||'')}"/></div>
+      </div>
+      <div id="ep-status" class="cfg-status-msg"></div>
+      <div style="display:flex;gap:8px">
+        <button type="submit" class="btn-sm btn-accent">Salvar</button>
+        <button type="button" class="btn-sm" onclick="closeModal()">Cancelar</button>
+      </div>
+    </form>`);
+}
+
+async function salvarProduto(e, prodId) {
+  e.preventDefault();
+  const msg = document.getElementById('ep-status');
+  msg.textContent = 'Salvando...';
+  const params = { prod_id: prodId };
+  const nome = document.getElementById('ep-nome')?.value.trim(); if (nome) params.nome = nome;
+  const conc = document.getElementById('ep-conc')?.value.trim(); if (conc !== undefined) params.conc = conc;
+  const preco = document.getElementById('ep-preco')?.value; if (preco) params.preco = preco;
+  const est = document.getElementById('ep-estoque'); if (est && !est.disabled) params.estoque = est.value;
+  const lab = document.getElementById('ep-lab')?.value.trim(); if (lab !== undefined) params.lab = lab;
+  params.ativo = document.getElementById('ep-ativo')?.value;
+  const pp = document.getElementById('ep-promo-preco')?.value; if (pp) params.promo_preco = pp;
+  const pct = document.getElementById('ep-promo-pct')?.value; if (pct) params.promo_pct = pct;
+  const pfim = document.getElementById('ep-promo-fim')?.value.trim(); if (pfim) params.promo_fim = pfim;
+  try {
+    const data = await API.editarProduto(params);
+    if (data.ok) {
+      showToast('Produto atualizado!');
+      closeModal();
+      await loadProdutos();
+      renderProdutos();
+    } else {
+      msg.textContent = data.erro || 'Erro ao salvar';
+      msg.style.color = 'var(--danger)';
+    }
+  } catch(ex) {
+    msg.textContent = 'Erro de conexão';
+    msg.style.color = 'var(--danger)';
+  }
+}
+
+// ── CLIENTE — HISTÓRICO + EDIÇÃO ──────────────────────────────────────────────
+async function abrirHistoricoCliente(documento, nomeClinica) {
+  openModal(`<div class="modal-header"><span>📋 Pedidos — ${esc(nomeClinica)}</span><button onclick="closeModal()">✕</button></div>
+    <div class="loading-msg">⏳ Carregando pedidos...</div>`);
+  try {
+    const data = await API.pedidosCliente(documento);
+    if (!data.ok) { document.querySelector('#modal-box .loading-msg').textContent = 'Erro ao carregar'; return; }
+    const STATUS_COR = { 'Novo':'#6b7280','Pag. Confirmado':'#f59e0b','Em Separação':'#3b82f6','Embalado':'#8b5cf6','Etiqueta Gerada':'#6366f1','Enviado':'#06b6d4','Entregue':'#10b981','Cancelado':'#ef4444' };
+    document.getElementById('modal-box').innerHTML = `
+      <div class="modal-header">
+        <span>📋 Pedidos — ${esc(nomeClinica)}</span>
+        <button onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-summary">
+        <span><strong>${data.qtd}</strong> pedidos</span>
+        <span>Total gasto: <strong style="color:var(--accent)">${formatMoeda(data.total_gasto)}</strong></span>
+      </div>
+      <div class="modal-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Data</th><th>Produtos</th><th>Total</th><th>Pagamento</th><th>Status</th><th>Rastreio</th></tr></thead>
+          <tbody>
+            ${data.pedidos.length === 0
+              ? '<tr><td colspan="6" class="empty-msg">Nenhum pedido</td></tr>'
+              : data.pedidos.map(p => `
+                <tr>
+                  <td style="font-size:12px">${esc(p.data.slice(0,10))}</td>
+                  <td style="font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((p.produtos||'').replace(/\n/g,' | '))}</td>
+                  <td style="color:var(--accent);font-weight:600">${formatMoeda(p.total)}</td>
+                  <td style="font-size:12px">${esc(p.pagamento||'—')}</td>
+                  <td><span style="color:${STATUS_COR[p.status]||'#6b7280'};font-size:12px;font-weight:600">${esc(p.status)}</span></td>
+                  <td style="font-size:11px">${esc(p.rastreio||'—')}</td>
+                </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } catch(e) {
+    showToast('Erro ao carregar pedidos', 'error');
+  }
+}
+
+function abrirEditarCliente(c) {
+  if (typeof c === 'string') c = JSON.parse(c);
+  openModal(`
+    <div class="modal-header"><span>✏️ Editar Cliente — ${esc(c.clinica)}</span><button onclick="closeModal()">✕</button></div>
+    <form class="cfg-form" onsubmit="salvarCliente(event,'${escAttr(c.cpf||'')}','${escAttr(c.email||'')}')">
+      <div class="cfg-row">
+        <div class="field-inline"><label>Clínica / Nome</label><input id="ec-clinica" value="${escAttr(c.clinica)}"/></div>
+        <div class="field-inline"><label>Responsável</label><input id="ec-resp" value="${escAttr(c.responsavel||'')}"/></div>
+      </div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>Cargo</label><input id="ec-cargo" value="${escAttr(c.cargo||'')}"/></div>
+        <div class="field-inline"><label>Telefone</label><input id="ec-tel" value="${escAttr(c.telefone||'')}"/></div>
+      </div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>E-mail</label><input type="email" id="ec-email" value="${escAttr(c.email||'')}"/></div>
+        <div class="field-inline"><label>CPF / CNPJ</label><input id="ec-cpf" value="${escAttr(c.cpf||'')}"/></div>
+      </div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>Cidade</label><input id="ec-cidade" value="${escAttr(c.cidade||'')}"/></div>
+        <div class="field-inline"><label>Estado</label><input id="ec-estado" value="${escAttr(c.estado||'')}"/></div>
+      </div>
+      <div class="field-inline"><label>Endereço</label><input id="ec-end" value="${escAttr(c.endereco||'')}"/></div>
+      <div id="ec-status" class="cfg-status-msg"></div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button type="submit" class="btn-sm btn-accent">Salvar</button>
+        <button type="button" class="btn-sm" onclick="closeModal()">Cancelar</button>
+      </div>
+    </form>`);
+}
+
+async function salvarCliente(e, cpf, emailCli) {
+  e.preventDefault();
+  const msg = document.getElementById('ec-status');
+  msg.textContent = 'Salvando...';
+  const params = {
+    documento:   cpf, email_cli: emailCli,
+    clinica:     document.getElementById('ec-clinica')?.value.trim(),
+    responsavel: document.getElementById('ec-resp')?.value.trim(),
+    cargo:       document.getElementById('ec-cargo')?.value.trim(),
+    telefone:    document.getElementById('ec-tel')?.value.trim(),
+    email_novo:  document.getElementById('ec-email')?.value.trim(),
+    cpf_novo:    document.getElementById('ec-cpf')?.value.trim(),
+    cidade:      document.getElementById('ec-cidade')?.value.trim(),
+    estado:      document.getElementById('ec-estado')?.value.trim(),
+    endereco:    document.getElementById('ec-end')?.value.trim(),
+  };
+  try {
+    const data = await API.editarCliente(params);
+    if (data.ok) {
+      showToast('Cliente atualizado!');
+      closeModal();
+      await loadClientes();
+      renderClientes();
+    } else {
+      msg.textContent = data.erro || 'Erro ao salvar';
+      msg.style.color = 'var(--danger)';
+    }
+  } catch(ex) {
+    msg.textContent = 'Erro de conexão';
+    msg.style.color = 'var(--danger)';
+  }
+}
+
+// ── RELATÓRIO ─────────────────────────────────────────────────────────────────
+function renderRelatorio() {
+  const el = document.getElementById('relatorio-body');
+  if (!el) return;
+  const d = App.relatorio;
+  if (!d) { el.innerHTML = '<div class="empty-msg">Sem dados disponíveis</div>'; return; }
+
+  el.innerHTML = `
+    <div class="rel-stats">
+      <div class="stat-card"><span class="stat-val">${formatMoeda(d.total_geral)}</span><span class="stat-lbl">Faturamento Total</span></div>
+      <div class="stat-card"><span class="stat-val">${d.total_pedidos}</span><span class="stat-lbl">Total de Pedidos</span></div>
+      <div class="stat-card"><span class="stat-val">${formatMoeda(d.avg_ticket)}</span><span class="stat-lbl">Ticket Médio</span></div>
+    </div>
+    <div class="rel-row">
+      <div class="rel-card rel-wide">
+        <h4>Faturamento por Semana</h4>
+        <canvas id="chart-semanas" height="100"></canvas>
+      </div>
+    </div>
+    <div class="rel-row">
+      <div class="rel-card">
+        <h4>Top 5 Clientes</h4>
+        <canvas id="chart-clientes" height="160"></canvas>
+      </div>
+      <div class="rel-card">
+        <h4>Top 5 Produtos (qtd vendida)</h4>
+        <canvas id="chart-produtos" height="160"></canvas>
+      </div>
+    </div>
+    <div class="rel-row">
+      <div class="rel-card" style="max-width:340px">
+        <h4>Pedidos por Status</h4>
+        <canvas id="chart-status" height="160"></canvas>
+      </div>
+    </div>`;
+
+  const chartOpts = { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#7aaccb' }, grid: { color: '#1e3a52' } }, y: { ticks: { color: '#7aaccb' }, grid: { color: '#1e3a52' } } } };
+  const horizOpts = { ...chartOpts, indexAxis: 'y' };
+
+  // Destroy old charts
+  Object.values(App.charts).forEach(c => c.destroy());
+  App.charts = {};
+
+  App.charts.semanas = new Chart(document.getElementById('chart-semanas'), {
+    type: 'bar',
+    data: {
+      labels:   d.semanas.map(s => s.label),
+      datasets: [{ data: d.semanas.map(s => s.total), backgroundColor: '#1abc9c', borderRadius: 4 }],
+    },
+    options: { ...chartOpts, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'R$ ' + ctx.raw.toFixed(2).replace('.',',') } } } },
+  });
+
+  App.charts.clientes = new Chart(document.getElementById('chart-clientes'), {
+    type: 'bar',
+    data: {
+      labels:   d.top_clientes.map(c => c.nome.length > 20 ? c.nome.slice(0,18)+'…' : c.nome),
+      datasets: [{ data: d.top_clientes.map(c => c.total), backgroundColor: '#3b82f6', borderRadius: 4 }],
+    },
+    options: { ...horizOpts, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'R$ ' + ctx.raw.toFixed(2).replace('.',',') } } } },
+  });
+
+  App.charts.produtos = new Chart(document.getElementById('chart-produtos'), {
+    type: 'bar',
+    data: {
+      labels:   d.top_produtos.map(p => p.nome.length > 20 ? p.nome.slice(0,18)+'…' : p.nome),
+      datasets: [{ data: d.top_produtos.map(p => p.qtd), backgroundColor: '#8b5cf6', borderRadius: 4 }],
+    },
+    options: { ...horizOpts, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.raw + ' unid.' } } } },
+  });
+
+  const statusCores = { 'Novo':'#6b7280','Pag. Confirmado':'#f59e0b','Em Separação':'#3b82f6','Embalado':'#8b5cf6','Etiqueta Gerada':'#6366f1','Enviado':'#06b6d4','Entregue':'#10b981','Cancelado':'#ef4444' };
+  const stLabels = Object.keys(d.por_status);
+  App.charts.status = new Chart(document.getElementById('chart-status'), {
+    type: 'doughnut',
+    data: {
+      labels:   stLabels,
+      datasets: [{ data: stLabels.map(k => d.por_status[k]), backgroundColor: stLabels.map(k => statusCores[k] || '#6b7280'), borderWidth: 0 }],
+    },
+    options: { responsive: true, plugins: { legend: { position: 'right', labels: { color: '#7aaccb', font: { size: 11 } } } } },
+  });
 }

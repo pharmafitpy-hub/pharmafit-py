@@ -18,6 +18,8 @@
     <button class="nav-btn active" data-view="kanban">📦 Fila de Pedidos</button>
     <button class="nav-btn" data-view="clientes">👥 Clientes</button>
     <button class="nav-btn" data-view="produtos">💊 Produtos & Estoque</button>
+    <button class="nav-btn" data-view="cupons">🎟️ Cupons</button>
+    <button class="nav-btn" data-view="relatorio">📊 Relatório</button>
     <button class="nav-btn" data-view="config">⚙️ Configurações</button>
   </nav>
 
@@ -45,9 +47,24 @@
 
     <div class="stats-bar" id="stats-bar"></div>
 
-    <div class="search-bar-wrapper">
-      <input type="search" id="kanban-search" placeholder="🔍 Filtrar pedidos por clínica, produto, telefone..."
-        oninput="renderKanban()"/>
+    <div class="kanban-toolbar">
+      <div class="search-bar-wrapper" style="padding:0;flex:1">
+        <input type="search" id="kanban-search" placeholder="🔍 Filtrar por clínica, produto, telefone..."
+          oninput="renderKanban()"/>
+      </div>
+      <div class="kanban-filters">
+        <button class="filter-btn active" data-period="all"   onclick="setKanbanPeriod(this)">Todos</button>
+        <button class="filter-btn" data-period="today"  onclick="setKanbanPeriod(this)">Hoje</button>
+        <button class="filter-btn" data-period="week"   onclick="setKanbanPeriod(this)">Semana</button>
+        <button class="filter-btn" data-period="month"  onclick="setKanbanPeriod(this)">Mês</button>
+        <select id="filter-pagamento" onchange="renderKanban()">
+          <option value="">Pagamento: Todos</option>
+          <option value="PIX">PIX</option>
+          <option value="Cartão">Cartão</option>
+          <option value="Boleto">Boleto</option>
+        </select>
+        <button class="btn-sm btn-outline" onclick="exportarCSV()">⬇️ CSV</button>
+      </div>
     </div>
 
     <div class="kanban-scroll">
@@ -122,6 +139,75 @@
   </div>
 
 
+  <!-- ══ VIEW: CUPONS ══ -->
+  <div id="view-cupons" class="view hidden">
+    <div class="view-bar">
+      <h2>Cupons</h2>
+      <div class="view-bar-right">
+        <button class="btn-sm btn-accent" onclick="toggleFormCupom()">+ Novo Cupom</button>
+      </div>
+    </div>
+
+    <!-- Create form -->
+    <div id="cupom-form-panel" class="cupom-form-panel hidden">
+      <form class="cfg-form" onsubmit="salvarCupomAdmin(event)" style="max-width:100%">
+        <div class="cfg-row">
+          <div class="field-inline"><label>Código</label><input type="text" id="nc-codigo" placeholder="EX: PHARMA10" required/></div>
+          <div class="field-inline"><label>Tipo</label>
+            <select id="nc-tipo" onchange="toggleCupomTipo()">
+              <option value="%">% Desconto</option>
+              <option value="fixo">Preço Fixo</option>
+            </select>
+          </div>
+          <div class="field-inline" id="nc-valor-wrap"><label>Valor (%)</label><input type="number" id="nc-valor" min="1" max="100" placeholder="10"/></div>
+        </div>
+        <div class="cfg-row">
+          <div class="field-inline"><label>Produtos (IDs separados por vírgula ou "todos")</label><input type="text" id="nc-produtos" placeholder="todos"/></div>
+          <div class="field-inline"><label>Validade (dd/mm/aaaa hh:mm ou INDETERMINADO)</label><input type="text" id="nc-validade" placeholder="INDETERMINADO"/></div>
+        </div>
+        <div class="cfg-row">
+          <div class="field-inline"><label>Frete grátis acima de R$</label><input type="number" id="nc-frete" placeholder="0" min="0"/></div>
+          <div class="field-inline" style="display:flex;align-items:flex-end;gap:10px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+              <input type="checkbox" id="nc-parc"/> Parcelamento sem juros
+            </label>
+          </div>
+        </div>
+        <div id="nc-status" class="cfg-status-msg"></div>
+        <button type="submit" class="btn-sm btn-accent">Criar Cupom</button>
+        <button type="button" class="btn-sm" onclick="toggleFormCupom()">Cancelar</button>
+      </form>
+    </div>
+
+    <div class="search-bar-wrapper">
+      <input type="search" id="busca-cupons" placeholder="🔍 Buscar cupom..." oninput="renderCupons()"/>
+    </div>
+    <div class="table-view">
+      <table class="data-table">
+        <thead><tr>
+          <th>Código</th><th>Tipo</th><th>Valor</th><th>Validade</th>
+          <th>Criado por</th><th>Usos</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody id="cupons-tbody">
+          <tr><td colspan="8" class="loading-msg">⏳ Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ VIEW: RELATÓRIO ══ -->
+  <div id="view-relatorio" class="view hidden">
+    <div class="view-bar">
+      <h2>Relatório Financeiro</h2>
+      <div class="view-bar-right">
+        <button class="btn-sm" onclick="loadRelatorio().then(renderRelatorio)">🔄 Atualizar</button>
+      </div>
+    </div>
+    <div class="relatorio-scroll" id="relatorio-body">
+      <div class="loading-msg">⏳ Carregando...</div>
+    </div>
+  </div>
+
   <!-- ══ VIEW: CONFIG ══ -->
   <div id="view-config" class="view hidden">
     <div class="view-bar">
@@ -194,6 +280,11 @@
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
 <aside class="order-drawer" id="order-drawer"></aside>
 
+<!-- Modal -->
+<div id="modal-overlay" class="modal-overlay" onclick="closeModal()"></div>
+<div id="modal-box" class="modal-box"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="../assets/js/config.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/painel.js"></script>
