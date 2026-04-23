@@ -862,8 +862,9 @@ function renderProdutos() {
 
 async function updateStock(prodId, valor) {
   try {
-    await API.atualizarProduto(prodId, 'estoque', valor);
-    showToast('Estoque atualizado');
+    const data = await API.atualizarProduto(prodId, 'estoque', valor);
+    if (data.ok) showToast('Estoque atualizado');
+    else showToast(data.erro || 'Erro ao atualizar estoque', 'error');
   } catch (e) {
     showToast('Erro ao atualizar estoque', 'error');
   }
