@@ -1334,6 +1334,7 @@ function abrirEditarProduto(prodId) {
   const p = App.produtos.find(x => x.id === prodId);
   if (!p) return;
   App.currentEditProdId = prodId;
+  App.currentEditRow = p.rowNum || '';
   const hasPromo     = !!(p.promo_preco || p.promo_pct || p.promo_fim);
   const hasVariantes = !!(p.variantes && p.variantes.length > 0);
   openModal(`
@@ -1418,7 +1419,7 @@ async function salvarProduto(e) {
   const msg = document.getElementById('ep-status');
   msg.textContent = 'Salvando...';
   if (!prodId) { msg.textContent = 'Erro: ID do produto não encontrado'; msg.style.color = 'var(--danger)'; return; }
-  const params = { prod_id: prodId, id: prodId };
+  const params = { prod_id: prodId, id: prodId, rowNum: App.currentEditRow || '' };
   const nome = document.getElementById('ep-nome')?.value.trim(); if (nome) params.nome = nome;
   const conc = document.getElementById('ep-conc')?.value.trim(); if (conc !== undefined) params.conc = conc;
   const temVar = document.getElementById('ep-tem-variantes')?.checked;
