@@ -210,9 +210,22 @@ function renderKanban() {
   const cancelados  = realPedidos.filter(p => p.status === 'Cancelado');
   const board       = document.getElementById('kanban-board');
   const devZone     = document.getElementById('kanban-dev-zone');
+  const archZone    = document.getElementById('kanban-arch-zone');
+
+  const archCutoff = new Date(Date.now() - 7 * 86400000);
+  const archivadosSet = new Set(
+    realPedidos.filter(p => {
+      if (p.status !== 'Entregue') return false;
+      const ds = p.dataStatus || p.data || '';
+      const m  = String(ds).match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      const d  = m ? new Date(+m[3], +m[2]-1, +m[1]) : null;
+      return d && d < archCutoff;
+    }).map(p => p.id)
+  );
+  const archivados = realPedidos.filter(p => archivadosSet.has(p.id));
 
   board.innerHTML = STAGES.map(stage => {
-    const orders = realPedidos.filter(p => p.status === stage.key);
+    const orders = realPedidos.filter(p => p.status === stage.key && !archivadosSet.has(p.id));
     const total  = orders.reduce((s, o) => s + (parseFloat(String(o.total||'').replace(',','.')) || 0), 0);
     return `
       <div class="kanban-col">
@@ -246,20 +259,43 @@ function renderKanban() {
   }
 
   if (devZone) {
-    if (devPedidos.length === 0) { devZone.innerHTML = ''; return; }
-    const existingBody = devZone.querySelector('.kanban-dev-body');
-    const open = existingBody ? existingBody.style.display !== 'none' : false;
-    devZone.innerHTML = `
-      <div class="kanban-dev-section">
-        <div class="kanban-dev-header" onclick="toggleDevZone(this)">
-          <span>🔧 DEV / Testes</span>
-          <span class="kanban-dev-count">${devPedidos.length} pedido${devPedidos.length > 1 ? 's' : ''}</span>
-          <span class="kanban-dev-chevron">${open ? '▲' : '▼'}</span>
-        </div>
-        <div class="kanban-dev-body" style="display:${open ? 'flex' : 'none'}">
-          ${devPedidos.map(renderCard).join('')}
-        </div>
-      </div>`;
+    if (devPedidos.length === 0) {
+      devZone.innerHTML = '';
+    } else {
+      const existingBody = devZone.querySelector('.kanban-dev-body');
+      const open = existingBody ? existingBody.style.display !== 'none' : false;
+      devZone.innerHTML = `
+        <div class="kanban-dev-section">
+          <div class="kanban-dev-header" onclick="toggleDevZone(this)">
+            <span>🔧 DEV / Testes</span>
+            <span class="kanban-dev-count">${devPedidos.length} pedido${devPedidos.length > 1 ? 's' : ''}</span>
+            <span class="kanban-dev-chevron">${open ? '▲' : '▼'}</span>
+          </div>
+          <div class="kanban-dev-body" style="display:${open ? 'flex' : 'none'}">
+            ${devPedidos.map(renderCard).join('')}
+          </div>
+        </div>`;
+    }
+  }
+
+  if (archZone) {
+    if (archivados.length === 0) {
+      archZone.innerHTML = '';
+    } else {
+      const existingBody = archZone.querySelector('.kanban-dev-body');
+      const open = existingBody ? existingBody.style.display !== 'none' : false;
+      archZone.innerHTML = `
+        <div class="kanban-dev-section">
+          <div class="kanban-dev-header" onclick="toggleDevZone(this)">
+            <span>📦 Arquivados — Entregues há +7 dias</span>
+            <span class="kanban-dev-count">${archivados.length} pedido${archivados.length > 1 ? 's' : ''}</span>
+            <span class="kanban-dev-chevron">${open ? '▲' : '▼'}</span>
+          </div>
+          <div class="kanban-dev-body" style="display:${open ? 'flex' : 'none'}">
+            ${archivados.map(renderCard).join('')}
+          </div>
+        </div>`;
+    }
   }
 }
 
@@ -1705,34 +1741,34 @@ function renderRelatorio() {
     <div class="rel-row">
       <div class="rel-card rel-wide">
         <h4>Faturamento por Semana</h4>
-        <canvas id="chart-semanas" height="60"></canvas>
+        <canvas id="chart-semanas" height="38"></canvas>
       </div>
     </div>
     <div class="rel-row">
       <div class="rel-card">
         <h4>Top 5 Clientes</h4>
-        <canvas id="chart-clientes" height="100"></canvas>
+        <canvas id="chart-clientes" height="65"></canvas>
       </div>
       <div class="rel-card">
         <h4>Top 5 Produtos (qtd vendida)</h4>
-        <canvas id="chart-produtos" height="100"></canvas>
+        <canvas id="chart-produtos" height="65"></canvas>
       </div>
     </div>
     <div class="rel-row">
       <div class="rel-card" style="max-width:320px">
         <h4>Pedidos por Status</h4>
-        <canvas id="chart-status" height="120"></canvas>
+        <canvas id="chart-status" height="85"></canvas>
       </div>
       <div class="rel-card" style="max-width:320px">
         <h4>Forma de Pagamento</h4>
-        <canvas id="chart-pagamento" height="120"></canvas>
+        <canvas id="chart-pagamento" height="85"></canvas>
       </div>
     </div>
     ${d.por_vendedora && d.por_vendedora.length > 0 ? `
     <div class="rel-row">
       <div class="rel-card rel-wide">
         <h4>Faturamento por Vendedora</h4>
-        <canvas id="chart-vendedoras" height="60"></canvas>
+        <canvas id="chart-vendedoras" height="38"></canvas>
       </div>
     </div>` : ''}
   `;
