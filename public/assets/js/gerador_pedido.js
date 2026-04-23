@@ -4,6 +4,7 @@ let CATALOG=[], CLIENTES=[], CLIENTES_CORR=[], PEDIDOS=[], PARCELAS=[], CUPONS={
 let cart={}, MODO='', clienteAtual=null;
 let freteValor=0, freteMetodo='', freteEstado='', freteCep='';
 let pendingCart=null, pendingCartText=null;
+let pedidoRowId=null;
 let cupomAplicado=false, cupomCodigo='', cupomData=null;
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -126,7 +127,7 @@ function mostrarTela(id){
 }
 function voltarInicio(){
   if(MODO&&Object.keys(cart).length>0){if(!confirm('Tem certeza? O pedido atual sera perdido.'))return;}
-  MODO='';cart={};clienteAtual=null;freteValor=0;freteMetodo='';mostrarTela('tela-inicio');
+  MODO='';cart={};clienteAtual=null;freteValor=0;freteMetodo='';pedidoRowId=null;mostrarTela('tela-inicio');
 }
 function iniciarModo(modo){
   MODO=modo;
@@ -334,6 +335,7 @@ async function carregarPedidosDoCliente(cli){
 function selecionarPedidoCliente(i){
   const pedidos=document.getElementById('pedidos-cliente-grid')._pedidos;
   if(!pedidos||!pedidos[i])return;
+  pedidoRowId = pedidos[i].rowNum || null;
   carregarPedidoNoEditor(pedidos[i],clienteAtual);
 }
 
@@ -382,6 +384,7 @@ async function selecionarPedido(i){
   }
 
   if(btn)btn.textContent='✓ Selecionado';
+  pedidoRowId = p.rowNum || null;
   carregarPedidoNoEditor(p,cli);
 }
 
@@ -560,11 +563,16 @@ async function salvarPedido(){
     pagamento:pag,parcelas:parcVal,obs:`[${tipo}] ${obs}`.trim(),
     obs_pagamento:freteValor>0?`Frete ${freteMetodo.toUpperCase()} R$${freteValor.toFixed(2)}`:'',
     cupom_codigo:cupomCodigo||'',cupom_valor:calcularDescontoCupom().toFixed(2),carrinho:JSON.stringify(cart),
+    cep:freteCep||'',frete_metodo:freteMetodo||'',frete_valor:freteValor>0?freteValor.toFixed(2):'0',
   });
+  // Corrigir: atualiza linha existente em vez de criar nova
+  if(MODO==='corrigir'&&pedidoRowId){params.set('action','atualizar_pedido');params.set('rowNum',pedidoRowId);}
   try{
-    const r=await fetch(`${SHEETS_URL}?${params}`);const txt=await r.text();
-    if(txt==='ok'||txt.includes('ok')){btn.classList.add('saved');btn.innerHTML='✓ Salvo!';status.textContent=`✅ Pedido ${tipo==='NOVO'?'criado':'corrigido'} salvo com sucesso.`;status.style.color='#6EE7B7';}
-    else{btn.disabled=false;btn.innerHTML='💾 Salvar no Sheets';status.textContent='⚠️ Resposta inesperada.';status.style.color='#FCA5A5';}
+    const r=await fetch(`${SHEETS_URL}?${params}`);
+    const resultado=MODO==='corrigir'&&pedidoRowId?await r.json():await r.text();
+    const ok=typeof resultado==='object'?resultado.ok:(resultado==='ok'||resultado.includes('ok'));
+    if(ok){btn.classList.add('saved');btn.innerHTML='✓ Salvo!';status.textContent=`✅ Pedido ${tipo==='NOVO'?'criado':'corrigido'} salvo com sucesso.`;status.style.color='#6EE7B7';}
+    else{btn.disabled=false;btn.innerHTML='💾 Salvar no Sheets';status.textContent=`⚠️ ${typeof resultado==='object'?(resultado.erro||'Resposta inesperada'):'Resposta inesperada'}`;status.style.color='#FCA5A5';}
   }catch(e){btn.disabled=false;btn.innerHTML='💾 Salvar no Sheets';status.textContent='⚠️ Erro de conexao.';status.style.color='#FCA5A5';}
 }
 
