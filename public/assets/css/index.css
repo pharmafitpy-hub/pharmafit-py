@@ -219,13 +219,13 @@
     .prod-card-body .btn-prod:hover { background:var(--green-wa-d); transform:scale(1.02); }
     .prod-card-body .btn-protocolo {
       display:flex; align-items:center; justify-content:center; gap:7px;
-      background:transparent; color:var(--petrol); border:1.5px solid var(--petrol-mid);
+      background:#3b82f6; color:white; border:none;
       font-family:'Montserrat',sans-serif; font-size:8.5pt; font-weight:700;
       padding:10px; border-radius:10px; text-decoration:none; cursor:pointer;
       width:100%; margin-bottom:8px;
-      transition:background .2s, color .2s;
+      transition:background .2s;
     }
-    .prod-card-body .btn-protocolo:hover { background:var(--petrol); color:white; }
+    .prod-card-body .btn-protocolo:hover { background:#2563eb; }
 
     /* ─── PROTOCOL POPUP ──────────────────────────────── */
     .proto-overlay {

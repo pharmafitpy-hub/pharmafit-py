@@ -25,6 +25,19 @@
     <button class="btn-history" onclick="openHistory()">📋 Histórico</button>
   </div>
 </header>
+<!-- AVISO PRAZO DESPACHO -->
+<div id="aviso-prazo" class="aviso-prazo">
+  <div class="aviso-prazo-inner">
+    <span class="aviso-prazo-icon">⏰</span>
+    <div class="aviso-prazo-text">
+      Pedidos confirmados até as <strong>12h00</strong> são despachados no mesmo dia
+      <span class="aviso-prazo-sep">·</span>
+      Após esse horário, o despacho ocorre no <strong>dia seguinte</strong>
+    </div>
+    <button class="aviso-prazo-close" onclick="fecharAvisoPrazo()" title="Fechar">✕</button>
+  </div>
+  <div class="aviso-prazo-bar"></div>
+</div>
 
 <!-- STEPPER -->
 <div class="stepper-wrap">

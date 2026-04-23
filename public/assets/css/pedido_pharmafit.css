@@ -896,3 +896,35 @@
   .lp-logado-info span { color: var(--white); }
   .lp-sair { font-size: .75rem; color: var(--gray); cursor: pointer; text-decoration: underline; }
   .lp-sair:hover { color: #EF4444; }
+
+
+/* ── AVISO PRAZO DESPACHO ── */
+.aviso-prazo {
+  background: linear-gradient(90deg, #0e2035 0%, #0a1a2a 100%);
+  border-left: 4px solid var(--accent);
+  position: relative; overflow: hidden;
+  animation: avisoSlideDown .4s ease;
+}
+.aviso-prazo.hide { animation: avisoSlideUp .35s ease forwards; }
+.aviso-prazo-inner {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 20px;
+}
+.aviso-prazo-icon { font-size: 1.25rem; flex-shrink: 0; }
+.aviso-prazo-text { flex: 1; font-size: .83rem; color: rgba(255,255,255,.82); line-height: 1.45; }
+.aviso-prazo-text strong { color: var(--accent); font-weight: 700; }
+.aviso-prazo-sep { margin: 0 8px; opacity: .35; }
+.aviso-prazo-close {
+  background: none; border: none; color: rgba(255,255,255,.35);
+  font-size: 1rem; cursor: pointer; padding: 4px 8px; flex-shrink: 0;
+  border-radius: 4px; transition: color .2s, background .2s; line-height: 1;
+}
+.aviso-prazo-close:hover { color: white; background: rgba(255,255,255,.08); }
+.aviso-prazo-bar {
+  height: 2px; background: var(--accent); width: 100%;
+  transform-origin: left;
+  animation: avisoBarCountdown 8s linear forwards;
+}
+@keyframes avisoSlideDown { from { max-height: 0; opacity: 0; } to { max-height: 80px; opacity: 1; } }
+@keyframes avisoSlideUp   { to   { max-height: 0; opacity: 0; padding: 0; } }
+@keyframes avisoBarCountdown { from { transform: scaleX(1); } to { transform: scaleX(0); } }
