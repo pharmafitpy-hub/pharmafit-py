@@ -631,6 +631,27 @@ button { cursor: pointer; }
 .prod-pick-group-label:first-child { border-top: none; margin-top: 0; }
 .prod-pick-variant { padding-left: 20px !important; }
 
+/* ── VARIANT EDITOR (produto com doses) ─────────────────────────────────── */
+.var-section {
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 10px 12px; margin: 6px 0;
+}
+.var-toggle-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; cursor: pointer; color: var(--text2);
+}
+.variantes-editor { margin-top: 10px; }
+.var-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.var-table th {
+  color: var(--text2); font-weight: 600; padding: 3px 6px;
+  text-align: left; font-size: 11px; border-bottom: 1px solid var(--border);
+}
+.var-table td { padding: 3px 4px; }
+.var-table input { width: 100%; }
+.var-table .vr-dose    { width: 130px; }
+.var-table .vr-preco   { width: 80px; }
+.var-table .vr-estoque { width: 70px; }
+
 /* ── PREÇOS FIXOS (cupom tipo fixo) ──────────────────────────────────────── */
 .cupom-precos-wrap {
   background: var(--bg2); border: 1px solid var(--border);

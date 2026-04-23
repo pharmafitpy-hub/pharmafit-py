@@ -247,7 +247,8 @@ function renderKanban() {
 
   if (devZone) {
     if (devPedidos.length === 0) { devZone.innerHTML = ''; return; }
-    const open = devZone.querySelector('.kanban-dev-body')?.style.display !== 'none';
+    const existingBody = devZone.querySelector('.kanban-dev-body');
+    const open = existingBody ? existingBody.style.display !== 'none' : false;
     devZone.innerHTML = `
       <div class="kanban-dev-section">
         <div class="kanban-dev-header" onclick="toggleDevZone(this)">
@@ -1227,10 +1228,48 @@ async function toggleCupomAdmin(codigo, statusAtual) {
 }
 
 // ── PRODUTO — EDIÇÃO COMPLETA ─────────────────────────────────────────────────
+// ── VARIANT EDITOR HELPERS ────────────────────────────────────────────────────
+function toggleVariantEditor(cb, prefix) {
+  const editor  = document.getElementById(`${prefix}-variantes-editor`);
+  const preco   = document.getElementById(`${prefix}-preco`);
+  const estoque = document.getElementById(`${prefix}-estoque`);
+  editor?.classList.toggle('hidden', !cb.checked);
+  if (preco)   preco.disabled   = cb.checked;
+  if (estoque) estoque.disabled = cb.checked;
+  if (cb.checked) {
+    const tbody = document.getElementById(`${prefix}-var-tbody`);
+    if (tbody && tbody.children.length === 0) addVariantRow(prefix);
+  }
+}
+
+function addVariantRow(prefix, dose = '', preco = '', estoque = '') {
+  const tbody = document.getElementById(`${prefix}-var-tbody`);
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  tr.className = 'variant-row';
+  tr.innerHTML = `
+    <td><input class="vr-dose" type="text" placeholder="ex: 2mg" value="${escAttr(String(dose))}"/></td>
+    <td><input class="vr-preco" type="number" step="0.01" min="0" placeholder="0.00" value="${escAttr(String(preco||''))}"/></td>
+    <td><input class="vr-estoque" type="number" min="0" placeholder="0" value="${escAttr(String(estoque||''))}"/></td>
+    <td><button type="button" class="btn-xs btn-xs-danger" onclick="this.closest('tr').remove()">×</button></td>`;
+  tbody.appendChild(tr);
+}
+
+function buildVariantesStr(prefix) {
+  return [...document.querySelectorAll(`#${prefix}-var-tbody .variant-row`)]
+    .map(row => {
+      const dose  = row.querySelector('.vr-dose')?.value.trim() || '';
+      const preco = parseFloat(row.querySelector('.vr-preco')?.value || 0) || 0;
+      const est   = parseInt(row.querySelector('.vr-estoque')?.value || 0) || 0;
+      return dose ? `${dose}:${preco}:${est}` : null;
+    }).filter(Boolean).join('|');
+}
+
 function abrirEditarProduto(prodId) {
   const p = App.produtos.find(x => x.id === prodId);
   if (!p) return;
-  const hasPromo = !!(p.promo_preco || p.promo_pct || p.promo_fim);
+  const hasPromo     = !!(p.promo_preco || p.promo_pct || p.promo_fim);
+  const hasVariantes = !!(p.variantes && p.variantes.length > 0);
   openModal(`
     <div class="modal-header">
       <span>✏️ Editar Produto — ${esc(p.nome)}</span>
@@ -1243,10 +1282,26 @@ function abrirEditarProduto(prodId) {
         <div class="field-inline"><label>Concentração / Dose</label><input id="ep-conc" value="${escAttr(p.conc||'')}"/></div>
       </div>
       <div class="cfg-row">
-        <div class="field-inline"><label>Preço Base (R$)</label><input type="number" step="0.01" id="ep-preco" value="${p.preco||0}"/></div>
-        <div class="field-inline"><label>Estoque</label><input type="number" id="ep-estoque" value="${p.variantes?.length ? '' : (p.estoque||0)}" ${p.variantes?.length ? 'disabled placeholder="via variantes"' : ''}/></div>
+        <div class="field-inline"><label>Preço Base (R$)</label><input type="number" step="0.01" id="ep-preco" value="${p.preco||0}" ${hasVariantes?'disabled':''}/>  </div>
+        <div class="field-inline"><label>Estoque</label><input type="number" id="ep-estoque" value="${hasVariantes ? '' : (p.estoque||0)}" ${hasVariantes?'disabled placeholder="via variantes"':''}/></div>
         <div class="field-inline"><label>Laboratório</label><input id="ep-lab" value="${escAttr(p.lab||'')}"/></div>
       </div>
+
+      <div class="var-section">
+        <label class="var-toggle-label">
+          <input type="checkbox" id="ep-tem-variantes" ${hasVariantes?'checked':''}
+            onchange="toggleVariantEditor(this,'ep')"/>
+          Variantes — doses com preços individuais
+        </label>
+        <div id="ep-variantes-editor" class="variantes-editor ${hasVariantes?'':'hidden'}">
+          <table class="var-table">
+            <thead><tr><th>Dose / Conc.</th><th>Preço R$</th><th>Estoque</th><th></th></tr></thead>
+            <tbody id="ep-var-tbody"></tbody>
+          </table>
+          <button type="button" class="btn-xs" style="margin-top:6px" onclick="addVariantRow('ep')">+ Dose</button>
+        </div>
+      </div>
+
       <div class="cfg-row">
         <div class="field-inline"><label>Categoria</label>
           <select id="ep-categoria">
@@ -1285,6 +1340,10 @@ function abrirEditarProduto(prodId) {
         <button type="button" class="btn-sm" onclick="closeModal()">Cancelar</button>
       </div>
     </form>`);
+  // Populate variant rows after modal renders
+  if (hasVariantes) {
+    p.variantes.forEach(v => addVariantRow('ep', v.dose, v.preco, v.estoque));
+  }
 }
 
 async function salvarProduto(e, prodId) {
@@ -1294,8 +1353,14 @@ async function salvarProduto(e, prodId) {
   const params = { prod_id: prodId };
   const nome = document.getElementById('ep-nome')?.value.trim(); if (nome) params.nome = nome;
   const conc = document.getElementById('ep-conc')?.value.trim(); if (conc !== undefined) params.conc = conc;
-  const preco = document.getElementById('ep-preco')?.value; if (preco) params.preco = preco;
-  const est = document.getElementById('ep-estoque'); if (est && !est.disabled) params.estoque = est.value;
+  const temVar = document.getElementById('ep-tem-variantes')?.checked;
+  if (temVar) {
+    params.variantes = buildVariantesStr('ep');
+  } else {
+    params.variantes = '';
+    const preco = document.getElementById('ep-preco')?.value; if (preco) params.preco = preco;
+    const est = document.getElementById('ep-estoque'); if (est && !est.disabled) params.estoque = est.value;
+  }
   const lab = document.getElementById('ep-lab')?.value.trim(); if (lab !== undefined) params.lab = lab;
   params.ativo = document.getElementById('ep-ativo')?.value;
   const pp = document.getElementById('ep-promo-preco')?.value; if (pp) params.promo_preco = pp;
@@ -1535,6 +1600,21 @@ function abrirNovoProduto() {
         <div class="field-inline"><label>Tags (vírgula)</label>
           <input id="np-tags" placeholder="ex: peptídeo, injetável"/></div>
       </div>
+
+      <div class="var-section">
+        <label class="var-toggle-label">
+          <input type="checkbox" id="np-tem-variantes" onchange="toggleVariantEditor(this,'np')"/>
+          Variantes — doses com preços individuais
+        </label>
+        <div id="np-variantes-editor" class="variantes-editor hidden">
+          <table class="var-table">
+            <thead><tr><th>Dose / Conc.</th><th>Preço R$</th><th>Estoque</th><th></th></tr></thead>
+            <tbody id="np-var-tbody"></tbody>
+          </table>
+          <button type="button" class="btn-xs" style="margin-top:6px" onclick="addVariantRow('np')">+ Dose</button>
+        </div>
+      </div>
+
       <div id="np-status" class="cfg-status-msg"></div>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button type="submit" class="btn-sm btn-accent">Criar Produto</button>
@@ -1547,13 +1627,15 @@ async function salvarNovoProduto(e) {
   e.preventDefault();
   const msg = document.getElementById('np-status');
   msg.textContent = 'Criando...';
+  const temVar = document.getElementById('np-tem-variantes')?.checked;
   const params = {
     nome:      document.getElementById('np-nome').value.trim(),
     icone:     document.getElementById('np-icone').value.trim() || '💊',
     conc:      document.getElementById('np-conc').value.trim(),
     lab:       document.getElementById('np-lab').value.trim(),
-    preco:     document.getElementById('np-preco').value,
-    estoque:   document.getElementById('np-estoque').value || '0',
+    preco:     temVar ? '0' : document.getElementById('np-preco').value,
+    estoque:   temVar ? '0' : (document.getElementById('np-estoque').value || '0'),
+    variantes: temVar ? buildVariantesStr('np') : '',
     categoria: document.getElementById('np-categoria').value,
     tags:      document.getElementById('np-tags').value.trim(),
   };
@@ -1589,11 +1671,12 @@ function renderRelatorio() {
   const topProdutos = d.top_produtos || [];
 
   // Recalcula faturamento excluindo pedidos de devs (App.pedidos tem tudo)
+  const PAID_STATUSES = ['Pag. Confirmado','Em Separação','Embalado','Etiqueta Gerada','Enviado','Entregue'];
   const pedReais    = App.pedidos.filter(p => !isDevOrder(p));
-  const semCancel   = pedReais.filter(p => p.status !== 'Cancelado');
+  const pagos       = pedReais.filter(p => PAID_STATUSES.includes(p.status));
   const cancelados  = pedReais.filter(p => p.status === 'Cancelado');
-  const totalGeral  = semCancel.reduce((s, p) => s + (parseFloat(String(p.total||'').replace(',','.')) || 0), 0);
-  const nPedidos    = semCancel.length;
+  const totalGeral  = pagos.reduce((s, p) => s + (parseFloat(String(p.total||'').replace(',','.')) || 0), 0);
+  const nPedidos    = pagos.length;
   const avgTicket   = nPedidos > 0 ? totalGeral / nPedidos : 0;
   const nTodos      = nPedidos + cancelados.length;
   const taxaCancelVal = nTodos > 0 ? (cancelados.length / nTodos * 100).toFixed(1) : '0';
@@ -1611,34 +1694,34 @@ function renderRelatorio() {
     <div class="rel-row">
       <div class="rel-card rel-wide">
         <h4>Faturamento por Semana</h4>
-        <canvas id="chart-semanas" height="100"></canvas>
+        <canvas id="chart-semanas" height="60"></canvas>
       </div>
     </div>
     <div class="rel-row">
       <div class="rel-card">
         <h4>Top 5 Clientes</h4>
-        <canvas id="chart-clientes" height="160"></canvas>
+        <canvas id="chart-clientes" height="100"></canvas>
       </div>
       <div class="rel-card">
         <h4>Top 5 Produtos (qtd vendida)</h4>
-        <canvas id="chart-produtos" height="160"></canvas>
+        <canvas id="chart-produtos" height="100"></canvas>
       </div>
     </div>
     <div class="rel-row">
-      <div class="rel-card" style="max-width:340px">
+      <div class="rel-card" style="max-width:320px">
         <h4>Pedidos por Status</h4>
-        <canvas id="chart-status" height="160"></canvas>
+        <canvas id="chart-status" height="120"></canvas>
       </div>
-      <div class="rel-card" style="max-width:340px">
+      <div class="rel-card" style="max-width:320px">
         <h4>Forma de Pagamento</h4>
-        <canvas id="chart-pagamento" height="160"></canvas>
+        <canvas id="chart-pagamento" height="120"></canvas>
       </div>
     </div>
     ${d.por_vendedora && d.por_vendedora.length > 0 ? `
     <div class="rel-row">
       <div class="rel-card rel-wide">
         <h4>Faturamento por Vendedora</h4>
-        <canvas id="chart-vendedoras" height="100"></canvas>
+        <canvas id="chart-vendedoras" height="60"></canvas>
       </div>
     </div>` : ''}
   `;
