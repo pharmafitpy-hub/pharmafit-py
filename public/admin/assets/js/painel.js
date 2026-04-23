@@ -212,14 +212,15 @@ function renderKanban() {
   const devZone     = document.getElementById('kanban-dev-zone');
   const archZone    = document.getElementById('kanban-arch-zone');
 
-  const archCutoff = new Date(Date.now() - 7 * 86400000);
+  const archDays = getArchDays();
   const archivadosSet = new Set(
-    realPedidos.filter(p => {
+    archDays < 0 ? [] : realPedidos.filter(p => {
       if (p.status !== 'Entregue') return false;
+      if (archDays === 0) return true;
       const ds = p.dataStatus || p.data || '';
       const m  = String(ds).match(/(\d{2})\/(\d{2})\/(\d{4})/);
       const d  = m ? new Date(+m[3], +m[2]-1, +m[1]) : null;
-      return d && d < archCutoff;
+      return d && d < new Date(Date.now() - archDays * 86400000);
     }).map(p => p.id)
   );
   const archivados = realPedidos.filter(p => archivadosSet.has(p.id));
@@ -869,7 +870,22 @@ async function updateStock(prodId, valor) {
 }
 
 // ── CONFIG ────────────────────────────────────────────────────────────────────
+function getArchDays() {
+  const v = localStorage.getItem('pharmafit_arch_days');
+  return v === null ? 7 : parseInt(v);
+}
+
+function salvarConfigArquivamento(val) {
+  localStorage.setItem('pharmafit_arch_days', val);
+  showToast('Configuração salva');
+  if (App.view === 'kanban') renderKanban();
+}
+
 function renderConfig() {
+  // Restore archival setting
+  const archSel = document.getElementById('cfg-arch-days');
+  if (archSel) archSel.value = String(getArchDays());
+
   const tbody = document.getElementById('admins-tbody');
   if (tbody) {
     tbody.innerHTML = App.admins.length === 0
@@ -1398,7 +1414,7 @@ async function salvarProduto(e, prodId) {
   e.preventDefault();
   const msg = document.getElementById('ep-status');
   msg.textContent = 'Salvando...';
-  const params = { prod_id: prodId };
+  const params = { prod_id: prodId, id: prodId };
   const nome = document.getElementById('ep-nome')?.value.trim(); if (nome) params.nome = nome;
   const conc = document.getElementById('ep-conc')?.value.trim(); if (conc !== undefined) params.conc = conc;
   const temVar = document.getElementById('ep-tem-variantes')?.checked;

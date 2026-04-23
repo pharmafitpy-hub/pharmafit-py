@@ -255,7 +255,7 @@
   <!-- ══ VIEW: CONFIG ══ -->
   <div id="view-config" class="view hidden">
     <div class="view-bar">
-      <h2>Configurações — Administradores</h2>
+      <h2>Configurações</h2>
     </div>
 
     <div class="config-layout">
@@ -280,7 +280,29 @@
         </div>
       </div>
 
-      <!-- New admin form -->
+      <!-- Panel settings -->
+      <div class="config-section">
+        <h3 class="cfg-section-title">⚙️ Configurações do Painel</h3>
+        <div class="cfg-form">
+          <div class="cfg-row">
+            <div class="field-inline" style="flex:0 0 auto">
+              <label>Arquivar pedidos entregues após</label>
+              <select id="cfg-arch-days" onchange="salvarConfigArquivamento(this.value)" style="min-width:180px">
+                <option value="0">Imediato (qualquer entregue)</option>
+                <option value="1">1 dia</option>
+                <option value="3">3 dias</option>
+                <option value="7" selected>7 dias (padrão)</option>
+                <option value="14">14 dias</option>
+                <option value="30">30 dias</option>
+                <option value="-1">Nunca arquivar</option>
+              </select>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--text2);margin:6px 0 0">Pedidos com status "Entregue" mais antigos que esse prazo aparecem colapsados no final do kanban.</p>
+        </div>
+      </div>
+
+      <!-- Admins list -->
       <div class="config-section">
         <h3 class="cfg-section-title">Cadastrar novo admin</h3>
         <form class="cfg-form" onsubmit="cadastrarAdmin(event)">
