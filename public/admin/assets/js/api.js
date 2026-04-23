@@ -30,6 +30,7 @@ const API = {
 
   listarCupons:     ()                  => API.call({ action: 'listar_cupons_admin' }),
   toggleCupom:      (codigo)            => API.call({ action: 'toggle_cupom_admin', codigo }),
+  apagarCupom:      (codigo)            => API.call({ action: 'apagar_cupom_admin', codigo }),
   criarCupom:       (p)                 => API.call({ action: 'criar_cupom_admin', ...p }),
   editarProduto:    (p)                 => API.call({ action: 'editar_produto_completo', ...p }),
   editarCliente:    (p)                 => API.call({ action: 'editar_cliente', ...p }),

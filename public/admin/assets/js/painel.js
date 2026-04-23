@@ -999,11 +999,13 @@ function renderCupons() {
         <td style="font-size:12px;color:var(--text2)">${esc(c.vendedora || '—')}</td>
         <td style="text-align:center">${c.usos}</td>
         <td><span class="badge ${statusCls[c.status] || 'badge-off'}">${esc(c.status)}</span></td>
-        <td>
+        <td style="display:flex;gap:4px">
           <button class="btn-xs ${c.status === 'Ativo' ? 'btn-xs-danger' : ''}"
             onclick="toggleCupomAdmin('${escAttr(c.codigo)}','${c.status}')">
             ${c.status === 'Ativo' ? 'Desativar' : 'Ativar'}
           </button>
+          <button class="btn-xs btn-xs-danger"
+            onclick="apagarCupomAdmin('${escAttr(c.codigo)}')">🗑️</button>
         </td>
       </tr>`).join('');
 }
@@ -1011,10 +1013,12 @@ function renderCupons() {
 function toggleFormCupom() {
   const p = document.getElementById('cupom-form-panel');
   p.classList.toggle('hidden');
-  // Pre-render product items when opening, lazy
   if (!p.classList.contains('hidden')) {
-    const items = document.getElementById('nc-prod-items');
-    if (items && !items.innerHTML) renderProdPickerCupom();
+    // Sempre re-renderiza o picker ao abrir (garante variantes atualizadas)
+    renderProdPickerCupom();
+    // Reset tipo para % e mostrar campo desconto
+    const tipoSel = document.getElementById('nc-tipo');
+    if (tipoSel) { tipoSel.value = '%'; toggleCupomTipo(); }
   }
 }
 
@@ -1167,6 +1171,18 @@ async function salvarCupomAdmin(e) {
   } catch(ex) {
     msg.textContent = 'Erro de conexão';
     msg.style.color = 'var(--danger)';
+  }
+}
+
+async function apagarCupomAdmin(codigo) {
+  if (!confirm(`Apagar permanentemente o cupom ${codigo}? Esta ação não pode ser desfeita.`)) return;
+  try {
+    await API.apagarCupom(codigo);
+    App.cupons = App.cupons.filter(c => c.codigo !== codigo);
+    renderCupons();
+    showToast(`Cupom ${codigo} apagado`);
+  } catch(e) {
+    showToast('Erro ao apagar cupom', 'error');
   }
 }
 
@@ -1538,22 +1554,30 @@ function renderRelatorio() {
   const d = App.relatorio;
   if (!d) { el.innerHTML = '<div class="empty-msg">Sem dados disponíveis</div>'; return; }
 
-  // Filtro client-side: remove devs dos rankings (GAS filtra stats, mas top_clientes
-  // pode ter chegado antes do redeploy — filtrar por nome como fallback)
+  // ── Filtro client-side completo (independente do redeploy do GAS) ────────────
   const devNomes = new Set(
     App.clientes.filter(c => c.categoria === 'dev').map(c => (c.clinica||'').toLowerCase().trim())
   );
   const topClientes = (d.top_clientes || []).filter(c => !devNomes.has((c.nome||'').toLowerCase().trim()));
   const topProdutos = d.top_produtos || [];
 
-  const taxaCancel = parseFloat(d.taxa_cancelamento || 0);
+  // Recalcula faturamento excluindo pedidos de devs (App.pedidos tem tudo)
+  const pedReais    = App.pedidos.filter(p => !isDevOrder(p));
+  const semCancel   = pedReais.filter(p => p.status !== 'Cancelado');
+  const cancelados  = pedReais.filter(p => p.status === 'Cancelado');
+  const totalGeral  = semCancel.reduce((s, p) => s + (parseFloat(String(p.total||'').replace(',','.')) || 0), 0);
+  const nPedidos    = semCancel.length;
+  const avgTicket   = nPedidos > 0 ? totalGeral / nPedidos : 0;
+  const nTodos      = nPedidos + cancelados.length;
+  const taxaCancelVal = nTodos > 0 ? (cancelados.length / nTodos * 100).toFixed(1) : '0';
+  const taxaCancel  = parseFloat(taxaCancelVal);
   el.innerHTML = `
     <div class="rel-stats">
-      <div class="stat-card"><span class="stat-val">${formatMoeda(d.total_geral)}</span><span class="stat-lbl">Faturamento Total</span></div>
-      <div class="stat-card"><span class="stat-val">${d.total_pedidos}</span><span class="stat-lbl">Pedidos (sem cancel.)</span></div>
-      <div class="stat-card"><span class="stat-val">${formatMoeda(d.avg_ticket)}</span><span class="stat-lbl">Ticket Médio</span></div>
+      <div class="stat-card"><span class="stat-val">${formatMoeda(totalGeral)}</span><span class="stat-lbl">Faturamento Total</span></div>
+      <div class="stat-card"><span class="stat-val">${nPedidos}</span><span class="stat-lbl">Pedidos (sem cancel.)</span></div>
+      <div class="stat-card"><span class="stat-val">${formatMoeda(avgTicket)}</span><span class="stat-lbl">Ticket Médio</span></div>
       <div class="stat-card${taxaCancel > 10 ? ' stat-alert' : ''}">
-        <span class="stat-val">${d.taxa_cancelamento}%</span>
+        <span class="stat-val">${taxaCancelVal}%</span>
         <span class="stat-lbl">Taxa Cancelamento</span>
       </div>
     </div>
