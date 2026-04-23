@@ -624,6 +624,11 @@ button { cursor: pointer; }
   border-top: 1px solid var(--border); margin-top: 4px;
 }
 .prod-pick-group:first-child { border-top: none; margin-top: 0; }
+.prod-pick-group-label {
+  border-top: 1px solid var(--border); margin-top: 4px;
+  font-size: 12px; font-weight: 600;
+}
+.prod-pick-group-label:first-child { border-top: none; margin-top: 0; }
 .prod-pick-variant { padding-left: 20px !important; }
 
 /* ── PREÇOS FIXOS (cupom tipo fixo) ──────────────────────────────────────── */

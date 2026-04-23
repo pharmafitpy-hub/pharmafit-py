@@ -1026,13 +1026,23 @@ function renderProdPickerCupom() {
   const items = document.getElementById('nc-prod-items');
   if (!items) return;
   const rows = [];
+  if (App.produtos.length === 0) {
+    rows.push(`<div style="color:var(--text2);font-size:11px;padding:8px">Nenhum produto carregado</div>`);
+  }
   App.produtos.forEach(p => {
     if (p.variantes && p.variantes.length > 0) {
-      rows.push(`<div class="prod-pick-group">${p.icone||'💊'} <strong>${esc(p.nome)}</strong></div>`);
+      rows.push(`
+        <label class="prod-pick-item prod-pick-group-label">
+          <input type="checkbox" class="prod-pick-group-cb" data-prod="${escAttr(p.id)}"
+            onchange="toggleVariantGroup('${escAttr(p.id)}', this)"/>
+          ${p.icone||'💊'} <strong>${esc(p.nome)}</strong>
+          <span style="color:var(--text2);font-size:10px;margin-left:auto">${p.variantes.length} doses</span>
+        </label>`);
       p.variantes.forEach((v, i) => {
         rows.push(`
           <label class="prod-pick-item prod-pick-variant">
-            <input type="checkbox" class="prod-pick-cb" value="${escAttr(p.id+'__'+i)}" onchange="syncProdPickerInput()"/>
+            <input type="checkbox" class="prod-pick-cb" value="${escAttr(p.id+'__'+i)}"
+              data-prod-group="${escAttr(p.id)}" onchange="onVariantChange('${escAttr(p.id)}', this)"/>
             <span style="color:var(--text2)">↳</span> ${esc(v.dose)}
             <span style="color:var(--text2);font-size:11px">R$ ${formatNum(v.preco)}</span>
           </label>`);
@@ -1048,9 +1058,26 @@ function renderProdPickerCupom() {
   items.innerHTML = rows.join('');
 }
 
+function toggleVariantGroup(prodId, cb) {
+  document.querySelectorAll(`.prod-pick-cb[data-prod-group="${CSS.escape(prodId)}"]`)
+    .forEach(el => { el.checked = cb.checked; });
+  syncProdPickerInput();
+}
+
+function onVariantChange(prodId, changedCb) {
+  const all  = [...document.querySelectorAll(`.prod-pick-cb[data-prod-group="${CSS.escape(prodId)}"]`)];
+  const groupCb = document.querySelector(`.prod-pick-group-cb[data-prod="${CSS.escape(prodId)}"]`);
+  if (groupCb) {
+    const nChecked = all.filter(el => el.checked).length;
+    groupCb.indeterminate = nChecked > 0 && nChecked < all.length;
+    groupCb.checked = nChecked === all.length;
+  }
+  syncProdPickerInput();
+}
+
 function filtrarProdPicker(q) {
   const lower = q.toLowerCase();
-  document.querySelectorAll('.prod-pick-item, .prod-pick-group').forEach(el => {
+  document.querySelectorAll('.prod-pick-item').forEach(el => {
     el.style.display = el.textContent.toLowerCase().includes(lower) ? '' : 'none';
   });
 }
