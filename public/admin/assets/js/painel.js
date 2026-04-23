@@ -14,6 +14,7 @@ window.App = {
   charts:        {},
   view:          'kanban',
   drawerOrderId: null,
+  batchSelected: new Set(),
 };
 
 // ── STAGES ────────────────────────────────────────────────────────────────────
@@ -34,6 +35,15 @@ const NEXT_STATUS = {
   'Embalado':        'Etiqueta Gerada',
   'Etiqueta Gerada': 'Enviado',
   'Enviado':         'Entregue',
+};
+
+const PREV_STATUS = {
+  'Pag. Confirmado': 'Novo',
+  'Em Separação':    'Pag. Confirmado',
+  'Embalado':        'Em Separação',
+  'Etiqueta Gerada': 'Embalado',
+  'Enviado':         'Etiqueta Gerada',
+  'Entregue':        'Enviado',
 };
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
@@ -200,13 +210,20 @@ function renderKanban() {
 
   board.innerHTML = STAGES.map(stage => {
     const orders = allPedidos.filter(p => p.status === stage.key);
+    const total  = orders.reduce((s, o) => s + (parseFloat(String(o.total||'').replace(',','.')) || 0), 0);
     return `
       <div class="kanban-col">
         <div class="col-header" style="--col-color:${stage.color}">
           <span>${stage.label}</span>
-          <span class="col-badge">${orders.length}</span>
+          <div class="col-header-right">
+            <span class="col-total">${formatMoeda(total)}</span>
+            <span class="col-badge">${orders.length}</span>
+          </div>
         </div>
-        <div class="col-body">
+        <div class="col-body"
+          ondragover="event.preventDefault();event.currentTarget.classList.add('drag-over')"
+          ondragleave="event.currentTarget.classList.remove('drag-over')"
+          ondrop="onDrop(event,'${stage.key}')">
           ${orders.length === 0
             ? `<div class="col-empty">—</div>`
             : orders.map(renderCard).join('')}
@@ -233,14 +250,23 @@ function renderCard(order) {
   const extras  = prods.length > 1
     ? `<div class="card-extras">+ ${prods.length - 1} item${prods.length > 2 ? 's' : ''}</div>` : '';
   const next  = NEXT_STATUS[order.status];
+  const prev  = PREV_STATUS[order.status];
   const tempo = timeAgo(order.dataStatus || order.data);
   const nextLabel = next
     ? next.replace('Pag. Confirmado','Confirmar Pag.').replace('Etiqueta Gerada','Gerar Etiqueta')
     : '';
 
   return `
-    <div class="kanban-card${stuck ? ' card-stuck' : ''}" onclick="openDrawer(${order.id})">
-      ${stuck ? '<div class="stuck-badge">⚠️ +24h</div>' : ''}
+    <div class="kanban-card${stuck ? ' card-stuck' : ''}"
+      draggable="true"
+      ondragstart="onDragStart(event,${order.id})"
+      onclick="openDrawer(${order.id})">
+      <div class="card-top-row">
+        <input type="checkbox" class="card-check"
+          onclick="event.stopPropagation();toggleCardSelect(${order.id},this)"
+          ${App.batchSelected.has(order.id) ? 'checked' : ''}/>
+        ${stuck ? '<div class="stuck-badge">⚠️ +24h</div>' : ''}
+      </div>
       <div class="card-clinica">${esc(order.clinica)}</div>
       <div class="card-prod">${esc(preview)}</div>
       ${extras}
@@ -251,6 +277,10 @@ function renderCard(order) {
       </div>
       <div class="card-actions">
         <button class="card-btn" onclick="event.stopPropagation();openDrawer(${order.id})">Detalhes</button>
+        ${prev
+          ? `<button class="card-btn card-btn-prev"
+               onclick="event.stopPropagation();revertStatus(${order.id})">← Voltar</button>`
+          : ''}
         ${next
           ? `<button class="card-btn card-btn-advance"
                onclick="event.stopPropagation();advanceStatus(${order.id},'${next}')">→ ${esc(nextLabel)}</button>`
@@ -285,6 +315,92 @@ async function advanceStatus(orderId, nextStatus) {
   } catch (e) {
     showToast('Erro ao atualizar status', 'error');
   }
+}
+
+// ── DRAG AND DROP ─────────────────────────────────────────────────────────────
+function onDragStart(event, orderId) {
+  event.dataTransfer.setData('orderId', String(orderId));
+  event.dataTransfer.effectAllowed = 'move';
+}
+
+async function onDrop(event, stageKey) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag-over');
+  const orderId = parseInt(event.dataTransfer.getData('orderId'));
+  if (!orderId) return;
+  const order = App.pedidos.find(p => p.id === orderId);
+  if (!order || order.status === stageKey) return;
+  await advanceStatus(orderId, stageKey);
+}
+
+// ── REVERT STATUS ─────────────────────────────────────────────────────────────
+async function revertStatus(orderId) {
+  const order = App.pedidos.find(p => p.id === orderId);
+  if (!order) return;
+  const prev = PREV_STATUS[order.status];
+  if (!prev) return showToast('Não é possível voltar deste status', 'error');
+  if (!confirm(`Voltar status para "${prev}"?`)) return;
+  try {
+    await API.atualizarStatus(orderId, prev);
+    await loadPedidos();
+    renderKanban();
+    const upd = App.pedidos.find(p => p.id === orderId);
+    if (upd) renderDrawer(upd);
+    showToast(`← ${prev}`);
+  } catch(e) { showToast('Erro ao voltar status', 'error'); }
+}
+
+// ── BATCH ACTIONS ─────────────────────────────────────────────────────────────
+function toggleCardSelect(orderId, el) {
+  if (el.checked) App.batchSelected.add(orderId);
+  else App.batchSelected.delete(orderId);
+  updateBatchToolbar();
+}
+
+function updateBatchToolbar() {
+  let bar = document.getElementById('batch-toolbar');
+  if (App.batchSelected.size === 0) {
+    if (bar) bar.classList.remove('visible');
+    return;
+  }
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'batch-toolbar';
+    bar.className = 'batch-toolbar';
+    document.body.appendChild(bar);
+  }
+  bar.innerHTML = `
+    <span class="batch-count">${App.batchSelected.size} selecionado(s)</span>
+    <select id="batch-status" class="batch-select">
+      ${STAGES.map(s => `<option value="${s.key}">${s.label}</option>`).join('')}
+      <option value="Cancelado">❌ Cancelado</option>
+    </select>
+    <button class="btn-sm btn-accent" onclick="batchUpdateStatus()">Aplicar</button>
+    <button class="btn-sm" onclick="clearBatchSelection()">✕ Cancelar</button>`;
+  bar.classList.add('visible');
+}
+
+function clearBatchSelection() {
+  App.batchSelected.clear();
+  document.querySelectorAll('.card-check').forEach(cb => cb.checked = false);
+  updateBatchToolbar();
+}
+
+async function batchUpdateStatus() {
+  const status = document.getElementById('batch-status')?.value;
+  if (!status || App.batchSelected.size === 0) return;
+  const count = App.batchSelected.size;
+  if (!confirm(`Aplicar "${status}" em ${count} pedido(s)?`)) return;
+  const ids = [...App.batchSelected];
+  let errors = 0;
+  for (const id of ids) {
+    try { await API.atualizarStatus(id, status); }
+    catch(e) { errors++; }
+  }
+  clearBatchSelection();
+  await loadPedidos();
+  renderKanban();
+  showToast(errors > 0 ? `${count - errors} atualizados, ${errors} erros` : `${count} pedido(s) atualizados`);
 }
 
 async function cancelarPedido(orderId) {
@@ -419,6 +535,13 @@ function renderDrawer(order) {
       </div>` : ''}
 
       <div class="drawer-section">
+        <h3>📝 Nota Interna</h3>
+        <textarea id="dr-nota-int" class="nota-int-area" placeholder="Anotações internas (não visível ao cliente)..."
+          rows="3">${esc(order.nota_int || '')}</textarea>
+        <button class="btn-sm" style="margin-top:6px" onclick="salvarNotaInterna(${order.id})">💾 Salvar Nota</button>
+      </div>
+
+      <div class="drawer-section">
         <h3>📜 Histórico</h3>
         <div class="hist-list">
           ${hist.length === 0
@@ -437,6 +560,10 @@ function renderDrawer(order) {
     <div class="drawer-footer">
       <button class="btn-sm btn-outline" onclick="printRomaneio(${order.id})">🖨️ Romaneio</button>
       <button class="btn-sm btn-outline" onclick="salvarLogistica(${order.id})">💾 Salvar Dados</button>
+      <button class="btn-sm btn-outline" onclick="corrigirPedido(${order.id})">✏️ Corrigir</button>
+      ${PREV_STATUS[order.status]
+        ? `<button class="btn-sm btn-outline" onclick="revertStatus(${order.id})">← Voltar Status</button>`
+        : ''}
       ${next
         ? `<button class="btn-sm btn-accent" onclick="advanceStatus(${order.id},'${esc(next)}')">→ ${esc(next)}</button>`
         : ''}
@@ -508,6 +635,47 @@ function printRomaneio(orderId) {
   if (!order) return;
   sessionStorage.setItem('romaneio_order', JSON.stringify({ ...order, itens: parseItens(order) }));
   window.open('print/romaneio.html', '_blank');
+}
+
+function corrigirPedido(orderId) {
+  const order = App.pedidos.find(p => p.id === orderId);
+  if (!order) return;
+  const payload = {
+    rowNum:      orderId,
+    pagamento:   order.pagamento,
+    parcelas:    order.parcelas,
+    obs:         order.obs,
+    cupom:       order.cupom,
+    carrinho:    order.carrinho,
+    cep:         order.cep,
+    freteMetodo: order.freteMetodo,
+    freteValor:  order.freteValor,
+    total:       order.total,
+    produtos:    order.produtos,
+    cli: {
+      clinica:     order.clinica,
+      responsavel: order.responsavel,
+      cargo:       order.cargo,
+      telefone:    order.telefone,
+      email:       order.email_cli,
+      cpf:         order.documento,
+      cidade:      order.cidade,
+      estado:      order.estado,
+      endereco:    order.endereco,
+    },
+  };
+  sessionStorage.setItem('pharmafit_corrigir', JSON.stringify(payload));
+  window.open('../gerador_pedido.html', '_blank');
+}
+
+async function salvarNotaInterna(orderId) {
+  const nota = document.getElementById('dr-nota-int')?.value ?? '';
+  try {
+    await API.salvarNotaInt(orderId, nota);
+    const order = App.pedidos.find(p => p.id === orderId);
+    if (order) order.nota_int = nota;
+    showToast('Nota salva!');
+  } catch(e) { showToast('Erro ao salvar nota', 'error'); }
 }
 
 // ── CLIENTES ──────────────────────────────────────────────────────────────────
@@ -738,6 +906,39 @@ function renderCupons() {
 function toggleFormCupom() {
   const p = document.getElementById('cupom-form-panel');
   p.classList.toggle('hidden');
+  if (!p.classList.contains('hidden')) renderProdPickerCupom();
+}
+
+function renderProdPickerCupom() {
+  const list = document.getElementById('nc-prod-list');
+  if (!list || list.innerHTML) return;
+  list.innerHTML = App.produtos.map(p => `
+    <label class="prod-pick-item">
+      <input type="checkbox" class="prod-pick-cb" value="${escAttr(p.id)}"/>
+      ${p.icone||'💊'} ${esc(p.nome)}
+    </label>`).join('');
+  list.querySelectorAll('.prod-pick-cb').forEach(cb => cb.addEventListener('change', syncProdPickerInput));
+}
+
+function syncProdPickerInput() {
+  const checked = [...document.querySelectorAll('.prod-pick-cb:checked')].map(cb => cb.value);
+  document.getElementById('nc-produtos').value = checked.length > 0 ? checked.join(',') : 'todos';
+}
+
+function toggleTodosProdutos(cb) {
+  const list = document.getElementById('nc-prod-list');
+  if (cb.checked) {
+    list.classList.add('hidden');
+    document.getElementById('nc-produtos').value = 'todos';
+  } else {
+    list.classList.remove('hidden');
+    renderProdPickerCupom();
+    syncProdPickerInput();
+  }
+}
+
+function toggleFreteGratis(cb) {
+  document.getElementById('nc-frete').classList.toggle('hidden', !cb.checked);
 }
 
 function toggleCupomTipo() {
@@ -749,13 +950,14 @@ async function salvarCupomAdmin(e) {
   e.preventDefault();
   const msg = document.getElementById('nc-status');
   msg.textContent = '';
+  const freteToggle = document.getElementById('nc-frete-toggle');
   const params = {
     codigo:              document.getElementById('nc-codigo').value.trim(),
     tipo:                document.getElementById('nc-tipo').value,
     valor:               document.getElementById('nc-valor').value,
     produtos:            document.getElementById('nc-produtos').value.trim() || 'todos',
     validade:            document.getElementById('nc-validade').value.trim() || 'INDETERMINADO',
-    frete_gratis_acima:  document.getElementById('nc-frete').value || '',
+    frete_gratis_acima:  (freteToggle?.checked ? document.getElementById('nc-frete').value : '') || '',
     parcelamento:        document.getElementById('nc-parc').checked ? 'SIM' : 'NAO',
   };
   try {
@@ -763,6 +965,15 @@ async function salvarCupomAdmin(e) {
     if (data.ok) {
       showToast(`Cupom ${data.codigo} criado!`);
       e.target.reset();
+      // Reset product picker state
+      const list = document.getElementById('nc-prod-list');
+      if (list) { list.innerHTML = ''; list.classList.add('hidden'); }
+      const todosCheck = document.getElementById('nc-todos-prods');
+      if (todosCheck) todosCheck.checked = true;
+      document.getElementById('nc-produtos').value = 'todos';
+      document.getElementById('nc-frete').classList.add('hidden');
+      const freteToggle = document.getElementById('nc-frete-toggle');
+      if (freteToggle) freteToggle.checked = false;
       toggleFormCupom();
       await loadCupons();
       renderCupons();
@@ -793,6 +1004,7 @@ async function toggleCupomAdmin(codigo, statusAtual) {
 function abrirEditarProduto(prodId) {
   const p = App.produtos.find(x => x.id === prodId);
   if (!p) return;
+  const hasPromo = !!(p.promo_preco || p.promo_pct || p.promo_fim);
   openModal(`
     <div class="modal-header">
       <span>✏️ Editar Produto — ${esc(p.nome)}</span>
@@ -800,27 +1012,47 @@ function abrirEditarProduto(prodId) {
     </div>
     <form class="cfg-form" onsubmit="salvarProduto(event,'${escAttr(prodId)}')">
       <div class="cfg-row">
+        <div class="field-inline" style="flex:0 0 60px"><label>Ícone</label><input id="ep-icone" value="${escAttr(p.icone||'💊')}" maxlength="4" style="text-align:center;font-size:20px"/></div>
         <div class="field-inline"><label>Nome</label><input id="ep-nome" value="${escAttr(p.nome)}"/></div>
         <div class="field-inline"><label>Concentração / Dose</label><input id="ep-conc" value="${escAttr(p.conc||'')}"/></div>
       </div>
       <div class="cfg-row">
         <div class="field-inline"><label>Preço Base (R$)</label><input type="number" step="0.01" id="ep-preco" value="${p.preco||0}"/></div>
         <div class="field-inline"><label>Estoque</label><input type="number" id="ep-estoque" value="${p.variantes?.length ? '' : (p.estoque||0)}" ${p.variantes?.length ? 'disabled placeholder="via variantes"' : ''}/></div>
+        <div class="field-inline"><label>Laboratório</label><input id="ep-lab" value="${escAttr(p.lab||'')}"/></div>
       </div>
       <div class="cfg-row">
-        <div class="field-inline"><label>Laboratório</label><input id="ep-lab" value="${escAttr(p.lab||'')}"/></div>
+        <div class="field-inline"><label>Categoria</label>
+          <select id="ep-categoria">
+            <option value="">— Selecionar —</option>
+            ${['emagrecimento','hormonal','performance','bem-estar','antienvelhecimento','outros'].map(c =>
+              `<option value="${c}" ${p.categoria===c?'selected':''}>${c.charAt(0).toUpperCase()+c.slice(1)}</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="field-inline"><label>Tags (vírgula)</label><input id="ep-tags" value="${escAttr((p.tags||[]).join(', '))}"/></div>
         <div class="field-inline"><label>Status</label>
           <select id="ep-ativo">
             <option value="true" ${p.estoque > 0 ? 'selected' : ''}>Ativo</option>
             <option value="false" ${p.estoque <= 0 ? 'selected' : ''}>Inativo</option>
           </select>
         </div>
+        <div class="field-inline" style="flex:0 0 auto;align-items:flex-end">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+            <input type="checkbox" id="ep-destaque" ${p.destaque==='sim'?'checked':''}/> Destaque
+          </label>
+        </div>
       </div>
-      <div class="cfg-row">
-        <div class="field-inline"><label>Promo — Preço (R$)</label><input type="number" step="0.01" id="ep-promo-preco" value="${p.promo_preco||''}"/></div>
-        <div class="field-inline"><label>Desconto Promo (%)</label><input type="number" id="ep-promo-pct" value="${p.promo_pct||''}"/></div>
-        <div class="field-inline"><label>Fim da Promo (dd/mm/aaaa)</label><input id="ep-promo-fim" value="${escAttr(p.promo_fim||'')}"/></div>
-      </div>
+
+      <details class="promo-section" ${hasPromo?'open':''}>
+        <summary class="promo-summary">🏷️ Promoção</summary>
+        <div class="cfg-row" style="margin-top:10px">
+          <div class="field-inline"><label>Preço Promocional (R$)</label><input type="number" step="0.01" id="ep-promo-preco" value="${p.promo_preco||''}"/></div>
+          <div class="field-inline"><label>Desconto (%)</label><input type="number" min="0" max="100" id="ep-promo-pct" value="${p.promo_pct||''}"/></div>
+          <div class="field-inline"><label>Fim da Promo (dd/mm/aaaa hh:mm)</label><input id="ep-promo-fim" value="${escAttr(p.promo_fim||'')}" placeholder="31/12/2025 23:59"/></div>
+        </div>
+      </details>
+
       <div id="ep-status" class="cfg-status-msg"></div>
       <div style="display:flex;gap:8px">
         <button type="submit" class="btn-sm btn-accent">Salvar</button>
@@ -843,6 +1075,10 @@ async function salvarProduto(e, prodId) {
   const pp = document.getElementById('ep-promo-preco')?.value; if (pp) params.promo_preco = pp;
   const pct = document.getElementById('ep-promo-pct')?.value; if (pct) params.promo_pct = pct;
   const pfim = document.getElementById('ep-promo-fim')?.value.trim(); if (pfim) params.promo_fim = pfim;
+  const icone = document.getElementById('ep-icone')?.value.trim(); if (icone) params.icone = icone;
+  const cat = document.getElementById('ep-categoria')?.value; if (cat !== undefined) params.categoria = cat;
+  const tags = document.getElementById('ep-tags')?.value.trim(); if (tags !== undefined) params.tags = tags;
+  params.destaque = document.getElementById('ep-destaque')?.checked ? 'sim' : '';
   try {
     const data = await API.editarProduto(params);
     if (data.ok) {
@@ -970,11 +1206,16 @@ function renderRelatorio() {
   const d = App.relatorio;
   if (!d) { el.innerHTML = '<div class="empty-msg">Sem dados disponíveis</div>'; return; }
 
+  const taxaCancel = parseFloat(d.taxa_cancelamento || 0);
   el.innerHTML = `
     <div class="rel-stats">
       <div class="stat-card"><span class="stat-val">${formatMoeda(d.total_geral)}</span><span class="stat-lbl">Faturamento Total</span></div>
-      <div class="stat-card"><span class="stat-val">${d.total_pedidos}</span><span class="stat-lbl">Total de Pedidos</span></div>
+      <div class="stat-card"><span class="stat-val">${d.total_pedidos}</span><span class="stat-lbl">Pedidos (sem cancel.)</span></div>
       <div class="stat-card"><span class="stat-val">${formatMoeda(d.avg_ticket)}</span><span class="stat-lbl">Ticket Médio</span></div>
+      <div class="stat-card${taxaCancel > 10 ? ' stat-alert' : ''}">
+        <span class="stat-val">${d.taxa_cancelamento}%</span>
+        <span class="stat-lbl">Taxa Cancelamento</span>
+      </div>
     </div>
     <div class="rel-row">
       <div class="rel-card rel-wide">
@@ -997,7 +1238,19 @@ function renderRelatorio() {
         <h4>Pedidos por Status</h4>
         <canvas id="chart-status" height="160"></canvas>
       </div>
-    </div>`;
+      <div class="rel-card" style="max-width:340px">
+        <h4>Forma de Pagamento</h4>
+        <canvas id="chart-pagamento" height="160"></canvas>
+      </div>
+    </div>
+    ${d.por_vendedora && d.por_vendedora.length > 0 ? `
+    <div class="rel-row">
+      <div class="rel-card rel-wide">
+        <h4>Faturamento por Vendedora</h4>
+        <canvas id="chart-vendedoras" height="100"></canvas>
+      </div>
+    </div>` : ''}
+  `;
 
   const chartOpts = { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#7aaccb' }, grid: { color: '#1e3a52' } }, y: { ticks: { color: '#7aaccb' }, grid: { color: '#1e3a52' } } } };
   const horizOpts = { ...chartOpts, indexAxis: 'y' };
@@ -1043,4 +1296,28 @@ function renderRelatorio() {
     },
     options: { responsive: true, plugins: { legend: { position: 'right', labels: { color: '#7aaccb', font: { size: 11 } } } } },
   });
+
+  if (d.por_pagamento && Object.keys(d.por_pagamento).length > 0) {
+    const pagLabels = Object.keys(d.por_pagamento);
+    const pagCores  = ['#1abc9c','#3b82f6','#f59e0b','#8b5cf6','#ef4444'];
+    App.charts.pagamento = new Chart(document.getElementById('chart-pagamento'), {
+      type: 'doughnut',
+      data: {
+        labels:   pagLabels,
+        datasets: [{ data: pagLabels.map(k => d.por_pagamento[k]), backgroundColor: pagLabels.map((_, i) => pagCores[i % pagCores.length]), borderWidth: 0 }],
+      },
+      options: { responsive: true, plugins: { legend: { position: 'right', labels: { color: '#7aaccb', font: { size: 11 } } } } },
+    });
+  }
+
+  if (d.por_vendedora && d.por_vendedora.length > 0 && document.getElementById('chart-vendedoras')) {
+    App.charts.vendedoras = new Chart(document.getElementById('chart-vendedoras'), {
+      type: 'bar',
+      data: {
+        labels:   d.por_vendedora.map(v => v.nome.length > 25 ? v.nome.slice(0,23)+'…' : v.nome),
+        datasets: [{ data: d.por_vendedora.map(v => v.total), backgroundColor: '#f59e0b', borderRadius: 4 }],
+      },
+      options: { ...chartOpts, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'R$ ' + ctx.raw.toFixed(2).replace('.',',') } } } },
+    });
+  }
 }

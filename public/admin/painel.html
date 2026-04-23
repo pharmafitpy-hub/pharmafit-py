@@ -162,11 +162,25 @@
           <div class="field-inline" id="nc-valor-wrap"><label>Valor (%)</label><input type="number" id="nc-valor" min="1" max="100" placeholder="10"/></div>
         </div>
         <div class="cfg-row">
-          <div class="field-inline"><label>Produtos (IDs separados por vírgula ou "todos")</label><input type="text" id="nc-produtos" placeholder="todos"/></div>
+          <div class="field-inline" style="flex:1">
+            <label>Produtos</label>
+            <div class="prod-picker-wrap">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:6px">
+                <input type="checkbox" id="nc-todos-prods" checked onchange="toggleTodosProdutos(this)"/> Todos os produtos
+              </label>
+              <div id="nc-prod-list" class="prod-picker-list hidden"></div>
+              <input type="hidden" id="nc-produtos" value="todos"/>
+            </div>
+          </div>
           <div class="field-inline"><label>Validade (dd/mm/aaaa hh:mm ou INDETERMINADO)</label><input type="text" id="nc-validade" placeholder="INDETERMINADO"/></div>
         </div>
         <div class="cfg-row">
-          <div class="field-inline"><label>Frete grátis acima de R$</label><input type="number" id="nc-frete" placeholder="0" min="0"/></div>
+          <div class="field-inline">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+              <input type="checkbox" id="nc-frete-toggle" onchange="toggleFreteGratis(this)"/> Frete grátis acima de R$
+            </label>
+            <input type="number" id="nc-frete" placeholder="Ex: 500" min="0" class="hidden" style="margin-top:4px"/>
+          </div>
           <div class="field-inline" style="display:flex;align-items:flex-end;gap:10px">
             <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
               <input type="checkbox" id="nc-parc"/> Parcelamento sem juros

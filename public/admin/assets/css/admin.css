@@ -448,13 +448,96 @@ button { cursor: pointer; }
   display: block; font-size: 11px; color: var(--text2);
   margin-bottom: 4px; text-transform: uppercase; letter-spacing: .5px;
 }
-.cfg-form .field-inline input {
+.cfg-form .field-inline input,
+.cfg-form .field-inline select {
   width: 100%; background: var(--bg2); border: 1px solid var(--border);
   border-radius: 6px; padding: 8px 11px; color: var(--text); outline: none;
   font-size: 13px; transition: border .2s;
 }
-.cfg-form .field-inline input:focus { border-color: var(--accent); }
+.cfg-form .field-inline input:focus,
+.cfg-form .field-inline select:focus { border-color: var(--accent); }
 .cfg-status-msg { font-size: 13px; min-height: 18px; }
+
+/* ── KANBAN COLUMN TOTALS ─────────────────────────────────────────────────── */
+.col-header-right { display: flex; align-items: center; gap: 6px; }
+.col-total { font-size: 11px; color: var(--accent); font-weight: 600; opacity: .85; }
+
+/* ── DRAG AND DROP ────────────────────────────────────────────────────────── */
+.kanban-card[draggable="true"] { cursor: grab; }
+.kanban-card[draggable="true"]:active { cursor: grabbing; }
+.col-body.drag-over {
+  background: rgba(26,188,156,.06);
+  outline: 2px dashed var(--accent);
+  outline-offset: -4px;
+  border-radius: 8px;
+}
+
+/* ── CARD CHECKBOX + TOP ROW ──────────────────────────────────────────────── */
+.card-top-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 4px;
+}
+.card-check {
+  width: 15px; height: 15px; cursor: pointer; accent-color: var(--accent);
+}
+.card-btn-prev {
+  background: rgba(107,114,128,.15) !important;
+  border-color: rgba(107,114,128,.3) !important;
+  color: var(--text2) !important;
+}
+.card-btn-prev:hover { border-color: var(--text2) !important; color: var(--text) !important; }
+
+/* ── BATCH TOOLBAR ────────────────────────────────────────────────────────── */
+.batch-toolbar {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--card2); border: 1px solid var(--accent);
+  border-radius: 10px; padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+  z-index: 500; box-shadow: 0 4px 20px rgba(0,0,0,.5);
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+  white-space: nowrap;
+}
+.batch-toolbar.visible { opacity: 1; pointer-events: auto; }
+.batch-count { font-size: 13px; font-weight: 600; color: var(--accent); }
+.batch-select {
+  background: var(--bg2); border: 1px solid var(--border); color: var(--text);
+  padding: 5px 9px; border-radius: 6px; font-size: 12px; outline: none;
+}
+
+/* ── NOTA INTERNA ─────────────────────────────────────────────────────────── */
+.nota-int-area {
+  width: 100%; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 11px; color: var(--text); font-size: 13px;
+  resize: vertical; outline: none; transition: border .2s;
+}
+.nota-int-area:focus { border-color: var(--accent); }
+
+/* ── PROMO SECTION (produto edit) ────────────────────────────────────────── */
+.promo-section {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 16px;
+}
+.promo-summary {
+  cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text2);
+  list-style: none; user-select: none;
+}
+.promo-summary::-webkit-details-marker { display: none; }
+.promo-section[open] .promo-summary { color: var(--accent); }
+
+/* ── PRODUTO PICKER (cupons) ──────────────────────────────────────────────── */
+.prod-picker-wrap { display: flex; flex-direction: column; }
+.prod-picker-list {
+  max-height: 180px; overflow-y: auto; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 6px; padding: 6px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.prod-pick-item {
+  display: flex; align-items: center; gap: 8px; padding: 5px 8px;
+  border-radius: 4px; cursor: pointer; font-size: 12px;
+  transition: background .1s;
+}
+.prod-pick-item:hover { background: var(--card2); }
+.prod-pick-item input { accent-color: var(--accent); flex-shrink: 0; }
 
 /* ── LOADING / EMPTY ──────────────────────────────────────────────────────── */
 .loading-msg { text-align: center; padding: 40px; color: var(--text2); font-size: 14px; }

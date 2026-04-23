@@ -10,7 +10,35 @@ let cupomAplicado=false, cupomCodigo='', cupomData=null;
 // ═══════════════════════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════════════════════
-window.onload = () => { carregarCatalogo(); carregarParcelas(); carregarCupons(); };
+window.onload = () => {
+  carregarParcelas();
+  carregarCupons();
+  carregarCatalogo().then(() => {
+    const raw = sessionStorage.getItem('pharmafit_corrigir');
+    if (raw) {
+      try {
+        sessionStorage.removeItem('pharmafit_corrigir');
+        const payload = JSON.parse(raw);
+        const p = {
+          rowNum:    payload.rowNum,
+          pagamento: payload.pagamento,
+          parcelas:  payload.parcelas,
+          obs:       payload.obs,
+          cupom:     payload.cupom,
+          carrinho:  payload.carrinho,
+          cep:       payload.cep,
+          freteMetodo: payload.freteMetodo,
+          freteValor:  payload.freteValor,
+          total:     payload.total,
+          produtos:  payload.produtos,
+        };
+        MODO = 'corrigir';
+        pedidoRowId = payload.rowNum;
+        carregarPedidoNoEditor(p, payload.cli || {});
+      } catch(e) {}
+    }
+  });
+};
 
 async function carregarCupons(){
   try{const r=await fetch(`${SHEETS_URL}?action=cupons`);const d=await r.json();if(d&&typeof d==='object')CUPONS=d;}catch(e){}
