@@ -1333,6 +1333,7 @@ function buildVariantesStr(prefix) {
 function abrirEditarProduto(prodId) {
   const p = App.produtos.find(x => x.id === prodId);
   if (!p) return;
+  App.currentEditProdId = prodId;
   const hasPromo     = !!(p.promo_preco || p.promo_pct || p.promo_fim);
   const hasVariantes = !!(p.variantes && p.variantes.length > 0);
   openModal(`
@@ -1340,7 +1341,7 @@ function abrirEditarProduto(prodId) {
       <span>✏️ Editar Produto — ${esc(p.nome)}</span>
       <button onclick="closeModal()">✕</button>
     </div>
-    <form class="cfg-form" onsubmit="salvarProduto(event,'${escAttr(prodId)}')">
+    <form class="cfg-form" onsubmit="salvarProduto(event)">
       <div class="cfg-row">
         <div class="field-inline" style="flex:0 0 60px"><label>Ícone</label><input id="ep-icone" value="${escAttr(p.icone||'💊')}" maxlength="4" style="text-align:center;font-size:20px"/></div>
         <div class="field-inline"><label>Nome</label><input id="ep-nome" value="${escAttr(p.nome)}"/></div>
@@ -1411,10 +1412,12 @@ function abrirEditarProduto(prodId) {
   }
 }
 
-async function salvarProduto(e, prodId) {
+async function salvarProduto(e) {
   e.preventDefault();
+  const prodId = App.currentEditProdId || '';
   const msg = document.getElementById('ep-status');
   msg.textContent = 'Salvando...';
+  if (!prodId) { msg.textContent = 'Erro: ID do produto não encontrado'; msg.style.color = 'var(--danger)'; return; }
   const params = { prod_id: prodId, id: prodId };
   const nome = document.getElementById('ep-nome')?.value.trim(); if (nome) params.nome = nome;
   const conc = document.getElementById('ep-conc')?.value.trim(); if (conc !== undefined) params.conc = conc;
