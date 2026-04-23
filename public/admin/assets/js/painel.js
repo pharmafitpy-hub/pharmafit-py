@@ -994,16 +994,32 @@ function toggleFormCupom() {
 function renderProdPickerCupom() {
   const items = document.getElementById('nc-prod-items');
   if (!items) return;
-  items.innerHTML = App.produtos.map(p => `
-    <label class="prod-pick-item">
-      <input type="checkbox" class="prod-pick-cb" value="${escAttr(p.id)}" onchange="syncProdPickerInput()"/>
-      ${p.icone||'💊'} ${esc(p.nome)}${p.conc ? ` <span style="color:var(--text2);font-size:11px">${esc(p.conc)}</span>` : ''}
-    </label>`).join('');
+  const rows = [];
+  App.produtos.forEach(p => {
+    if (p.variantes && p.variantes.length > 0) {
+      rows.push(`<div class="prod-pick-group">${p.icone||'💊'} <strong>${esc(p.nome)}</strong></div>`);
+      p.variantes.forEach((v, i) => {
+        rows.push(`
+          <label class="prod-pick-item prod-pick-variant">
+            <input type="checkbox" class="prod-pick-cb" value="${escAttr(p.id+'__'+i)}" onchange="syncProdPickerInput()"/>
+            <span style="color:var(--text2)">↳</span> ${esc(v.dose)}
+            <span style="color:var(--text2);font-size:11px">R$ ${formatNum(v.preco)}</span>
+          </label>`);
+      });
+    } else {
+      rows.push(`
+        <label class="prod-pick-item">
+          <input type="checkbox" class="prod-pick-cb" value="${escAttr(p.id)}" onchange="syncProdPickerInput()"/>
+          ${p.icone||'💊'} ${esc(p.nome)}${p.conc ? ` <span style="color:var(--text2);font-size:11px">${esc(p.conc)}</span>` : ''}
+        </label>`);
+    }
+  });
+  items.innerHTML = rows.join('');
 }
 
 function filtrarProdPicker(q) {
   const lower = q.toLowerCase();
-  document.querySelectorAll('.prod-pick-item').forEach(el => {
+  document.querySelectorAll('.prod-pick-item, .prod-pick-group').forEach(el => {
     el.style.display = el.textContent.toLowerCase().includes(lower) ? '' : 'none';
   });
 }
@@ -1011,12 +1027,43 @@ function filtrarProdPicker(q) {
 function syncProdPickerInput() {
   const checked = [...document.querySelectorAll('.prod-pick-cb:checked')].map(cb => cb.value);
   document.getElementById('nc-produtos').value = checked.length > 0 ? checked.join(',') : 'todos';
+  renderPrecosFixos();
+}
+
+function renderPrecosFixos() {
+  const wrap  = document.getElementById('nc-precos-wrap');
+  const items = document.getElementById('nc-precos-items');
+  if (!wrap || !items) return;
+  const tipo = document.getElementById('nc-tipo')?.value;
+  if (tipo !== 'fixo') { wrap.classList.add('hidden'); return; }
+  const checked = [...document.querySelectorAll('.prod-pick-cb:checked')].map(cb => cb.value);
+  if (checked.length === 0) { wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden');
+  items.innerHTML = checked.map(key => {
+    const [prodId, varIdxStr] = key.split('__');
+    const prod = App.produtos.find(x => x.id === prodId);
+    if (!prod) return '';
+    const varIdx = varIdxStr !== undefined ? parseInt(varIdxStr) : null;
+    const label  = varIdx !== null
+      ? `${prod.icone||'💊'} ${prod.nome} — ${prod.variantes?.[varIdx]?.dose || varIdxStr}`
+      : `${prod.icone||'💊'} ${prod.nome}${prod.conc ? ' ' + prod.conc : ''}`;
+    const basePrice = varIdx !== null
+      ? (prod.variantes?.[varIdx]?.preco || prod.preco)
+      : prod.preco;
+    return `
+      <div class="preco-fix-row">
+        <span class="preco-fix-label">${esc(label)}</span>
+        <input type="number" step="0.01" min="0" class="preco-fix-input" data-key="${escAttr(key)}"
+          placeholder="${formatNum(basePrice)}" title="Preço fixo (padrão: R$ ${formatNum(basePrice)})"/>
+      </div>`;
+  }).join('');
 }
 
 function toggleTodosProdutos(cb) {
   const list = document.getElementById('nc-prod-list');
   if (cb.checked) {
     list.classList.add('hidden');
+    document.getElementById('nc-precos-wrap')?.classList.add('hidden');
     document.getElementById('nc-produtos').value = 'todos';
   } else {
     list.classList.remove('hidden');
@@ -1033,8 +1080,17 @@ function toggleFreteGratis(cb) {
 }
 
 function toggleCupomTipo() {
-  const tipo = document.getElementById('nc-tipo').value;
-  document.getElementById('nc-valor-wrap').style.display = tipo === '%' ? '' : 'none';
+  const tipo   = document.getElementById('nc-tipo').value;
+  const isFixo = tipo === 'fixo';
+  document.getElementById('nc-valor-wrap').style.display = isFixo ? 'none' : '';
+  if (isFixo) {
+    // Preço fixo exige produtos específicos — desmarcar "Todos"
+    const todosCheck = document.getElementById('nc-todos-prods');
+    if (todosCheck?.checked) { todosCheck.checked = false; toggleTodosProdutos(todosCheck); }
+    renderPrecosFixos();
+  } else {
+    document.getElementById('nc-precos-wrap')?.classList.add('hidden');
+  }
 }
 
 async function salvarCupomAdmin(e) {
@@ -1042,11 +1098,19 @@ async function salvarCupomAdmin(e) {
   const msg = document.getElementById('nc-status');
   msg.textContent = '';
   const freteToggle = document.getElementById('nc-frete-toggle');
+  const tipo = document.getElementById('nc-tipo').value;
+  const precos = tipo === 'fixo'
+    ? [...document.querySelectorAll('.preco-fix-input')]
+        .filter(i => i.value.trim())
+        .map(i => `${i.dataset.key}:${i.value.trim()}`)
+        .join('|')
+    : '';
   const params = {
     codigo:              document.getElementById('nc-codigo').value.trim(),
-    tipo:                document.getElementById('nc-tipo').value,
+    tipo,
     valor:               document.getElementById('nc-valor').value,
     produtos:            document.getElementById('nc-produtos').value.trim() || 'todos',
+    precos,
     validade:            document.getElementById('nc-validade').value.trim() || 'INDETERMINADO',
     frete_gratis_acima:  (freteToggle?.checked ? document.getElementById('nc-frete').value : '') || '',
     parcelamento:        document.getElementById('nc-parc').checked ? 'SIM' : 'NAO',
@@ -1059,9 +1123,11 @@ async function salvarCupomAdmin(e) {
       // Reset product picker state
       const todosCheck = document.getElementById('nc-todos-prods');
       if (todosCheck) { todosCheck.checked = true; toggleTodosProdutos(todosCheck); }
-      const items = document.getElementById('nc-prod-items');
-      if (items) items.innerHTML = '';
+      const _pi = document.getElementById('nc-prod-items'); if (_pi) _pi.innerHTML = '';
+      const _pf = document.getElementById('nc-precos-items'); if (_pf) _pf.innerHTML = '';
+      document.getElementById('nc-precos-wrap')?.classList.add('hidden');
       document.getElementById('nc-produtos').value = 'todos';
+      document.getElementById('nc-valor-wrap').style.display = '';
       const freteToggle = document.getElementById('nc-frete-toggle');
       if (freteToggle) { freteToggle.checked = false; toggleFreteGratis(freteToggle); }
       toggleFormCupom();

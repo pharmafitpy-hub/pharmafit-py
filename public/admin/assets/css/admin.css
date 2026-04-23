@@ -591,6 +591,32 @@ button { cursor: pointer; }
 }
 .prod-pick-item:hover { background: var(--card2); }
 .prod-pick-item input { accent-color: var(--accent); flex-shrink: 0; }
+.prod-pick-group {
+  font-size: 11px; font-weight: 700; color: var(--text2);
+  padding: 6px 8px 2px; letter-spacing: .3px;
+  border-top: 1px solid var(--border); margin-top: 4px;
+}
+.prod-pick-group:first-child { border-top: none; margin-top: 0; }
+.prod-pick-variant { padding-left: 20px !important; }
+
+/* ── PREÇOS FIXOS (cupom tipo fixo) ──────────────────────────────────────── */
+.cupom-precos-wrap {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.cupom-precos-title {
+  font-size: 11px; font-weight: 700; color: var(--text2);
+  text-transform: uppercase; letter-spacing: .5px;
+}
+.preco-fix-row { display: flex; align-items: center; gap: 10px; }
+.preco-fix-label { flex: 1; font-size: 12px; }
+.preco-fix-input {
+  width: 90px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 5px; padding: 4px 8px; color: var(--text);
+  font-size: 13px; text-align: right; outline: none;
+}
+.preco-fix-input:focus { border-color: var(--accent); }
 
 /* ── LOADING / EMPTY ──────────────────────────────────────────────────────── */
 .loading-msg { text-align: center; padding: 40px; color: var(--text2); font-size: 14px; }
