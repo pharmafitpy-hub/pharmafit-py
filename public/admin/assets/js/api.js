@@ -11,7 +11,13 @@ const API = {
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, String(v)));
     const res = await fetch(url.toString());
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const data = await res.json();
+    if (data.erro === 'Não autorizado' && admin) {
+      sessionStorage.removeItem('pharmafit_admin');
+      alert('Sessão expirada. Faça login novamente.');
+      window.location.href = 'index.html';
+    }
+    return data;
   },
 
   pedidos:      ()               => API.call({ action: 'painel_pedidos' }),
