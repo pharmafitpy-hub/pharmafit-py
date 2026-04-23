@@ -46,7 +46,7 @@
     try {
       const email = document.getElementById('email').value.trim().toLowerCase();
       const senha = document.getElementById('senha').value.trim();
-      const url   = new URL(CONFIG.GAS_URL);
+      const url   = new URL(SHEETS_URL);
       url.searchParams.set('action', 'login_admin');
       url.searchParams.set('email', email);
       url.searchParams.set('senha', senha);

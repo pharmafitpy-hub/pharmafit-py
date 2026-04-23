@@ -7,7 +7,7 @@ const API = {
       if (!params.email) params.email = admin.email;
       if (!params.token) params.token = admin.token;
     }
-    const url = new URL(CONFIG.GAS_URL);
+    const url = new URL(SHEETS_URL);
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, String(v)));
     const res = await fetch(url.toString());
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
