@@ -205,11 +205,14 @@ function renderKanban() {
     return true;
   });
 
-  const cancelados = allPedidos.filter(p => p.status === 'Cancelado');
-  const board      = document.getElementById('kanban-board');
+  const devPedidos  = allPedidos.filter(p => isDevOrder(p));
+  const realPedidos = allPedidos.filter(p => !isDevOrder(p));
+  const cancelados  = realPedidos.filter(p => p.status === 'Cancelado');
+  const board       = document.getElementById('kanban-board');
+  const devZone     = document.getElementById('kanban-dev-zone');
 
   board.innerHTML = STAGES.map(stage => {
-    const orders = allPedidos.filter(p => p.status === stage.key);
+    const orders = realPedidos.filter(p => p.status === stage.key);
     const total  = orders.reduce((s, o) => s + (parseFloat(String(o.total||'').replace(',','.')) || 0), 0);
     return `
       <div class="kanban-col">
@@ -241,6 +244,30 @@ function renderKanban() {
         <div class="col-body">${cancelados.map(renderCard).join('')}</div>
       </div>`;
   }
+
+  if (devZone) {
+    if (devPedidos.length === 0) { devZone.innerHTML = ''; return; }
+    const open = devZone.querySelector('.kanban-dev-body')?.style.display !== 'none';
+    devZone.innerHTML = `
+      <div class="kanban-dev-section">
+        <div class="kanban-dev-header" onclick="toggleDevZone(this)">
+          <span>🔧 DEV / Testes</span>
+          <span class="kanban-dev-count">${devPedidos.length} pedido${devPedidos.length > 1 ? 's' : ''}</span>
+          <span class="kanban-dev-chevron">${open ? '▲' : '▼'}</span>
+        </div>
+        <div class="kanban-dev-body" style="display:${open ? 'flex' : 'none'}">
+          ${devPedidos.map(renderCard).join('')}
+        </div>
+      </div>`;
+  }
+}
+
+function toggleDevZone(header) {
+  const body    = header.nextElementSibling;
+  const chevron = header.querySelector('.kanban-dev-chevron');
+  const open    = body.style.display !== 'none';
+  body.style.display    = open ? 'none' : 'flex';
+  chevron.textContent   = open ? '▼' : '▲';
 }
 
 function renderCard(order) {
@@ -1511,6 +1538,14 @@ function renderRelatorio() {
   const d = App.relatorio;
   if (!d) { el.innerHTML = '<div class="empty-msg">Sem dados disponíveis</div>'; return; }
 
+  // Filtro client-side: remove devs dos rankings (GAS filtra stats, mas top_clientes
+  // pode ter chegado antes do redeploy — filtrar por nome como fallback)
+  const devNomes = new Set(
+    App.clientes.filter(c => c.categoria === 'dev').map(c => (c.clinica||'').toLowerCase().trim())
+  );
+  const topClientes = (d.top_clientes || []).filter(c => !devNomes.has((c.nome||'').toLowerCase().trim()));
+  const topProdutos = d.top_produtos || [];
+
   const taxaCancel = parseFloat(d.taxa_cancelamento || 0);
   el.innerHTML = `
     <div class="rel-stats">
@@ -1576,8 +1611,8 @@ function renderRelatorio() {
   App.charts.clientes = new Chart(document.getElementById('chart-clientes'), {
     type: 'bar',
     data: {
-      labels:   d.top_clientes.map(c => c.nome.length > 20 ? c.nome.slice(0,18)+'…' : c.nome),
-      datasets: [{ data: d.top_clientes.map(c => c.total), backgroundColor: '#3b82f6', borderRadius: 4 }],
+      labels:   topClientes.map(c => c.nome.length > 20 ? c.nome.slice(0,18)+'…' : c.nome),
+      datasets: [{ data: topClientes.map(c => c.total), backgroundColor: '#3b82f6', borderRadius: 4 }],
     },
     options: { ...horizOpts, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'R$ ' + ctx.raw.toFixed(2).replace('.',',') } } } },
   });
@@ -1585,8 +1620,8 @@ function renderRelatorio() {
   App.charts.produtos = new Chart(document.getElementById('chart-produtos'), {
     type: 'bar',
     data: {
-      labels:   d.top_produtos.map(p => p.nome.length > 20 ? p.nome.slice(0,18)+'…' : p.nome),
-      datasets: [{ data: d.top_produtos.map(p => p.qtd), backgroundColor: '#8b5cf6', borderRadius: 4 }],
+      labels:   topProdutos.map(p => p.nome.length > 20 ? p.nome.slice(0,18)+'…' : p.nome),
+      datasets: [{ data: topProdutos.map(p => p.qtd), backgroundColor: '#8b5cf6', borderRadius: 4 }],
     },
     options: { ...horizOpts, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.raw + ' unid.' } } } },
   });

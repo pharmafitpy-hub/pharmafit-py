@@ -461,6 +461,33 @@ button { cursor: pointer; }
   color: #a5b4fc;
 }
 .btn-dev-ret:hover { background: rgba(99,102,241,.3); }
+
+/* ── KANBAN DEV ZONE ─────────────────────────────────────────────────────── */
+#kanban-dev-zone { padding: 0 16px 24px; }
+.kanban-dev-section {
+  border: 1px solid rgba(99,102,241,.3);
+  border-radius: 10px;
+  background: rgba(99,102,241,.04);
+  overflow: hidden;
+}
+.kanban-dev-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; cursor: pointer;
+  background: rgba(99,102,241,.08);
+  border-bottom: 1px solid rgba(99,102,241,.2);
+  font-size: 13px; font-weight: 600; color: #a5b4fc;
+  user-select: none;
+}
+.kanban-dev-header:hover { background: rgba(99,102,241,.14); }
+.kanban-dev-count {
+  font-size: 11px; font-weight: 400; color: rgba(165,180,252,.6);
+  margin-left: 2px;
+}
+.kanban-dev-chevron { margin-left: auto; font-size: 11px; opacity: .7; }
+.kanban-dev-body {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  padding: 12px 16px;
+}
 .stat-alert {
   border-color: rgba(243,156,18,.4) !important;
 }
