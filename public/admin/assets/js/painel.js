@@ -245,6 +245,7 @@ function renderKanban() {
 
 function renderCard(order) {
   const stuck   = isStuck(order);
+  const isDev   = isDevOrder(order);
   const prods   = (order.produtos || '').split('\n').filter(Boolean);
   const preview = prods[0] ? prods[0].replace(/^\d+x\s*/, '') : '—';
   const extras  = prods.length > 1
@@ -257,7 +258,7 @@ function renderCard(order) {
     : '';
 
   return `
-    <div class="kanban-card${stuck ? ' card-stuck' : ''}"
+    <div class="kanban-card${stuck ? ' card-stuck' : ''}${isDev ? ' card-dev' : ''}"
       draggable="true"
       ondragstart="onDragStart(event,${order.id})"
       onclick="openDrawer(${order.id})">
@@ -265,7 +266,7 @@ function renderCard(order) {
         <input type="checkbox" class="card-check"
           onclick="event.stopPropagation();toggleCardSelect(${order.id},this)"
           ${App.batchSelected.has(order.id) ? 'checked' : ''}/>
-        ${stuck ? '<div class="stuck-badge">⚠️ +24h</div>' : ''}
+        ${isDev ? '<div class="dev-badge">🔧 DEV</div>' : stuck ? '<div class="stuck-badge">⚠️ +24h</div>' : ''}
       </div>
       <div class="card-clinica">${esc(order.clinica)}</div>
       <div class="card-prod">${esc(preview)}</div>
@@ -467,10 +468,11 @@ function closeDrawer() {
 }
 
 function renderDrawer(order) {
-  const stage = STAGES.find(s => s.key === order.status);
-  const next  = NEXT_STATUS[order.status];
-  const sc    = stage ? stage.color : '#6b7280';
-  const stuck = isStuck(order);
+  const stage  = STAGES.find(s => s.key === order.status);
+  const next   = NEXT_STATUS[order.status];
+  const sc     = stage ? stage.color : '#6b7280';
+  const stuck  = isStuck(order);
+  const isDev  = isDevOrder(order);
   const itens = parseItens(order);
 
   let hist = [];
@@ -492,7 +494,7 @@ function renderDrawer(order) {
         <div class="drawer-title">
           <span class="drawer-clinica" title="${esc(order.clinica)}">${esc(order.clinica)}</span>
           <span class="drawer-status" style="--sc:${sc}">${esc(order.status)}</span>
-          ${stuck ? '<span class="drawer-stuck-badge">⚠️ Parado +24h</span>' : ''}
+          ${isDev ? '<span class="drawer-dev-badge">🔧 DEV</span>' : stuck ? '<span class="drawer-stuck-badge">⚠️ Parado +24h</span>' : ''}
         </div>
         <span class="drawer-id">#${order.id}</span>
       </div>
@@ -595,6 +597,7 @@ function renderDrawer(order) {
       <button class="btn-sm btn-outline" onclick="printRomaneio(${order.id})">🖨️ Romaneio</button>
       <button class="btn-sm btn-outline" onclick="salvarLogistica(${order.id})">💾 Salvar Dados</button>
       <button class="btn-sm btn-outline" onclick="corrigirPedido(${order.id})">✏️ Corrigir</button>
+      ${isDev ? `<button class="btn-sm btn-dev-ret" onclick="retornarEstoque(${order.id})">🔄 Retornar ao Estoque</button>` : ''}
       ${PREV_STATUS[order.status]
         ? `<button class="btn-sm btn-outline" onclick="revertStatus(${order.id})">← Voltar Status</button>`
         : ''}
@@ -860,6 +863,28 @@ function nowBR_() {
   const d = new Date();
   const p = n => String(n).padStart(2,'0');
   return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function isDevOrder(order) {
+  if (!order) return false;
+  const tel = (order.telefone || '').replace(/\D/g, '');
+  const em  = (order.email_cli || '').trim().toLowerCase();
+  return App.clientes.some(c => {
+    if ((c.categoria || '') !== 'dev') return false;
+    const ct = (c.telefone || '').replace(/\D/g, '');
+    const ce = (c.email || '').trim().toLowerCase();
+    return (tel && ct && ct === tel) || (em && ce && ce === em);
+  });
+}
+
+async function retornarEstoque(orderId) {
+  if (!confirm('Retornar itens deste pedido ao estoque?')) return;
+  try {
+    await API.retornarEstoque(orderId);
+    showToast('Estoque restaurado!');
+  } catch(e) {
+    showToast('Erro ao restaurar estoque', 'error');
+  }
 }
 
 function esc(s) {
@@ -1223,6 +1248,13 @@ function abrirEditarCliente(c) {
         <div class="field-inline"><label>Estado</label><input id="ec-estado" value="${escAttr(c.estado||'')}"/></div>
       </div>
       <div class="field-inline"><label>Endereço</label><input id="ec-end" value="${escAttr(c.endereco||'')}"/></div>
+      <div class="field-inline"><label>Categoria</label>
+        <select id="ec-categoria">
+          <option value="" ${!c.categoria?'selected':''}>— Padrão —</option>
+          <option value="dev" ${c.categoria==='dev'?'selected':''}>🔧 Dev / Interno</option>
+          <option value="vip" ${c.categoria==='vip'?'selected':''}>⭐ VIP</option>
+        </select>
+      </div>
       <div id="ec-status" class="cfg-status-msg"></div>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button type="submit" class="btn-sm btn-accent">Salvar</button>
@@ -1246,6 +1278,7 @@ async function salvarCliente(e, cpf, emailCli) {
     cidade:      document.getElementById('ec-cidade')?.value.trim(),
     estado:      document.getElementById('ec-estado')?.value.trim(),
     endereco:    document.getElementById('ec-end')?.value.trim(),
+    categoria:   document.getElementById('ec-categoria')?.value ?? '',
   };
   try {
     const data = await API.editarCliente(params);

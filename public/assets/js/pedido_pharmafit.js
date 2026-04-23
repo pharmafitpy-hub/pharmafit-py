@@ -52,28 +52,42 @@ window.onload = () => {
   carregarProdutos();
 };
 
+// ── CACHE (stale-while-revalidate, 8min TTL) ─────────────────────────────────
+const PF_CACHE_TTL = 8 * 60 * 1000;
+function pfFromCache_(k){try{const c=sessionStorage.getItem('pf_'+k);if(!c)return null;const{data,ts}=JSON.parse(c);return(Date.now()-ts)<PF_CACHE_TTL?data:null;}catch(e){return null;}}
+function pfToCache_(k,d){try{sessionStorage.setItem('pf_'+k,JSON.stringify({data:d,ts:Date.now()}));}catch(e){}}
+function pfBgRefresh_(k,url){fetch(url).then(r=>r.json()).then(d=>pfToCache_(k,d)).catch(()=>{});}
+
 async function carregarProdutos() {
   const grid = document.getElementById('products-grid');
   grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray)">⏳ Carregando produtos...</div>';
   try {
-    const [resProd, resProt] = await Promise.all([
-      fetch(`${SHEETS_URL}?action=produtos`),
-      fetch(`${SHEETS_URL}?action=protocolos`)
+    // — Fetch tudo em paralelo, com cache —
+    const [data, prots] = await Promise.all([
+      (async () => {
+        const c = pfFromCache_('catalog'); if(c){pfBgRefresh_('catalog',`${SHEETS_URL}?action=produtos`);return c;}
+        const d = await fetch(`${SHEETS_URL}?action=produtos`).then(r=>r.json()); pfToCache_('catalog',d); return d;
+      })(),
+      (async () => {
+        const c = pfFromCache_('protos'); if(c){pfBgRefresh_('protos',`${SHEETS_URL}?action=protocolos`);return c;}
+        const d = await fetch(`${SHEETS_URL}?action=protocolos`).then(r=>r.json()); pfToCache_('protos',d); return d;
+      })(),
     ]);
-    const data = await resProd.json();
-    PROTOCOLS = await resProt.json();
+    PROTOCOLS = prots;
 
     // Cupons — carregado separado para não travar se aba não existir
     try {
-      const resCupons = await fetch(`${SHEETS_URL}?action=cupons`);
-      const cuponsData = await resCupons.json();
-      if (cuponsData && typeof cuponsData === 'object') CUPONS_VALIDOS = cuponsData;
-    } catch(e) { /* sem cupons configurados ainda */ }
+      const cc = pfFromCache_('cupons');
+      if (cc) { CUPONS_VALIDOS = cc; pfBgRefresh_('cupons',`${SHEETS_URL}?action=cupons`); }
+      else { const cuponsData = await fetch(`${SHEETS_URL}?action=cupons`).then(r=>r.json()); if (cuponsData && typeof cuponsData === 'object') { CUPONS_VALIDOS = cuponsData; pfToCache_('cupons',cuponsData); } }
+    } catch(e) { /* sem cupons */ }
 
-    // Parcelas — carregado do Sheets
+    // Parcelas
     try {
-      const resParcelas = await fetch(`${SHEETS_URL}?action=parcelas`);
-      const parcelasData = await resParcelas.json();
+      const pc = pfFromCache_('parcelas');
+      const parcelasData = pc || await fetch(`${SHEETS_URL}?action=parcelas`).then(r=>r.json());
+      if (!pc) pfToCache_('parcelas', parcelasData);
+      else pfBgRefresh_('parcelas',`${SHEETS_URL}?action=parcelas`);
       if (Array.isArray(parcelasData) && parcelasData.length > 0) {
         PARCELAS_CONFIG = parcelasData;
         const sel = document.getElementById('f_parcelas');
@@ -82,7 +96,6 @@ async function carregarProdutos() {
         ).join('');
       }
     } catch(e) { /* usa opções padrão do HTML */ }
-
     CATALOG = data.map(p => ({
       id:          p.id,
       icon:        p.icone,

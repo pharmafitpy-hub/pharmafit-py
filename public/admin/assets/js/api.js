@@ -37,4 +37,5 @@ const API = {
   relatorio:        ()                  => API.call({ action: 'relatorio' }),
   salvarNotaInt:    (id, nota)          => API.call({ action: 'salvar_nota_interna', id, nota }),
   criarProduto:     (p)                 => API.call({ action: 'criar_produto', ...p }),
+  retornarEstoque:  (id)                => API.call({ action: 'retornar_estoque', id }),
 };
