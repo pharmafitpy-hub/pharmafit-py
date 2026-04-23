@@ -52,8 +52,9 @@ window.onload = () => {
   carregarProdutos();
 };
 
-// ── CACHE (stale-while-revalidate, 8min TTL) ─────────────────────────────────
-const PF_CACHE_TTL = 8 * 60 * 1000;
+// ── CACHE (apenas dados estáticos — protocolos e parcelas, 30min TTL) ─────────
+// Preços, promos e cupons NUNCA são cacheados: devem ser sempre frescos.
+const PF_CACHE_TTL = 30 * 60 * 1000;
 function pfFromCache_(k){try{const c=sessionStorage.getItem('pf_'+k);if(!c)return null;const{data,ts}=JSON.parse(c);return(Date.now()-ts)<PF_CACHE_TTL?data:null;}catch(e){return null;}}
 function pfToCache_(k,d){try{sessionStorage.setItem('pf_'+k,JSON.stringify({data:d,ts:Date.now()}));}catch(e){}}
 function pfBgRefresh_(k,url){fetch(url).then(r=>r.json()).then(d=>pfToCache_(k,d)).catch(()=>{});}
@@ -62,12 +63,10 @@ async function carregarProdutos() {
   const grid = document.getElementById('products-grid');
   grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray)">⏳ Carregando produtos...</div>';
   try {
-    // — Fetch tudo em paralelo, com cache —
+    // produtos: sempre frescos (preços/promos mudam)
+    // protocolos: cacheados 30min (texto científico estático)
     const [data, prots] = await Promise.all([
-      (async () => {
-        const c = pfFromCache_('catalog'); if(c){pfBgRefresh_('catalog',`${SHEETS_URL}?action=produtos`);return c;}
-        const d = await fetch(`${SHEETS_URL}?action=produtos`).then(r=>r.json()); pfToCache_('catalog',d); return d;
-      })(),
+      fetch(`${SHEETS_URL}?action=produtos`).then(r=>r.json()),
       (async () => {
         const c = pfFromCache_('protos'); if(c){pfBgRefresh_('protos',`${SHEETS_URL}?action=protocolos`);return c;}
         const d = await fetch(`${SHEETS_URL}?action=protocolos`).then(r=>r.json()); pfToCache_('protos',d); return d;
@@ -75,14 +74,13 @@ async function carregarProdutos() {
     ]);
     PROTOCOLS = prots;
 
-    // Cupons — carregado separado para não travar se aba não existir
+    // Cupons: sempre frescos (expiram)
     try {
-      const cc = pfFromCache_('cupons');
-      if (cc) { CUPONS_VALIDOS = cc; pfBgRefresh_('cupons',`${SHEETS_URL}?action=cupons`); }
-      else { const cuponsData = await fetch(`${SHEETS_URL}?action=cupons`).then(r=>r.json()); if (cuponsData && typeof cuponsData === 'object') { CUPONS_VALIDOS = cuponsData; pfToCache_('cupons',cuponsData); } }
+      const cuponsData = await fetch(`${SHEETS_URL}?action=cupons`).then(r=>r.json());
+      if (cuponsData && typeof cuponsData === 'object') CUPONS_VALIDOS = cuponsData;
     } catch(e) { /* sem cupons */ }
 
-    // Parcelas
+    // Parcelas: cacheadas 30min (configuração raramente muda)
     try {
       const pc = pfFromCache_('parcelas');
       const parcelasData = pc || await fetch(`${SHEETS_URL}?action=parcelas`).then(r=>r.json());
