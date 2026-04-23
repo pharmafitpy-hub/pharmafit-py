@@ -1031,17 +1031,21 @@ function renderProdPickerCupom() {
     rows.push(`<div style="color:var(--text2);font-size:11px;padding:8px">Nenhum produto carregado</div>`);
   }
   App.produtos.forEach(p => {
+    // data-search includes name, tags, lab, conc — enables tag/lab searching
+    const baseSearch = escAttr([p.nome, p.conc, p.lab, ...(p.tags||[])].filter(Boolean).join(' ').toLowerCase());
     if (p.variantes && p.variantes.length > 0) {
       rows.push(`
-        <label class="prod-pick-item prod-pick-group-label">
+        <label class="prod-pick-item prod-pick-group-label" data-search="${baseSearch}">
           <input type="checkbox" class="prod-pick-group-cb" data-prod="${escAttr(p.id)}"
             onchange="toggleVariantGroup('${escAttr(p.id)}', this)"/>
           ${p.icone||'💊'} <strong>${esc(p.nome)}</strong>
           <span style="color:var(--text2);font-size:10px;margin-left:auto">${p.variantes.length} doses</span>
         </label>`);
       p.variantes.forEach((v, i) => {
+        // Variant inherits parent search so filtering by product name still shows doses
+        const varSearch = escAttr(baseSearch + ' ' + (v.dose||'').toLowerCase());
         rows.push(`
-          <label class="prod-pick-item prod-pick-variant">
+          <label class="prod-pick-item prod-pick-variant" data-search="${varSearch}">
             <input type="checkbox" class="prod-pick-cb" value="${escAttr(p.id+'__'+i)}"
               data-prod-group="${escAttr(p.id)}" onchange="onVariantChange('${escAttr(p.id)}', this)"/>
             <span style="color:var(--text2)">↳</span> ${esc(v.dose)}
@@ -1050,7 +1054,7 @@ function renderProdPickerCupom() {
       });
     } else {
       rows.push(`
-        <label class="prod-pick-item">
+        <label class="prod-pick-item" data-search="${baseSearch}">
           <input type="checkbox" class="prod-pick-cb" value="${escAttr(p.id)}" onchange="syncProdPickerInput()"/>
           ${p.icone||'💊'} ${esc(p.nome)}${p.conc ? ` <span style="color:var(--text2);font-size:11px">${esc(p.conc)}</span>` : ''}
         </label>`);
@@ -1079,7 +1083,8 @@ function onVariantChange(prodId, changedCb) {
 function filtrarProdPicker(q) {
   const lower = q.toLowerCase();
   document.querySelectorAll('.prod-pick-item').forEach(el => {
-    el.style.display = el.textContent.toLowerCase().includes(lower) ? '' : 'none';
+    const text = (el.dataset.search || el.textContent).toLowerCase();
+    el.style.display = !lower || text.includes(lower) ? '' : 'none';
   });
 }
 
