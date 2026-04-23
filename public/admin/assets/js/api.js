@@ -36,4 +36,5 @@ const API = {
   pedidosCliente:   (documento)         => API.call({ action: 'pedidos_cliente_admin', documento }),
   relatorio:        ()                  => API.call({ action: 'relatorio' }),
   salvarNotaInt:    (id, nota)          => API.call({ action: 'salvar_nota_interna', id, nota }),
+  criarProduto:     (p)                 => API.call({ action: 'criar_produto', ...p }),
 };

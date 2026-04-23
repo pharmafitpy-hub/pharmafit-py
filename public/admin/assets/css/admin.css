@@ -373,7 +373,41 @@ button { cursor: pointer; }
   background: var(--card2); border: 1px solid var(--border); border-radius: 10px;
   padding: 16px 20px; margin: 0 20px 14px; flex-shrink: 0;
 }
-.cupom-form-panel .cfg-form { max-width: none; }
+.cupom-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;
+}
+.cupom-grid .field-inline label,
+.cupom-prods-section .field-inline label {
+  display: block; font-size: 11px; color: var(--text2); margin-bottom: 4px;
+  text-transform: uppercase; letter-spacing: .5px;
+}
+.cupom-grid .field-inline input,
+.cupom-grid .field-inline select {
+  width: 100%; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 11px; color: var(--text); outline: none; font-size: 13px;
+}
+.cupom-prods-section {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
+}
+.cupom-prods-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;
+}
+.cupom-prods-title { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: .4px; }
+.cupom-toggle-label {
+  display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;
+}
+.cupom-toggle-label input { accent-color: var(--accent); }
+.cupom-extras {
+  display: flex; gap: 20px; flex-wrap: wrap; align-items: center; padding: 4px 0;
+}
+.cupom-extra-item {
+  display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;
+}
+.cupom-extra-item input[type="checkbox"] { accent-color: var(--accent); }
+.cupom-frete-val {
+  width: 90px; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 5px; padding: 4px 8px; color: var(--text); font-size: 13px; outline: none;
+}
 .btn-xs-danger { border-color: rgba(231,76,60,.4) !important; color: var(--danger) !important; }
 .btn-xs-danger:hover { background: rgba(231,76,60,.1) !important; }
 

@@ -80,6 +80,7 @@
       <h2>Clientes</h2>
       <div class="view-bar-right">
         <span id="clientes-count" style="font-size:13px;color:var(--text2)"></span>
+        <button class="btn-sm btn-accent" onclick="abrirNovoCliente()">+ Novo Cliente</button>
       </div>
     </div>
 
@@ -96,11 +97,12 @@
             <th>Responsável</th>
             <th>Telefone</th>
             <th>Cidade</th>
+            <th style="text-align:center">Pedidos</th>
             <th></th>
           </tr>
         </thead>
         <tbody id="clientes-tbody">
-          <tr><td colspan="5" class="loading-msg">⏳ Carregando...</td></tr>
+          <tr><td colspan="6" class="loading-msg">⏳ Carregando...</td></tr>
         </tbody>
       </table>
     </div>
@@ -111,7 +113,8 @@
     <div class="view-bar">
       <h2>Produtos & Estoque</h2>
       <div class="view-bar-right">
-        <span style="font-size:12px;color:var(--text2)">Edite o estoque diretamente na tabela</span>
+        <span style="font-size:12px;color:var(--text2)">Edite diretamente na tabela</span>
+        <button class="btn-sm btn-accent" onclick="abrirNovoProduto()">+ Novo Produto</button>
       </div>
     </div>
 
@@ -150,46 +153,67 @@
 
     <!-- Create form -->
     <div id="cupom-form-panel" class="cupom-form-panel hidden">
-      <form class="cfg-form" onsubmit="salvarCupomAdmin(event)" style="max-width:100%">
-        <div class="cfg-row">
-          <div class="field-inline"><label>Código</label><input type="text" id="nc-codigo" placeholder="EX: PHARMA10" required/></div>
-          <div class="field-inline"><label>Tipo</label>
+      <form onsubmit="salvarCupomAdmin(event)" style="display:flex;flex-direction:column;gap:14px">
+        <!-- Linha 1: campos básicos -->
+        <div class="cupom-grid">
+          <div class="field-inline">
+            <label>Código</label>
+            <input type="text" id="nc-codigo" placeholder="EX: PHARMA10" required
+              style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"/>
+          </div>
+          <div class="field-inline">
+            <label>Tipo</label>
             <select id="nc-tipo" onchange="toggleCupomTipo()">
               <option value="%">% Desconto</option>
               <option value="fixo">Preço Fixo</option>
             </select>
           </div>
-          <div class="field-inline" id="nc-valor-wrap"><label>Valor (%)</label><input type="number" id="nc-valor" min="1" max="100" placeholder="10"/></div>
-        </div>
-        <div class="cfg-row">
-          <div class="field-inline" style="flex:1">
-            <label>Produtos</label>
-            <div class="prod-picker-wrap">
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:6px">
-                <input type="checkbox" id="nc-todos-prods" checked onchange="toggleTodosProdutos(this)"/> Todos os produtos
-              </label>
-              <div id="nc-prod-list" class="prod-picker-list hidden"></div>
-              <input type="hidden" id="nc-produtos" value="todos"/>
-            </div>
+          <div class="field-inline" id="nc-valor-wrap">
+            <label>Desconto (%)</label>
+            <input type="number" id="nc-valor" min="1" max="100" placeholder="10"/>
           </div>
-          <div class="field-inline"><label>Validade (dd/mm/aaaa hh:mm ou INDETERMINADO)</label><input type="text" id="nc-validade" placeholder="INDETERMINADO"/></div>
-        </div>
-        <div class="cfg-row">
           <div class="field-inline">
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-              <input type="checkbox" id="nc-frete-toggle" onchange="toggleFreteGratis(this)"/> Frete grátis acima de R$
-            </label>
-            <input type="number" id="nc-frete" placeholder="Ex: 500" min="0" class="hidden" style="margin-top:4px"/>
-          </div>
-          <div class="field-inline" style="display:flex;align-items:flex-end;gap:10px">
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-              <input type="checkbox" id="nc-parc"/> Parcelamento sem juros
-            </label>
+            <label>Validade</label>
+            <input type="text" id="nc-validade" placeholder="dd/mm/aaaa hh:mm  ou  INDETERMINADO"/>
           </div>
         </div>
+
+        <!-- Linha 2: produtos -->
+        <div class="cupom-prods-section">
+          <div class="cupom-prods-header">
+            <span class="cupom-prods-title">Produtos aplicáveis</span>
+            <label class="cupom-toggle-label">
+              <input type="checkbox" id="nc-todos-prods" checked onchange="toggleTodosProdutos(this)"/>
+              Todos
+            </label>
+          </div>
+          <div id="nc-prod-list" class="prod-picker-list hidden">
+            <input type="search" id="nc-prod-busca" placeholder="🔍 Filtrar produto..." oninput="filtrarProdPicker(this.value)"
+              style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 9px;color:var(--text);font-size:12px;margin-bottom:6px;outline:none"/>
+            <div id="nc-prod-items"></div>
+          </div>
+          <input type="hidden" id="nc-produtos" value="todos"/>
+        </div>
+
+        <!-- Linha 3: extras -->
+        <div class="cupom-extras">
+          <label class="cupom-extra-item">
+            <input type="checkbox" id="nc-frete-toggle" onchange="toggleFreteGratis(this)"/>
+            <span>Frete grátis acima de</span>
+            <input type="number" id="nc-frete" placeholder="500" min="0" class="cupom-frete-val hidden"/>
+            <span id="nc-frete-real-label" class="hidden" style="color:var(--text2);font-size:12px">R$</span>
+          </label>
+          <label class="cupom-extra-item">
+            <input type="checkbox" id="nc-parc"/>
+            <span>Parcelamento sem juros</span>
+          </label>
+        </div>
+
         <div id="nc-status" class="cfg-status-msg"></div>
-        <button type="submit" class="btn-sm btn-accent">Criar Cupom</button>
-        <button type="button" class="btn-sm" onclick="toggleFormCupom()">Cancelar</button>
+        <div style="display:flex;gap:8px">
+          <button type="submit" class="btn-sm btn-accent">Criar Cupom</button>
+          <button type="button" class="btn-sm" onclick="toggleFormCupom()">Cancelar</button>
+        </div>
       </form>
     </div>
 

@@ -44,26 +44,54 @@ async function carregarCupons(){
   try{const r=await fetch(`${SHEETS_URL}?action=cupons`);const d=await r.json();if(d&&typeof d==='object')CUPONS=d;}catch(e){}
 }
 
+// ── CACHE (stale-while-revalidate, 8min TTL) ──────────────────────────────────
+const CACHE_TTL = 8 * 60 * 1000;
+function fromCache_(k){try{const c=sessionStorage.getItem('pf_'+k);if(!c)return null;const{data,ts}=JSON.parse(c);return(Date.now()-ts)<CACHE_TTL?data:null;}catch(e){return null;}}
+function toCache_(k,data){try{sessionStorage.setItem('pf_'+k,JSON.stringify({data,ts:Date.now()}));}catch(e){}}
+
 async function carregarCatalogo() {
   try {
+    const processData = data => {
+      CATALOG = data.map(p => ({
+        id: p.id, icon: p.icone||'💊', name: p.nome, conc: String(p.conc||''),
+        price: parseFloat(p.preco)||0,
+        variantes: (Array.isArray(p.variantes)&&p.variantes.length>0&&p.variantes[0].dose)
+          ? p.variantes.map(v=>({dose:v.dose,preco:parseFloat(v.preco)||0})) : []
+      }));
+      if(pendingCart){cart=pendingCart;pendingCart=null;renderCart();renderCatalogo();gerarMensagem();}
+      if(pendingCartText){reconstruirCarrinho(pendingCartText);pendingCartText=null;renderCart();renderCatalogo();gerarMensagem();}
+    };
+    const cached = fromCache_('catalog');
+    if (cached) {
+      processData(cached);
+      fetch(`${SHEETS_URL}?action=produtos`).then(r=>r.json()).then(d=>toCache_('catalog',d)).catch(()=>{});
+      return;
+    }
     const res = await fetch(`${SHEETS_URL}?action=produtos`);
     const data = await res.json();
-    CATALOG = data.map(p => ({
-      id: p.id, icon: p.icone||'💊', name: p.nome, conc: String(p.conc||''),
-      price: parseFloat(p.preco)||0,
-      variantes: (Array.isArray(p.variantes)&&p.variantes.length>0&&p.variantes[0].dose)
-        ? p.variantes.map(v=>({dose:v.dose,preco:parseFloat(v.preco)||0})) : []
-    }));
-    if(pendingCart){cart=pendingCart;pendingCart=null;renderCart();renderCatalogo();gerarMensagem();}
-    if(pendingCartText){reconstruirCarrinho(pendingCartText);pendingCartText=null;renderCart();renderCatalogo();gerarMensagem();}
+    toCache_('catalog', data);
+    processData(data);
   } catch(e){}
 }
 
 async function carregarParcelas() {
-  try { const r=await fetch(`${SHEETS_URL}?action=parcelas`); PARCELAS=await r.json(); renderParcelasSelect(); } catch(e){}
+  try {
+    const cached = fromCache_('parcelas');
+    if (cached) { PARCELAS = cached; renderParcelasSelect(); fetch(`${SHEETS_URL}?action=parcelas`).then(r=>r.json()).then(d=>toCache_('parcelas',d)).catch(()=>{}); return; }
+    const r = await fetch(`${SHEETS_URL}?action=parcelas`);
+    PARCELAS = await r.json();
+    toCache_('parcelas', PARCELAS);
+    renderParcelasSelect();
+  } catch(e){}
 }
 async function carregarCupons() {
-  try { const r=await fetch(`${SHEETS_URL}?action=cupons`); CUPONS=await r.json(); } catch(e){}
+  try {
+    const cached = fromCache_('cupons');
+    if (cached) { CUPONS = cached; fetch(`${SHEETS_URL}?action=cupons`).then(r=>r.json()).then(d=>toCache_('cupons',d)).catch(()=>{}); return; }
+    const r = await fetch(`${SHEETS_URL}?action=cupons`);
+    CUPONS = await r.json();
+    toCache_('cupons', CUPONS);
+  } catch(e){}
 }
 function renderParcelasSelect() {
   const sel=document.getElementById('c_parcelas'); if(!sel)return;

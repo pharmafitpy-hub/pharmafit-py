@@ -303,16 +303,30 @@ async function advanceStatus(orderId, nextStatus) {
     extra = { peso, dimensoes: dim };
   }
 
+  // Optimistic update — UI reage imediatamente
+  const snapshot = { status: order.status, dataStatus: order.dataStatus, peso: order.peso, dimensoes: order.dimensoes };
+  const nowStr = nowBR_();
+  order.status = nextStatus;
+  order.dataStatus = nowStr;
+  if (extra.peso) order.peso = extra.peso;
+  if (extra.dimensoes) order.dimensoes = extra.dimensoes;
+  renderKanban();
+  if (App.drawerOrderId === orderId) renderDrawer(order);
+  showToast(`→ ${nextStatus}`);
+
   try {
     await API.atualizarStatus(orderId, nextStatus, extra);
-    await loadPedidos();
-    renderKanban();
-    if (App.drawerOrderId === orderId) {
-      const upd = App.pedidos.find(p => p.id === orderId);
-      if (upd) renderDrawer(upd);
-    }
-    showToast(`→ ${nextStatus}`);
+    loadPedidos().then(() => {
+      if (App.view === 'kanban') renderKanban();
+      if (App.drawerOrderId === orderId) {
+        const upd = App.pedidos.find(p => p.id === orderId);
+        if (upd) renderDrawer(upd);
+      }
+    });
   } catch (e) {
+    Object.assign(order, snapshot);
+    renderKanban();
+    if (App.drawerOrderId === orderId) renderDrawer(order);
     showToast('Erro ao atualizar status', 'error');
   }
 }
@@ -337,17 +351,32 @@ async function onDrop(event, stageKey) {
 async function revertStatus(orderId) {
   const order = App.pedidos.find(p => p.id === orderId);
   if (!order) return;
-  const prev = PREV_STATUS[order.status];
-  if (!prev) return showToast('Não é possível voltar deste status', 'error');
-  if (!confirm(`Voltar status para "${prev}"?`)) return;
+  const prevSt = PREV_STATUS[order.status];
+  if (!prevSt) return showToast('Não é possível voltar deste status', 'error');
+  if (!confirm(`Voltar status para "${prevSt}"?`)) return;
+
+  const snapshot = { status: order.status, dataStatus: order.dataStatus };
+  order.status = prevSt;
+  order.dataStatus = nowBR_();
+  renderKanban();
+  if (App.drawerOrderId === orderId) renderDrawer(order);
+  showToast(`← ${prevSt}`);
+
   try {
-    await API.atualizarStatus(orderId, prev);
-    await loadPedidos();
+    await API.atualizarStatus(orderId, prevSt);
+    loadPedidos().then(() => {
+      if (App.view === 'kanban') renderKanban();
+      if (App.drawerOrderId === orderId) {
+        const upd = App.pedidos.find(p => p.id === orderId);
+        if (upd) renderDrawer(upd);
+      }
+    });
+  } catch(e) {
+    Object.assign(order, snapshot);
     renderKanban();
-    const upd = App.pedidos.find(p => p.id === orderId);
-    if (upd) renderDrawer(upd);
-    showToast(`← ${prev}`);
-  } catch(e) { showToast('Erro ao voltar status', 'error'); }
+    if (App.drawerOrderId === orderId) renderDrawer(order);
+    showToast('Erro ao voltar status', 'error');
+  }
 }
 
 // ── BATCH ACTIONS ─────────────────────────────────────────────────────────────
@@ -405,13 +434,18 @@ async function batchUpdateStatus() {
 
 async function cancelarPedido(orderId) {
   if (!confirm('Cancelar este pedido?')) return;
+  const order = App.pedidos.find(p => p.id === orderId);
+  const snapshot = order ? { status: order.status, dataStatus: order.dataStatus } : null;
+  if (order) { order.status = 'Cancelado'; order.dataStatus = nowBR_(); }
+  closeDrawer();
+  renderKanban();
+  showToast('Pedido cancelado');
   try {
     await API.atualizarStatus(orderId, 'Cancelado');
-    await loadPedidos();
-    closeDrawer();
-    renderKanban();
-    showToast('Pedido cancelado');
+    loadPedidos().then(() => { if (App.view === 'kanban') renderKanban(); });
   } catch (e) {
+    if (order && snapshot) Object.assign(order, snapshot);
+    renderKanban();
     showToast('Erro ao cancelar', 'error');
   }
 }
@@ -691,25 +725,38 @@ function renderClientes() {
         (c.responsavel || '').toLowerCase().includes(q))
     : App.clientes;
 
+  // Build order count map from loaded pedidos
+  const countMap = {};
+  App.pedidos.forEach(p => {
+    const tel = (p.telefone || '').replace(/\D/g, '');
+    const key = tel || (p.email_cli || '').toLowerCase();
+    if (key) countMap[key] = (countMap[key] || 0) + 1;
+  });
+
   document.getElementById('clientes-count').textContent = `${lista.length} clientes`;
   tbody.innerHTML = lista.length === 0
     ? `<tr><td colspan="6" class="empty-msg">Nenhum cliente encontrado</td></tr>`
-    : lista.map(c => `
-      <tr>
-        <td><strong>${esc(c.clinica)}</strong></td>
-        <td>${esc(c.responsavel || '—')}</td>
-        <td>${esc(c.telefone || '—')}</td>
-        <td>${esc(c.cidade || '—')}${c.estado ? ' — ' + esc(c.estado) : ''}</td>
-        <td>
-          ${c.telefone
-            ? `<a href="https://wa.me/55${c.telefone.replace(/\D/g,'')}" target="_blank" class="btn-xs">WhatsApp</a>`
-            : '—'}
-        </td>
-        <td style="display:flex;gap:4px">
-          <button class="btn-xs" onclick="abrirHistoricoCliente('${escAttr(c.cpf||c.email)}','${escAttr(c.clinica)}')">📋 Pedidos</button>
-          <button class="btn-xs" onclick="abrirEditarCliente(${JSON.stringify(c).replace(/"/g,'&quot;')})">✏️ Editar</button>
-        </td>
-      </tr>`).join('');
+    : lista.map(c => {
+        const key = (c.telefone||'').replace(/\D/g,'') || (c.email||'').toLowerCase();
+        const nPed = countMap[key] || 0;
+        return `
+        <tr>
+          <td><strong>${esc(c.clinica)}</strong></td>
+          <td>${esc(c.responsavel || '—')}</td>
+          <td>${esc(c.telefone || '—')}</td>
+          <td>${esc(c.cidade || '—')}${c.estado ? ' — ' + esc(c.estado) : ''}</td>
+          <td style="text-align:center">
+            ${nPed > 0
+              ? `<button class="btn-xs" onclick="abrirHistoricoCliente('${escAttr(c.cpf||c.email)}','${escAttr(c.clinica)}')"
+                  title="Ver pedidos">${nPed} pedido${nPed>1?'s':''}</button>`
+              : `<span style="color:var(--text2);font-size:12px">0</span>`}
+          </td>
+          <td style="display:flex;gap:4px">
+            ${c.telefone ? `<a href="https://wa.me/55${c.telefone.replace(/\D/g,'')}" target="_blank" class="btn-xs">WhatsApp</a>` : ''}
+            <button class="btn-xs" onclick="abrirEditarCliente(${JSON.stringify(c).replace(/"/g,'&quot;')})">✏️ Editar</button>
+          </td>
+        </tr>`;
+      }).join('');
 }
 
 // ── PRODUTOS ──────────────────────────────────────────────────────────────────
@@ -809,6 +856,12 @@ async function refreshAll() {
   showToast('Atualizado!');
 }
 
+function nowBR_() {
+  const d = new Date();
+  const p = n => String(n).padStart(2,'0');
+  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -906,18 +959,28 @@ function renderCupons() {
 function toggleFormCupom() {
   const p = document.getElementById('cupom-form-panel');
   p.classList.toggle('hidden');
-  if (!p.classList.contains('hidden')) renderProdPickerCupom();
+  // Pre-render product items when opening, lazy
+  if (!p.classList.contains('hidden')) {
+    const items = document.getElementById('nc-prod-items');
+    if (items && !items.innerHTML) renderProdPickerCupom();
+  }
 }
 
 function renderProdPickerCupom() {
-  const list = document.getElementById('nc-prod-list');
-  if (!list || list.innerHTML) return;
-  list.innerHTML = App.produtos.map(p => `
+  const items = document.getElementById('nc-prod-items');
+  if (!items) return;
+  items.innerHTML = App.produtos.map(p => `
     <label class="prod-pick-item">
-      <input type="checkbox" class="prod-pick-cb" value="${escAttr(p.id)}"/>
-      ${p.icone||'💊'} ${esc(p.nome)}
+      <input type="checkbox" class="prod-pick-cb" value="${escAttr(p.id)}" onchange="syncProdPickerInput()"/>
+      ${p.icone||'💊'} ${esc(p.nome)}${p.conc ? ` <span style="color:var(--text2);font-size:11px">${esc(p.conc)}</span>` : ''}
     </label>`).join('');
-  list.querySelectorAll('.prod-pick-cb').forEach(cb => cb.addEventListener('change', syncProdPickerInput));
+}
+
+function filtrarProdPicker(q) {
+  const lower = q.toLowerCase();
+  document.querySelectorAll('.prod-pick-item').forEach(el => {
+    el.style.display = el.textContent.toLowerCase().includes(lower) ? '' : 'none';
+  });
 }
 
 function syncProdPickerInput() {
@@ -938,7 +1001,10 @@ function toggleTodosProdutos(cb) {
 }
 
 function toggleFreteGratis(cb) {
-  document.getElementById('nc-frete').classList.toggle('hidden', !cb.checked);
+  const input = document.getElementById('nc-frete');
+  const label = document.getElementById('nc-frete-real-label');
+  input?.classList.toggle('hidden', !cb.checked);
+  label?.classList.toggle('hidden', !cb.checked);
 }
 
 function toggleCupomTipo() {
@@ -966,14 +1032,13 @@ async function salvarCupomAdmin(e) {
       showToast(`Cupom ${data.codigo} criado!`);
       e.target.reset();
       // Reset product picker state
-      const list = document.getElementById('nc-prod-list');
-      if (list) { list.innerHTML = ''; list.classList.add('hidden'); }
       const todosCheck = document.getElementById('nc-todos-prods');
-      if (todosCheck) todosCheck.checked = true;
+      if (todosCheck) { todosCheck.checked = true; toggleTodosProdutos(todosCheck); }
+      const items = document.getElementById('nc-prod-items');
+      if (items) items.innerHTML = '';
       document.getElementById('nc-produtos').value = 'todos';
-      document.getElementById('nc-frete').classList.add('hidden');
       const freteToggle = document.getElementById('nc-frete-toggle');
-      if (freteToggle) freteToggle.checked = false;
+      if (freteToggle) { freteToggle.checked = false; toggleFreteGratis(freteToggle); }
       toggleFormCupom();
       await loadCupons();
       renderCupons();
@@ -1191,6 +1256,147 @@ async function salvarCliente(e, cpf, emailCli) {
       renderClientes();
     } else {
       msg.textContent = data.erro || 'Erro ao salvar';
+      msg.style.color = 'var(--danger)';
+    }
+  } catch(ex) {
+    msg.textContent = 'Erro de conexão';
+    msg.style.color = 'var(--danger)';
+  }
+}
+
+// ── NOVO CLIENTE ──────────────────────────────────────────────────────────────
+function abrirNovoCliente() {
+  openModal(`
+    <div class="modal-header"><span>👤 Novo Cliente</span><button onclick="closeModal()">✕</button></div>
+    <form class="cfg-form" onsubmit="salvarNovoCliente(event)">
+      <div class="cfg-row">
+        <div class="field-inline"><label>Clínica / Nome *</label><input id="nn-clinica" required placeholder="Nome da clínica"/></div>
+        <div class="field-inline"><label>Responsável</label><input id="nn-resp" placeholder="Nome do responsável"/></div>
+      </div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>Telefone *</label><input id="nn-tel" required placeholder="(11) 99999-0000"/></div>
+        <div class="field-inline"><label>E-mail</label><input type="email" id="nn-email" placeholder="email@clinica.com"/></div>
+      </div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>CPF / CNPJ</label><input id="nn-cpf" placeholder="00.000.000/0001-00"/></div>
+        <div class="field-inline"><label>Cargo</label><input id="nn-cargo" placeholder="ex: Gerente"/></div>
+      </div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>Cidade</label><input id="nn-cidade"/></div>
+        <div class="field-inline"><label>Estado</label><input id="nn-estado" maxlength="2" placeholder="SP"/></div>
+      </div>
+      <div class="field-inline"><label>Endereço</label><input id="nn-end"/></div>
+      <div id="nn-status" class="cfg-status-msg"></div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button type="submit" class="btn-sm btn-accent">Cadastrar</button>
+        <button type="button" class="btn-sm" onclick="closeModal()">Cancelar</button>
+      </div>
+    </form>`);
+}
+
+async function salvarNovoCliente(e) {
+  e.preventDefault();
+  const msg = document.getElementById('nn-status');
+  msg.textContent = 'Cadastrando...';
+  const params = {
+    action:      'cadastrar',
+    clinica:     document.getElementById('nn-clinica').value.trim(),
+    responsavel: document.getElementById('nn-resp').value.trim(),
+    cargo:       document.getElementById('nn-cargo').value.trim(),
+    telefone:    document.getElementById('nn-tel').value.trim(),
+    email:       document.getElementById('nn-email').value.trim(),
+    cpf:         document.getElementById('nn-cpf').value.trim(),
+    cidade:      document.getElementById('nn-cidade').value.trim(),
+    estado:      document.getElementById('nn-estado').value.trim(),
+    endereco:    document.getElementById('nn-end').value.trim(),
+  };
+  try {
+    const url = new URL(SHEETS_URL);
+    Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+    const res = await fetch(url.toString());
+    const data = await res.json();
+    if (data.ok) {
+      showToast('Cliente cadastrado!');
+      closeModal();
+      await loadClientes();
+      renderClientes();
+    } else if (data.duplicado) {
+      const campo = data.duplicado === 'cpf' ? 'CPF/CNPJ' : data.duplicado === 'email' ? 'E-mail' : 'Telefone';
+      msg.textContent = `${campo} já cadastrado.`;
+      msg.style.color = 'var(--danger)';
+    } else {
+      msg.textContent = data.erro || 'Erro ao cadastrar';
+      msg.style.color = 'var(--danger)';
+    }
+  } catch(ex) {
+    msg.textContent = 'Erro de conexão';
+    msg.style.color = 'var(--danger)';
+  }
+}
+
+// ── NOVO PRODUTO ───────────────────────────────────────────────────────────────
+function abrirNovoProduto() {
+  openModal(`
+    <div class="modal-header"><span>💊 Novo Produto</span><button onclick="closeModal()">✕</button></div>
+    <form class="cfg-form" onsubmit="salvarNovoProduto(event)">
+      <div class="cfg-row">
+        <div class="field-inline" style="flex:0 0 64px"><label>Ícone</label>
+          <input id="np-icone" value="💊" maxlength="4" style="text-align:center;font-size:20px"/></div>
+        <div class="field-inline"><label>Nome *</label><input id="np-nome" required placeholder="Nome do produto"/></div>
+      </div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>Concentração / Dose</label><input id="np-conc" placeholder="ex: 2mg/mL"/></div>
+        <div class="field-inline"><label>Laboratório</label><input id="np-lab" placeholder="ex: Farmácia X"/></div>
+      </div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>Preço Base (R$) *</label>
+          <input type="number" step="0.01" id="np-preco" required placeholder="0.00"/></div>
+        <div class="field-inline"><label>Estoque inicial</label>
+          <input type="number" id="np-estoque" value="0" min="0"/></div>
+      </div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>Categoria</label>
+          <select id="np-categoria">
+            <option value="">— Selecionar —</option>
+            ${['emagrecimento','hormonal','performance','bem-estar','antienvelhecimento','outros'].map(c =>
+              `<option value="${c}">${c.charAt(0).toUpperCase()+c.slice(1)}</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="field-inline"><label>Tags (vírgula)</label>
+          <input id="np-tags" placeholder="ex: peptídeo, injetável"/></div>
+      </div>
+      <div id="np-status" class="cfg-status-msg"></div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button type="submit" class="btn-sm btn-accent">Criar Produto</button>
+        <button type="button" class="btn-sm" onclick="closeModal()">Cancelar</button>
+      </div>
+    </form>`);
+}
+
+async function salvarNovoProduto(e) {
+  e.preventDefault();
+  const msg = document.getElementById('np-status');
+  msg.textContent = 'Criando...';
+  const params = {
+    nome:      document.getElementById('np-nome').value.trim(),
+    icone:     document.getElementById('np-icone').value.trim() || '💊',
+    conc:      document.getElementById('np-conc').value.trim(),
+    lab:       document.getElementById('np-lab').value.trim(),
+    preco:     document.getElementById('np-preco').value,
+    estoque:   document.getElementById('np-estoque').value || '0',
+    categoria: document.getElementById('np-categoria').value,
+    tags:      document.getElementById('np-tags').value.trim(),
+  };
+  try {
+    const data = await API.criarProduto(params);
+    if (data.ok) {
+      showToast(`Produto criado! (ID: ${data.id})`);
+      closeModal();
+      await loadProdutos();
+      renderProdutos();
+    } else {
+      msg.textContent = data.erro || 'Erro ao criar produto';
       msg.style.color = 'var(--danger)';
     }
   } catch(ex) {
