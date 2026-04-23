@@ -25,18 +25,15 @@
     <button class="btn-history" onclick="openHistory()">📋 Histórico</button>
   </div>
 </header>
-<!-- AVISO PRAZO DESPACHO -->
-<div id="aviso-prazo" class="aviso-prazo">
-  <div class="aviso-prazo-inner">
-    <span class="aviso-prazo-icon">⏰</span>
-    <div class="aviso-prazo-text">
-      Pedidos confirmados até as <strong>12h00</strong> são despachados no mesmo dia
-      <span class="aviso-prazo-sep">·</span>
-      Após esse horário, o despacho ocorre no <strong>dia seguinte</strong>
-    </div>
-    <button class="aviso-prazo-close" onclick="fecharAvisoPrazo()" title="Fechar">✕</button>
+<!-- POPUP PRAZO DESPACHO -->
+<div id="popup-prazo" class="popup-overlay" onclick="fecharPopupPrazo()">
+  <div class="popup-card" onclick="event.stopPropagation()">
+    <div class="popup-icon">⏰</div>
+    <h3 class="popup-title">Prazo de Despacho</h3>
+    <p class="popup-text">Pedidos confirmados até as <strong>12h00</strong> são despachados <strong>no mesmo dia</strong>.</p>
+    <p class="popup-text">Após esse horário, o despacho ocorre no <strong>próximo dia útil</strong>.</p>
+    <button class="popup-btn" onclick="fecharPopupPrazo()">Entendido ✓</button>
   </div>
-  <div class="aviso-prazo-bar"></div>
 </div>
 
 <!-- STEPPER -->
@@ -126,22 +123,23 @@
       <!-- cards gerados via JS -->
     </div>
 
-    <div class="total-bar">
-      <div>
-        <div class="tb-label">Itens selecionados</div>
-        <div class="tb-items" id="items-count">0 produto(s)</div>
-      </div>
-      <div style="text-align:right">
-        <div class="tb-label">Total do Pedido</div>
-        <div style="display:flex; align-items:baseline; gap:4px; justify-content:flex-end">
-          <span class="tb-currency">R$</span>
-          <span class="tb-total" id="total-display">0,00</span>
+    <div class="cart-sticky">
+      <div class="total-bar">
+        <div>
+          <div class="tb-label">Itens selecionados</div>
+          <div class="tb-items" id="items-count">0 produto(s)</div>
+        </div>
+        <div style="text-align:right">
+          <div class="tb-label">Total do Pedido</div>
+          <div style="display:flex; align-items:baseline; gap:4px; justify-content:flex-end">
+            <span class="tb-currency">R$</span>
+            <span class="tb-total" id="total-display">0,00</span>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn btn-next" onclick="goStep(2)">Continuar com Meus Dados →</button>
+      <div class="btn-row">
+        <button class="btn btn-next" onclick="goStep(2)">Finalizar Carrinho →</button>
+      </div>
     </div>
   </div>
 

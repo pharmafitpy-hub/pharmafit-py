@@ -1630,10 +1630,10 @@ function lpPreencherCampos(data) {
 }
 
 
-function fecharAvisoPrazo() {
-  const el = document.getElementById('aviso-prazo');
+function fecharPopupPrazo() {
+  const el = document.getElementById('popup-prazo');
   if (!el) return;
   el.classList.add('hide');
-  setTimeout(() => el.remove(), 350);
+  setTimeout(() => el.remove(), 280);
 }
-setTimeout(fecharAvisoPrazo, 8000);
+setTimeout(fecharPopupPrazo, 8000);

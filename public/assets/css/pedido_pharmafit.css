@@ -268,10 +268,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
-    position: sticky;
-    bottom: 70px;
-    z-index: 10;
+    margin-bottom: 0;
   }
   .total-bar .tb-label { font-size: 0.85rem; color: var(--gray); }
   .total-bar .tb-items { font-size: 0.85rem; color: var(--white); }
@@ -898,33 +895,44 @@
   .lp-sair:hover { color: #EF4444; }
 
 
-/* ── AVISO PRAZO DESPACHO ── */
-.aviso-prazo {
-  background: linear-gradient(90deg, #0e2035 0%, #0a1a2a 100%);
-  border-left: 4px solid var(--accent);
-  position: relative; overflow: hidden;
-  animation: avisoSlideDown .4s ease;
+/* ── POPUP PRAZO DESPACHO ── */
+.popup-overlay {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,.65);
+  display: flex; align-items: center; justify-content: center;
+  animation: popupFadeIn .25s ease;
 }
-.aviso-prazo.hide { animation: avisoSlideUp .35s ease forwards; }
-.aviso-prazo-inner {
-  display: flex; align-items: center; gap: 12px;
-  padding: 11px 20px;
+.popup-overlay.hide { animation: popupFadeOut .25s ease forwards; pointer-events: none; }
+.popup-card {
+  background: var(--card-bg);
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  padding: 32px 28px;
+  max-width: 380px; width: calc(100% - 40px);
+  text-align: center;
+  animation: popupSlideUp .25s ease;
 }
-.aviso-prazo-icon { font-size: 1.25rem; flex-shrink: 0; }
-.aviso-prazo-text { flex: 1; font-size: .83rem; color: rgba(255,255,255,.82); line-height: 1.45; }
-.aviso-prazo-text strong { color: var(--accent); font-weight: 700; }
-.aviso-prazo-sep { margin: 0 8px; opacity: .35; }
-.aviso-prazo-close {
-  background: none; border: none; color: rgba(255,255,255,.35);
-  font-size: 1rem; cursor: pointer; padding: 4px 8px; flex-shrink: 0;
-  border-radius: 4px; transition: color .2s, background .2s; line-height: 1;
+.popup-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.popup-title { font-size: 1.1rem; font-weight: 800; color: var(--white); margin-bottom: 16px; }
+.popup-text { font-size: .88rem; color: var(--light); line-height: 1.6; margin-bottom: 8px; }
+.popup-text strong { color: var(--accent); font-weight: 700; }
+.popup-btn {
+  margin-top: 20px; background: var(--accent); color: #0F0B1A;
+  border: none; border-radius: 10px; padding: 12px 32px;
+  font-size: .92rem; font-weight: 800; cursor: pointer; transition: opacity .2s;
+  font-family: inherit; width: 100%;
 }
-.aviso-prazo-close:hover { color: white; background: rgba(255,255,255,.08); }
-.aviso-prazo-bar {
-  height: 2px; background: var(--accent); width: 100%;
-  transform-origin: left;
-  animation: avisoBarCountdown 8s linear forwards;
+.popup-btn:hover { opacity: .88; }
+@keyframes popupFadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes popupFadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes popupSlideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* ── STICKY CART FOOTER ── */
+.cart-sticky {
+  position: sticky; bottom: 0; z-index: 50;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border);
+  padding: 14px 0 0;
+  margin-top: 16px;
 }
-@keyframes avisoSlideDown { from { max-height: 0; opacity: 0; } to { max-height: 80px; opacity: 1; } }
-@keyframes avisoSlideUp   { to   { max-height: 0; opacity: 0; padding: 0; } }
-@keyframes avisoBarCountdown { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.cart-sticky .btn-row { margin-top: 12px; }
