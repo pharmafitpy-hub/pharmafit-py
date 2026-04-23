@@ -990,8 +990,13 @@ function renderCupons() {
 
   const statusCls = { Ativo: 'badge-on', Desativado: 'badge-off', Expirado: 'badge-off' };
   tbody.innerHTML = lista.length === 0
-    ? `<tr><td colspan="8" class="empty-msg">Nenhum cupom encontrado</td></tr>`
-    : lista.map(c => `
+    ? `<tr><td colspan="9" class="empty-msg">Nenhum cupom encontrado</td></tr>`
+    : lista.map(c => {
+        const beneficios = [
+          c.parcelamento === 'SIM' ? `<span class="badge badge-on" style="font-size:10px">3x s/j</span>` : '',
+          c.freteAcima   ? `<span class="badge badge-on" style="font-size:10px">🚚 +R$${esc(c.freteAcima)}</span>` : '',
+        ].filter(Boolean).join(' ') || '<span style="color:var(--text2);font-size:11px">—</span>';
+        return `
       <tr>
         <td><strong>${esc(c.codigo)}</strong></td>
         <td>${esc(c.tipo === '%' ? '% Desconto' : 'Preço Fixo')}</td>
@@ -999,6 +1004,7 @@ function renderCupons() {
         <td style="font-size:12px;color:var(--text2)">${esc(c.validade)}</td>
         <td style="font-size:12px;color:var(--text2)">${esc(c.vendedora || '—')}</td>
         <td style="text-align:center">${c.usos}</td>
+        <td style="white-space:nowrap">${beneficios}</td>
         <td><span class="badge ${statusCls[c.status] || 'badge-off'}">${esc(c.status)}</span></td>
         <td style="display:flex;gap:4px">
           <button class="btn-xs ${c.status === 'Ativo' ? 'btn-xs-danger' : ''}"
@@ -1008,7 +1014,7 @@ function renderCupons() {
           <button class="btn-xs btn-xs-danger"
             onclick="apagarCupomAdmin('${escAttr(c.codigo)}')">🗑️</button>
         </td>
-      </tr>`).join('');
+      </tr>`;}).join('');
 }
 
 function toggleFormCupom() {
@@ -1319,8 +1325,8 @@ function abrirEditarProduto(prodId) {
         <div class="field-inline"><label>Tags (vírgula)</label><input id="ep-tags" value="${escAttr((p.tags||[]).join(', '))}"/></div>
         <div class="field-inline"><label>Status</label>
           <select id="ep-ativo">
-            <option value="true" ${p.estoque > 0 ? 'selected' : ''}>Ativo</option>
-            <option value="false" ${p.estoque <= 0 ? 'selected' : ''}>Inativo</option>
+            <option value="true" selected>Ativo</option>
+            <option value="false">Inativo</option>
           </select>
         </div>
         <div class="field-inline" style="flex:0 0 auto;align-items:flex-end">
