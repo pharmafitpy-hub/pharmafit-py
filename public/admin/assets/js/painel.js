@@ -123,9 +123,7 @@ async function loadPedidos() {
           const titulo = `📦 Novo pedido — ${order.clinica || ''}`;
           const corpo  = `${(order.produtos||'').split('\n')[0]?.replace(/^\d+x\s*/,'') || ''} · ${formatMoeda(order.total)}`;
           showToast(titulo, 'success');
-          if (Notification.permission === 'granted') {
-            new Notification(titulo, { body: corpo, icon: './icons/icon-192.svg' });
-          }
+          showNotif(titulo, { body: corpo });
         });
       }
       _knownOrderIds = new Set(data.pedidos.map(p => String(p.id)));
@@ -1007,6 +1005,18 @@ async function cadastrarAdmin(e) {
 }
 
 // ── NOTIFICATIONS ─────────────────────────────────────────────────────────────
+async function showNotif(title, options = {}) {
+  if (Notification.permission !== 'granted') return;
+  if ('serviceWorker' in navigator) {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      await reg.showNotification(title, { icon: './icons/icon-192.svg', ...options });
+      return;
+    } catch (_) {}
+  }
+  new Notification(title, { icon: './icons/icon-192.svg', ...options });
+}
+
 function updateNotifStatus() {
   const text = document.getElementById('notif-status-text');
   const btn  = document.getElementById('notif-btn');
@@ -1039,10 +1049,7 @@ async function solicitarNotificacoes() {
   const result = await Notification.requestPermission();
   updateNotifStatus();
   if (result === 'granted') {
-    new Notification('✅ PharmaFit Admin', {
-      body: 'Notificações ativadas! Você receberá alertas de novos pedidos.',
-      icon: './icons/icon-192.svg',
-    });
+    showNotif('✅ PharmaFit Admin', { body: 'Notificações ativadas! Você receberá alertas de novos pedidos.' });
   }
 }
 
@@ -1069,16 +1076,10 @@ function checkStockAlerts() {
     const key = `${p.id}:${est}`;
     if (alerted.has(key)) return;
     if (est === 0) {
-      new Notification(`🚨 Estoque zerado — ${nome}`, {
-        body: `O estoque de ${nome} acabou! Faça o reabastecimento urgente.`,
-        icon: './icons/icon-192.svg',
-      });
+      showNotif(`🚨 Estoque zerado — ${nome}`, { body: `O estoque de ${nome} acabou! Faça o reabastecimento urgente.` });
       newAlerted.push(key);
     } else if (est > 0 && est <= threshold) {
-      new Notification(`⚠️ Estoque crítico — ${nome}`, {
-        body: `Restam apenas ${est} unidade${est !== 1 ? 's' : ''} de ${nome}. Considere reabastecer.`,
-        icon: './icons/icon-192.svg',
-      });
+      showNotif(`⚠️ Estoque crítico — ${nome}`, { body: `Restam apenas ${est} unidade${est !== 1 ? 's' : ''} de ${nome}. Considere reabastecer.` });
       newAlerted.push(key);
     }
   });
