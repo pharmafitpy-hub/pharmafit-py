@@ -300,6 +300,18 @@
             </div>
           </div>
           <p style="font-size:11px;color:var(--text2);margin:6px 0 0">Pedidos com status "Entregue" mais antigos que esse prazo aparecem colapsados no final do kanban.</p>
+          <div class="cfg-row" style="margin-top:14px">
+            <div class="field-inline" style="flex:0 0 auto">
+              <label>Alerta de estoque crítico abaixo de</label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <input type="number" id="cfg-stock-alert" min="1" max="999"
+                  onchange="salvarConfigEstoque(this.value)"
+                  style="width:70px;text-align:center"/>
+                <span style="font-size:12px;color:var(--text2)">unidades</span>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--text2);margin:6px 0 0">Você receberá uma notificação quando o estoque de um produto atingir este nível.</p>
         </div>
       </div>
 
@@ -352,10 +364,14 @@
 <div id="modal-box" class="modal-box"></div>
 
 <!-- PWA Install Banner -->
+<div id="install-overlay" class="install-overlay hidden" onclick="dismissInstall()"></div>
 <div id="install-banner" class="install-banner hidden">
-  <span class="install-banner-text">📲 Instalar PharmaFit como app?</span>
-  <button class="btn-sm btn-accent" onclick="promptInstall()">Instalar</button>
   <button class="install-banner-close" onclick="dismissInstall()">✕</button>
+  <div class="install-banner-icon">📲</div>
+  <div class="install-banner-title">Instalar PharmaFit Admin</div>
+  <div class="install-banner-text">Adicione o painel como app para acesso rápido, notificações e uso offline.</div>
+  <button class="btn-sm btn-accent install-banner-btn" onclick="promptInstall()">Instalar agora</button>
+  <button class="btn-sm" onclick="dismissInstall()">Agora não</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>

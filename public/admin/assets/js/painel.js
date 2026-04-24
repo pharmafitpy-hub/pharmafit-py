@@ -75,6 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadAll();
   showLoading(false);
   setView('kanban');
+  checkStockAlerts();
 
   setInterval(async () => {
     await loadPedidos();
@@ -301,7 +302,7 @@ function renderKanban() {
       devZone.innerHTML = '';
     } else {
       const existingBody = devZone.querySelector('.kanban-dev-body');
-      const open = existingBody ? existingBody.style.display !== 'none' : false;
+      const open = existingBody ? existingBody.style.display !== 'none' : true;
       devZone.innerHTML = `
         <div class="kanban-dev-section">
           <div class="kanban-dev-header" onclick="toggleDevZone(this)">
@@ -345,6 +346,22 @@ function toggleDevZone(header) {
   chevron.textContent   = open ? '▼' : '▲';
 }
 
+function getWaMsg(order) {
+  const nome = order.responsavel || order.clinica || 'cliente';
+  const id = '#' + order.id;
+  const msgs = {
+    'Novo':            `Olá ${nome}! 👋 Recebemos seu pedido ${id} e em breve confirmaremos o pagamento. Obrigado pela confiança!`,
+    'Pag. Confirmado': `Olá ${nome}! ✅ Confirmamos o pagamento do pedido ${id}. Estamos preparando tudo com cuidado!`,
+    'Em Separação':    `Olá ${nome}! 📋 Estamos separando os itens do pedido ${id}. Em breve estará embalado!`,
+    'Embalado':        `Olá ${nome}! 📦 Seu pedido ${id} foi embalado e está pronto para envio!`,
+    'Etiqueta Gerada': `Olá ${nome}! 🏷️ A etiqueta do pedido ${id} foi gerada. Aguardando coleta!`,
+    'Enviado':         `Olá ${nome}! 🚚 Seu pedido ${id} foi enviado!${order.rastreio ? `\nRastreio: *${order.rastreio}*\nhttps://rastreamento.correios.com.br/app/resultado.app?objeto=${order.rastreio}` : ''} Em breve chegará até você!`,
+    'Entregue':        `Olá ${nome}! 🎉 Confirmamos a entrega do pedido ${id}. Esperamos que tudo chegou perfeitamente! Qualquer dúvida estamos à disposição.`,
+    'Cancelado':       `Olá ${nome}, o pedido ${id} foi cancelado. Em caso de dúvidas, entre em contato conosco.`,
+  };
+  return msgs[order.status] || `Olá ${nome}! Atualização sobre o pedido ${id}.`;
+}
+
 function renderCard(order) {
   const stuck   = isStuck(order);
   const isDev   = isDevOrder(order);
@@ -382,7 +399,7 @@ function renderCard(order) {
         <button class="card-btn" onclick="event.stopPropagation();openDrawer(${order.id})">Detalhes</button>
         ${order.telefone
           ? `<a class="card-btn card-btn-wa" target="_blank" onclick="event.stopPropagation()"
-               href="https://wa.me/55${order.telefone.replace(/\D/g,'')}?text=${encodeURIComponent('Olá ' + (order.clinica||'') + '! Atualização do pedido #' + order.id + '.')}">WA</a>`
+               href="https://wa.me/55${order.telefone.replace(/\D/g,'')}?text=${encodeURIComponent(getWaMsg(order))}">WA</a>`
           : ''}
         ${prev
           ? `<button class="card-btn card-btn-prev"
@@ -934,9 +951,10 @@ function salvarConfigArquivamento(val) {
 }
 
 function renderConfig() {
-  // Restore archival setting
   const archSel = document.getElementById('cfg-arch-days');
   if (archSel) archSel.value = String(getArchDays());
+  const stockEl = document.getElementById('cfg-stock-alert');
+  if (stockEl) stockEl.value = String(getStockAlertThreshold());
 
   const tbody = document.getElementById('admins-tbody');
   if (tbody) {
@@ -979,6 +997,47 @@ async function cadastrarAdmin(e) {
   }
 }
 
+// ── STOCK ALERTS ──────────────────────────────────────────────────────────────
+function getStockAlertThreshold() {
+  return parseInt(localStorage.getItem('pharmafit_stock_alert') || '5');
+}
+
+function salvarConfigEstoque(val) {
+  localStorage.setItem('pharmafit_stock_alert', String(parseInt(val) || 5));
+  showToast('Configuração salva');
+}
+
+function checkStockAlerts() {
+  if (Notification.permission !== 'granted') return;
+  const threshold = getStockAlertThreshold();
+  const alerted = new Set(JSON.parse(sessionStorage.getItem('pharmafit_stock_alerted') || '[]'));
+  const newAlerted = [];
+  App.produtos.forEach(p => {
+    const est = p.variantes?.length > 0
+      ? p.variantes.reduce((s, v) => s + (parseInt(v.estoque) || 0), 0)
+      : (parseInt(p.estoque) || 0);
+    const nome = p.nome || p.id;
+    const key = `${p.id}:${est}`;
+    if (alerted.has(key)) return;
+    if (est === 0) {
+      new Notification(`🚨 Estoque zerado — ${nome}`, {
+        body: `O estoque de ${nome} acabou! Faça o reabastecimento urgente.`,
+        icon: './icons/icon-192.svg',
+      });
+      newAlerted.push(key);
+    } else if (est > 0 && est <= threshold) {
+      new Notification(`⚠️ Estoque crítico — ${nome}`, {
+        body: `Restam apenas ${est} unidade${est !== 1 ? 's' : ''} de ${nome}. Considere reabastecer.`,
+        icon: './icons/icon-192.svg',
+      });
+      newAlerted.push(key);
+    }
+  });
+  if (newAlerted.length > 0) {
+    sessionStorage.setItem('pharmafit_stock_alerted', JSON.stringify([...alerted, ...newAlerted]));
+  }
+}
+
 // ── PWA ───────────────────────────────────────────────────────────────────────
 let _installPrompt = null;
 
@@ -989,12 +1048,11 @@ if ('serviceWorker' in navigator) {
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   _installPrompt = e;
-  if (!localStorage.getItem('pwa_dismissed')) {
-    setTimeout(() => {
-      const b = document.getElementById('install-banner');
-      if (b) b.classList.remove('hidden');
-    }, 4000);
-  }
+  setTimeout(() => {
+    document.getElementById('install-overlay')?.classList.remove('hidden');
+    const b = document.getElementById('install-banner');
+    if (b) b.classList.remove('hidden');
+  }, 4000);
 });
 
 window.addEventListener('appinstalled', () => {
@@ -1007,6 +1065,7 @@ function promptInstall() {
   if (!_installPrompt) {
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
     if (isIOS) {
+      dismissInstall();
       alert('Para instalar no iPhone: toque em Compartilhar (⬆️) → "Adicionar à Tela de Início"');
     }
     return;
@@ -1014,15 +1073,13 @@ function promptInstall() {
   _installPrompt.prompt();
   _installPrompt.userChoice.then(() => {
     _installPrompt = null;
-    const b = document.getElementById('install-banner');
-    if (b) b.classList.add('hidden');
+    dismissInstall();
   });
 }
 
 function dismissInstall() {
-  localStorage.setItem('pwa_dismissed', '1');
-  const b = document.getElementById('install-banner');
-  if (b) b.classList.add('hidden');
+  document.getElementById('install-overlay')?.classList.add('hidden');
+  document.getElementById('install-banner')?.classList.add('hidden');
 }
 
 // ── GLOBAL SEARCH ─────────────────────────────────────────────────────────────
