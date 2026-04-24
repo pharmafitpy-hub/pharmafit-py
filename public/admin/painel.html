@@ -153,9 +153,15 @@
         <span style="font-size:12px;color:var(--text2)">Clique em Editar para alterar o protocolo de um produto</span>
       </div>
     </div>
-    <div class="search-bar-wrapper">
-      <input type="search" id="busca-protocolos" placeholder="🔍 Buscar produto..."
-        oninput="renderProtocolos()"/>
+    <div class="kanban-toolbar">
+      <div class="search-bar-wrapper" style="padding:0;flex:1">
+        <input type="search" id="busca-protocolos" placeholder="🔍 Buscar produto..." oninput="renderProtocolos()"/>
+      </div>
+      <div class="kanban-filters">
+        <button class="filter-btn active" data-proto-filter="todos"  onclick="setProtoFilter(this)">Todos</button>
+        <button class="filter-btn"        data-proto-filter="com"    onclick="setProtoFilter(this)">✓ Com protocolo</button>
+        <button class="filter-btn"        data-proto-filter="sem"    onclick="setProtoFilter(this)">— Sem protocolo</button>
+      </div>
     </div>
     <div id="protocolos-grid" class="proto-grid"></div>
   </div>

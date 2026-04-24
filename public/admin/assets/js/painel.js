@@ -1467,13 +1467,22 @@ async function salvarProduto(e) {
 }
 
 // ── PROTOCOLOS ────────────────────────────────────────────────────────────────
+function setProtoFilter(btn) {
+  document.querySelectorAll('[data-proto-filter]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProtocolos();
+}
+
 function renderProtocolos() {
   const grid = document.getElementById('protocolos-grid');
   if (!grid) return;
   const q = (document.getElementById('busca-protocolos')?.value || '').toLowerCase().trim();
-  const lista = q
+  const filtro = document.querySelector('[data-proto-filter].active')?.dataset.protoFilter || 'todos';
+  let lista = q
     ? App.produtos.filter(p => (p.nome||'').toLowerCase().includes(q) || (p.conc||'').toLowerCase().includes(q))
     : App.produtos;
+  if (filtro === 'com') lista = lista.filter(p => !!(App.protocolos && App.protocolos[p.id]));
+  if (filtro === 'sem') lista = lista.filter(p => !(App.protocolos && App.protocolos[p.id]));
   if (!lista.length) {
     grid.innerHTML = '<div style="color:var(--text2);padding:20px">Nenhum produto encontrado</div>';
     return;
