@@ -48,7 +48,7 @@ const PREV_STATUS = {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
-  const saved = sessionStorage.getItem('pharmafit_admin');
+  const saved = localStorage.getItem('pharmafit_admin');
   if (!saved) return (window.location.href = 'index.html');
   App.admin = JSON.parse(saved);
   document.getElementById('admin-nome').textContent = App.admin.nome;
@@ -1225,7 +1225,7 @@ function hideGlobalResults() {
 
 // ── UTILS ─────────────────────────────────────────────────────────────────────
 function logout() {
-  sessionStorage.removeItem('pharmafit_admin');
+  localStorage.removeItem('pharmafit_admin');
   window.location.href = 'index.html';
 }
 

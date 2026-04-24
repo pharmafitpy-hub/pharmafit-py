@@ -31,7 +31,7 @@
 
 <script src="../assets/js/config.js"></script>
 <script>
-  if (sessionStorage.getItem('pharmafit_admin')) {
+  if (localStorage.getItem('pharmafit_admin')) {
     window.location.href = 'painel.html';
   }
 
@@ -54,7 +54,7 @@
       const data = await res.json();
 
       if (data.ok) {
-        sessionStorage.setItem('pharmafit_admin', JSON.stringify({
+        localStorage.setItem('pharmafit_admin', JSON.stringify({
           email: data.email,
           token: data.token,
           nome:  data.nome,
