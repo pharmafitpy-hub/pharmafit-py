@@ -77,11 +77,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   setView('kanban');
   checkStockAlerts();
   initKanbanDrag();
+  updateSwState();
+  registerPeriodicSync();
 
   setInterval(async () => {
     await loadPedidos();
     if (App.view === 'kanban') renderKanban();
   }, 60_000);
+
+  // Checa imediatamente quando o app volta para o foreground no celular
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState !== 'visible') return;
+    await loadPedidos();
+    if (App.view === 'kanban') renderKanban();
+  });
 });
 
 function showLoading(on) {
@@ -137,6 +146,7 @@ async function loadPedidos() {
       _knownOrderIds = new Set(data.pedidos.map(p => String(p.id)));
       sessionStorage.setItem('pf_known_ids', JSON.stringify([..._knownOrderIds]));
       App.pedidos = data.pedidos;
+      updateSwState();
     }
   } catch (e) { console.error('loadPedidos', e); }
 }
@@ -1154,6 +1164,31 @@ function checkStockAlerts() {
   if (changed) {
     localStorage.setItem('pharmafit_stock_alerted', JSON.stringify([...alerted]));
   }
+}
+
+// ── BACKGROUND SYNC ───────────────────────────────────────────────────────────
+function updateSwState() {
+  if (!('caches' in window) || !App.admin) return;
+  caches.open('pharmafit-sw-state').then(cache =>
+    cache.put('sw-state', new Response(JSON.stringify({
+      sheetsUrl: SHEETS_URL,
+      email:     App.admin.email,
+      token:     App.admin.token,
+      knownIds:  [...(_knownOrderIds || new Set())]
+    }), { headers: { 'Content-Type': 'application/json' } }))
+  ).catch(() => {});
+}
+
+async function registerPeriodicSync() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    const reg  = await navigator.serviceWorker.ready;
+    if (!('periodicSync' in reg)) return;
+    const perm = await navigator.permissions.query({ name: 'periodic-background-sync' });
+    if (perm.state === 'granted') {
+      await reg.periodicSync.register('check-pedidos', { minInterval: 60_000 });
+    }
+  } catch(_) {}
 }
 
 // ── PWA ───────────────────────────────────────────────────────────────────────
