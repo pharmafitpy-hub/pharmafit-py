@@ -67,9 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  if ('Notification' in window && Notification.permission === 'default') {
-    setTimeout(() => Notification.requestPermission(), 3000);
-  }
+  // Notification permission is requested via button in Configurações (user gesture required on mobile)
 
   showLoading(true);
   await loadAll();
@@ -965,6 +963,7 @@ function renderConfig() {
   if (archSel) archSel.value = String(getArchDays());
   const stockEl = document.getElementById('cfg-stock-alert');
   if (stockEl) stockEl.value = String(getStockAlertThreshold());
+  updateNotifStatus();
 
   const tbody = document.getElementById('admins-tbody');
   if (tbody) {
@@ -1004,6 +1003,46 @@ async function cadastrarAdmin(e) {
   } catch (ex) {
     msg.textContent = 'Erro de conexão';
     msg.style.color = 'var(--danger)';
+  }
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────────────────
+function updateNotifStatus() {
+  const text = document.getElementById('notif-status-text');
+  const btn  = document.getElementById('notif-btn');
+  if (!text || !btn) return;
+  if (!('Notification' in window)) {
+    text.textContent = 'Notificações não são suportadas neste dispositivo ou navegador.';
+    btn.style.display = 'none';
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    text.textContent = '✅ Notificações ativadas — você será avisado de novos pedidos.';
+    btn.textContent  = '✅ Ativadas';
+    btn.disabled     = true;
+  } else if (Notification.permission === 'denied') {
+    text.textContent = '❌ Notificações bloqueadas. Para reativar: Configurações do navegador → Permissões → Notificações → permitir este site.';
+    btn.textContent  = '❌ Bloqueadas';
+    btn.disabled     = true;
+  } else {
+    text.textContent = 'Ative para receber alertas de novos pedidos mesmo com o app em segundo plano.';
+    btn.textContent  = '🔔 Ativar Notificações';
+    btn.disabled     = false;
+  }
+}
+
+async function solicitarNotificacoes() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted' || Notification.permission === 'denied') {
+    updateNotifStatus(); return;
+  }
+  const result = await Notification.requestPermission();
+  updateNotifStatus();
+  if (result === 'granted') {
+    new Notification('✅ PharmaFit Admin', {
+      body: 'Notificações ativadas! Você receberá alertas de novos pedidos.',
+      icon: './icons/icon-192.svg',
+    });
   }
 }
 
