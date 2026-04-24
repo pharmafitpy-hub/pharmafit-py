@@ -157,21 +157,7 @@
       <input type="search" id="busca-protocolos" placeholder="🔍 Buscar produto..."
         oninput="renderProtocolos()"/>
     </div>
-    <div class="table-view">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Produto</th>
-            <th>Concentração</th>
-            <th style="text-align:center">Protocolo</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="protocolos-tbody">
-          <tr><td colspan="4" class="loading-msg">⏳ Carregando...</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <div id="protocolos-grid" class="proto-grid"></div>
   </div>
 
   <!-- ══ VIEW: CUPONS ══ -->

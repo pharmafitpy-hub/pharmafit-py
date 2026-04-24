@@ -1466,24 +1466,27 @@ async function salvarProduto(e) {
 
 // ── PROTOCOLOS ────────────────────────────────────────────────────────────────
 function renderProtocolos() {
-  const tbody = document.getElementById('protocolos-tbody');
-  if (!tbody) return;
+  const grid = document.getElementById('protocolos-grid');
+  if (!grid) return;
   const q = (document.getElementById('busca-protocolos')?.value || '').toLowerCase().trim();
   const lista = q
     ? App.produtos.filter(p => (p.nome||'').toLowerCase().includes(q) || (p.conc||'').toLowerCase().includes(q))
     : App.produtos;
   if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="4" style="color:var(--text2);padding:20px;text-align:center">Nenhum produto encontrado</td></tr>';
+    grid.innerHTML = '<div style="color:var(--text2);padding:20px">Nenhum produto encontrado</div>';
     return;
   }
-  tbody.innerHTML = lista.map(p => {
+  grid.innerHTML = lista.map(p => {
     const temProto = !!(App.protocolos && App.protocolos[p.id]);
-    return `<tr>
-      <td><span style="font-size:18px;margin-right:6px">${p.icone||'💊'}</span>${esc(p.nome)}</td>
-      <td style="color:var(--text2);font-size:12px">${esc(p.conc||'')}</td>
-      <td style="text-align:center"><span class="badge ${temProto ? 'badge-on' : 'badge-off'}">${temProto ? '✓ Tem' : '— Sem'}</span></td>
-      <td><button class="btn-xs" onclick="abrirEditarProtocolo('${escAttr(p.id)}')">✏️ Editar</button></td>
-    </tr>`;
+    return `<div class="proto-card">
+      <div class="proto-card-icon">${p.icone||'💊'}</div>
+      <div class="proto-card-nome">${esc(p.nome)}</div>
+      <div class="proto-card-conc">${esc(p.conc||'')}</div>
+      <div class="proto-card-footer">
+        <span class="badge ${temProto ? 'badge-on' : 'badge-off'}" style="font-size:10px">${temProto ? '✓ Protocolo' : '— Sem protocolo'}</span>
+        <button class="btn-xs" onclick="abrirEditarProtocolo('${escAttr(p.id)}')">✏️ Editar</button>
+      </div>
+    </div>`;
   }).join('');
 }
 
