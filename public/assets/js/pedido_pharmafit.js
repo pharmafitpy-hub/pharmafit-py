@@ -999,6 +999,7 @@ async function _goStep3() {
 
   btn.disabled = false;
   btn.textContent = 'Continuar para Pagamento →';
+  _clienteJaLogado = true;
   lpSetLogado(v('f_clinica'), v('f_responsavel'));
   document.getElementById('lp-ja-tem-conta').style.display = 'none';
   _aplicarStep(3);
@@ -1347,6 +1348,12 @@ function showSuccess() {
 }
 
 function newOrder() {
+  // Preserva dados do cliente logado antes de limpar tudo
+  const camposCliente = ['f_documento','f_clinica','f_responsavel','f_cargo','f_telefone','f_email','f_cep_entrega','f_rua','f_numero','f_bairro','f_complemento','f_cidade','f_estado'];
+  const dadosSalvos = _clienteJaLogado
+    ? Object.fromEntries(camposCliente.map(id => [id, document.getElementById(id)?.value || '']))
+    : null;
+
   // Reset
   cart = {};
   selectedPayment  = '';
@@ -1362,6 +1369,14 @@ function newOrder() {
   if (bc) bc.disabled = false;
   if (mc) mc.innerHTML = '';
   document.querySelectorAll('input, textarea, select').forEach(el => { if (el.id !== 'f_parcelas') el.value = ''; });
+
+  // Restaura dados do cliente se estava logado
+  if (dadosSalvos) {
+    camposCliente.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = dadosSalvos[id];
+    });
+  }
   document.querySelectorAll('.pay-opt').forEach(el => el.classList.remove('selected'));
   document.getElementById('installment-wrap').classList.remove('show');
   for (let i = 1; i <= 4; i++) {
