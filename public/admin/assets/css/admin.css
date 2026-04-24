@@ -83,6 +83,11 @@ button { cursor: pointer; }
 /* ── MAIN LAYOUT ──────────────────────────────────────────────────────────── */
 .admin-layout { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
 
+/* iOS/Android safe area */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .admin-layout { padding-bottom: env(safe-area-inset-bottom); }
+}
+
 /* ── HEADER ───────────────────────────────────────────────────────────────── */
 .admin-header {
   display: flex; align-items: center; gap: 20px;

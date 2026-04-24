@@ -302,7 +302,7 @@ function renderKanban() {
       devZone.innerHTML = '';
     } else {
       const existingBody = devZone.querySelector('.kanban-dev-body');
-      const open = existingBody ? existingBody.style.display !== 'none' : true;
+      const open = existingBody ? existingBody.style.display !== 'none' : false;
       devZone.innerHTML = `
         <div class="kanban-dev-section">
           <div class="kanban-dev-header" onclick="toggleDevZone(this)">
@@ -1062,11 +1062,16 @@ window.addEventListener('appinstalled', () => {
 });
 
 function promptInstall() {
+  const hint = document.getElementById('pwa-cfg-hint');
   if (!_installPrompt) {
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    dismissInstall();
     if (isIOS) {
-      dismissInstall();
-      alert('Para instalar no iPhone: toque em Compartilhar (⬆️) → "Adicionar à Tela de Início"');
+      if (hint) hint.textContent = 'iPhone: toque em Compartilhar (⬆️) → "Adicionar à Tela de Início"';
+      else alert('Para instalar no iPhone: toque em Compartilhar (⬆️) → "Adicionar à Tela de Início"');
+    } else {
+      if (hint) hint.textContent = 'Android: toque em ⋮ no navegador → "Instalar app" ou "Adicionar à tela inicial"';
+      else alert('Para instalar: toque em ⋮ no navegador → "Instalar app" ou "Adicionar à tela inicial"');
     }
     return;
   }
