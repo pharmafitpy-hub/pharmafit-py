@@ -708,6 +708,120 @@ button { cursor: pointer; }
 }
 .preco-fix-input:focus { border-color: var(--accent); }
 
+/* ── MOBILE ───────────────────────────────────────────────────────────────── */
+.mobile-header-row { display: none; }
+
+@media (max-width: 768px) {
+  /* Header: 2 linhas */
+  .admin-header {
+    flex-wrap: wrap; height: auto;
+    padding: 0 14px; gap: 0;
+    align-items: stretch;
+  }
+  .header-logo { font-size: 16px; padding: 12px 0; flex: 1; }
+  .admin-nav   { display: none; }
+  .header-right { padding: 8px 0; gap: 8px; }
+  .admin-nome  { display: none; }
+  .btn-logout  { font-size: 13px; padding: 6px 10px; }
+
+  .mobile-header-row {
+    display: flex; width: 100%; border-top: 1px solid var(--border);
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .mobile-header-row::-webkit-scrollbar { display: none; }
+  .admin-nav-mobile {
+    display: flex; gap: 2px; padding: 6px 4px; flex-shrink: 0;
+  }
+  .admin-nav-mobile .nav-btn {
+    font-size: 12px; padding: 5px 11px; white-space: nowrap;
+  }
+
+  /* View area */
+  .admin-main { overflow: auto; }
+  .view { overflow: visible; }
+  .view-bar { padding: 12px 14px 8px; flex-wrap: wrap; gap: 8px; }
+  .view-bar-right { flex-wrap: wrap; gap: 6px; }
+  .view-bar h2 { font-size: 15px; }
+
+  /* Padding reduzido */
+  .kanban-scroll       { padding: 0 10px 20px; }
+  .table-view          { padding: 0 10px 20px; }
+  .search-bar-wrapper  { padding: 0 14px 10px; }
+  .search-bar-wrapper input { max-width: 100%; font-size: 14px; }
+  .stats-bar           { padding: 0 14px 12px; gap: 8px; }
+  .relatorio-scroll    { padding: 0 14px 30px; }
+  .config-layout       { padding: 0 14px 30px; }
+  #kanban-dev-zone     { padding: 0 10px 16px; }
+
+  /* Stats bar: 2 por linha */
+  .stat-card { min-width: calc(50% - 4px); flex: 1 1 calc(50% - 4px); padding: 10px 14px; }
+  .stat-card .stat-val { font-size: 20px; }
+
+  /* Kanban: colunas scroll horizontal, menores */
+  .kanban-board { gap: 10px; }
+  .kanban-col   { width: 240px; }
+
+  /* Kanban toolbar */
+  .kanban-toolbar { flex-direction: column; align-items: stretch; padding: 0 14px 10px; gap: 8px; }
+  .kanban-filters { flex-wrap: wrap; gap: 5px; }
+  .kanban-toolbar .search-bar-wrapper { padding: 0; }
+
+  /* Tabela: scrolla horizontal */
+  .data-table { font-size: 12px; }
+  .data-table th, .data-table td { padding: 7px 8px; }
+
+  /* Ordem drawer: largura total */
+  .order-drawer { width: 100vw; }
+
+  /* Modal: bottom sheet */
+  .modal-box {
+    top: auto; bottom: 0; left: 0; right: 0;
+    transform: translateY(40px);
+    width: 100%; max-width: 100%; max-height: 92svh;
+    border-radius: 18px 18px 0 0; border-left: none; border-right: none; border-bottom: none;
+    padding: 20px 16px;
+  }
+  .modal-box.open { transform: translateY(0); }
+  .modal-box.wide { max-width: 100%; }
+
+  /* Proto editor: colunas viram 1 */
+  .proto-cols-2, .proto-cols-3 { grid-template-columns: 1fr; }
+  .proto-ta { font-size: 14px; }
+
+  /* Proto grid: 2 colunas */
+  .proto-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px; padding: 0 14px 20px;
+  }
+  .proto-card { padding: 14px; gap: 8px; }
+  .proto-card-icon { font-size: 26px; }
+  .proto-card-nome { font-size: 13px; }
+
+  /* Config: campos em coluna */
+  .cfg-row { flex-direction: column; gap: 10px; }
+  .cfg-form { max-width: 100%; }
+  .config-section { max-width: 100%; }
+  .cupom-grid { grid-template-columns: 1fr 1fr; }
+  .cupom-form-panel { margin: 0 14px 12px; padding: 14px; }
+
+  /* Relatório */
+  .rel-card { min-width: 100%; }
+  .rel-card.rel-wide { min-width: 100%; }
+
+  /* Kanban dev zone */
+  .kanban-dev-body { flex-direction: column; }
+
+  /* Login */
+  .login-card { padding: 28px 20px; margin: 16px; }
+
+  /* Batch toolbar */
+  .batch-toolbar { width: calc(100% - 32px); white-space: normal; flex-wrap: wrap; }
+
+  /* Botões na view bar */
+  .btn-sm { font-size: 12px; padding: 5px 10px; }
+}
+
 /* ── LOADING / EMPTY ──────────────────────────────────────────────────────── */
 .loading-msg { text-align: center; padding: 40px; color: var(--text2); font-size: 14px; }
 .empty-msg   { text-align: center; padding: 40px; color: var(--text2); font-size: 14px; opacity: .5; }

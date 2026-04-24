@@ -57,6 +57,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.addEventListener('click', () => setView(btn.dataset.view))
   );
 
+  // Clona nav para o strip mobile
+  const mobileNav = document.querySelector('.admin-nav-mobile');
+  if (mobileNav) {
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      const clone = btn.cloneNode(true);
+      clone.addEventListener('click', () => setView(clone.dataset.view));
+      mobileNav.appendChild(clone);
+    });
+  }
+
   showLoading(true);
   await loadAll();
   showLoading(false);
@@ -135,7 +145,7 @@ async function loadAdmins() {
 // ── NAVIGATION ────────────────────────────────────────────────────────────────
 function setView(view) {
   App.view = view;
-  document.querySelectorAll('.nav-btn').forEach(btn =>
+  document.querySelectorAll('.nav-btn, .admin-nav-mobile .nav-btn').forEach(btn =>
     btn.classList.toggle('active', btn.dataset.view === view)
   );
   document.querySelectorAll('.view').forEach(el =>
