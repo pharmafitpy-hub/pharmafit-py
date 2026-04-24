@@ -80,6 +80,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateSwState();
   registerPeriodicSync();
 
+  // Abre pedido se a notificação foi clicada com o app fechado
+  const _openOrderId = new URLSearchParams(location.search).get('openOrder');
+  if (_openOrderId) {
+    history.replaceState({}, '', location.pathname);
+    setTimeout(() => openDrawer(isNaN(_openOrderId) ? _openOrderId : Number(_openOrderId)), 200);
+  }
+
+  // Abre pedido quando notificação é clicada com o app em segundo plano
+  navigator.serviceWorker?.addEventListener('message', e => {
+    if (e.data?.type === 'OPEN_ORDER') {
+      const oid = e.data.orderId;
+      setView('kanban');
+      setTimeout(() => openDrawer(isNaN(oid) ? oid : Number(oid)), 150);
+    }
+  });
+
   setInterval(async () => {
     await loadPedidos();
     if (App.view === 'kanban') renderKanban();
@@ -140,7 +156,7 @@ async function loadPedidos() {
         const titulo = `📦 Novo pedido — ${order.clinica || ''}`;
         const corpo  = `${(order.produtos||'').split('\n')[0]?.replace(/^\d+x\s*/,'') || ''} · ${formatMoeda(order.total)}`;
         showToast(titulo, 'success');
-        showNotif(titulo, { body: corpo });
+        showNotif(titulo, { body: corpo, tag: `pedido-${order.id}`, data: { orderId: order.id } });
         addNotificacao(titulo, corpo);
       });
       _knownOrderIds = new Set(data.pedidos.map(p => String(p.id)));

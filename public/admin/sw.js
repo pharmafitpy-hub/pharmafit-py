@@ -13,6 +13,25 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
+// ── NOTIFICATION CLICK ────────────────────────────────────────────────────────
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const orderId  = e.notification.data?.orderId;
+  const baseUrl  = self.registration.scope + 'painel.html';
+  const targetUrl = orderId ? `${baseUrl}?openOrder=${orderId}` : baseUrl;
+
+  e.waitUntil((async () => {
+    const all      = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+    const existing = all.find(c => c.url.includes('painel.html'));
+    if (existing) {
+      await existing.focus();
+      if (orderId) existing.postMessage({ type: 'OPEN_ORDER', orderId });
+    } else {
+      clients.openWindow(targetUrl);
+    }
+  })());
+});
+
 // ── PERIODIC BACKGROUND SYNC ──────────────────────────────────────────────────
 self.addEventListener('periodicsync', e => {
   if (e.tag === 'check-pedidos') e.waitUntil(checkNewOrdersBg());
@@ -45,6 +64,7 @@ async function checkNewOrdersBg() {
         body: corpo,
         icon: './icons/icon-192.svg',
         tag:  `pedido-${order.id}`,
+        data: { orderId: order.id },
       });
     }
 
