@@ -15,7 +15,9 @@ window.App = {
   view:          'kanban',
   drawerOrderId: null,
   batchSelected: new Set(),
+  notificacoes:  [],
 };
+let _notifUnread = 0;
 
 // ── STAGES ────────────────────────────────────────────────────────────────────
 const STAGES = [
@@ -117,16 +119,23 @@ async function loadPedidos() {
   try {
     const data = await API.pedidos();
     if (data.ok) {
-      if (_knownOrderIds !== null) {
-        const novos = data.pedidos.filter(p => !_knownOrderIds.has(String(p.id)) && p.status === 'Novo');
-        novos.forEach(order => {
-          const titulo = `📦 Novo pedido — ${order.clinica || ''}`;
-          const corpo  = `${(order.produtos||'').split('\n')[0]?.replace(/^\d+x\s*/,'') || ''} · ${formatMoeda(order.total)}`;
-          showToast(titulo, 'success');
-          showNotif(titulo, { body: corpo });
-        });
+      if (_knownOrderIds === null) {
+        // Primeira carga: restaura do sessionStorage para não re-notificar pedidos já existentes
+        const saved = sessionStorage.getItem('pf_known_ids');
+        _knownOrderIds = saved
+          ? new Set(JSON.parse(saved))
+          : new Set(data.pedidos.map(p => String(p.id)));
       }
+      const novos = data.pedidos.filter(p => !_knownOrderIds.has(String(p.id)) && p.status === 'Novo');
+      novos.forEach(order => {
+        const titulo = `📦 Novo pedido — ${order.clinica || ''}`;
+        const corpo  = `${(order.produtos||'').split('\n')[0]?.replace(/^\d+x\s*/,'') || ''} · ${formatMoeda(order.total)}`;
+        showToast(titulo, 'success');
+        showNotif(titulo, { body: corpo });
+        addNotificacao(titulo, corpo);
+      });
       _knownOrderIds = new Set(data.pedidos.map(p => String(p.id)));
+      sessionStorage.setItem('pf_known_ids', JSON.stringify([..._knownOrderIds]));
       App.pedidos = data.pedidos;
     }
   } catch (e) { console.error('loadPedidos', e); }
@@ -173,9 +182,10 @@ function setView(view) {
 }
 
 function renderCurrentView() {
-  if (App.view === 'kanban')     renderKanban();
-  if (App.view === 'clientes')   renderClientes();
-  if (App.view === 'produtos')   renderProdutos();
+  if (App.view === 'kanban')        renderKanban();
+  if (App.view === 'clientes')      renderClientes();
+  if (App.view === 'produtos')      renderProdutos();
+  if (App.view === 'notificacoes')  renderNotificacoes();
   if (App.view === 'protocolos') {
     if (!App.protocolos) {
       const g = document.getElementById('protocolos-grid');
@@ -1002,6 +1012,54 @@ async function cadastrarAdmin(e) {
     msg.textContent = 'Erro de conexão';
     msg.style.color = 'var(--danger)';
   }
+}
+
+// ── NOTIFICAÇÕES (ABA) ────────────────────────────────────────────────────────
+function addNotificacao(titulo, corpo) {
+  App.notificacoes.unshift({ id: Date.now(), titulo, corpo, ts: new Date(), lida: false });
+  _notifUnread++;
+  updateNotifBadge();
+}
+
+function updateNotifBadge() {
+  const badge = document.getElementById('notif-badge');
+  if (!badge) return;
+  if (_notifUnread > 0) {
+    badge.textContent = _notifUnread > 9 ? '9+' : String(_notifUnread);
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function renderNotificacoes() {
+  _notifUnread = 0;
+  App.notificacoes.forEach(n => (n.lida = true));
+  updateNotifBadge();
+  const el = document.getElementById('notif-list');
+  if (!el) return;
+  if (App.notificacoes.length === 0) {
+    el.innerHTML = '<div class="notif-empty">🔕 Nenhuma notificação nesta sessão.<br><span style="font-size:.75rem">Novas notificações aparecerão aqui conforme chegarem pedidos.</span></div>';
+    return;
+  }
+  el.innerHTML = App.notificacoes.map(n => {
+    const d = new Date(n.ts);
+    const hora = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return `<div class="notif-card ${n.lida ? '' : 'notif-unread'}">
+      <div class="notif-card-top">
+        <span class="notif-card-title">${esc(n.titulo)}</span>
+        <span class="notif-card-time">${hora}</span>
+      </div>
+      <div class="notif-card-body">${esc(n.corpo)}</div>
+    </div>`;
+  }).join('');
+}
+
+function limparNotificacoes() {
+  App.notificacoes = [];
+  _notifUnread = 0;
+  updateNotifBadge();
+  renderNotificacoes();
 }
 
 // ── NOTIFICATIONS ─────────────────────────────────────────────────────────────

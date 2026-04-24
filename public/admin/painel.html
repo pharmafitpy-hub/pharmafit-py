@@ -28,6 +28,7 @@
     <button class="nav-btn" data-view="protocolos">🔬 Protocolos</button>
     <button class="nav-btn" data-view="cupons">🎟️ Cupons</button>
     <button class="nav-btn" data-view="relatorio">📊 Relatório</button>
+    <button class="nav-btn notif-nav-btn" data-view="notificacoes">🔔 Notificações<span class="notif-badge" id="notif-badge" style="display:none">0</span></button>
     <button class="nav-btn" data-view="config">⚙️ Configurações</button>
   </nav>
 
@@ -239,6 +240,18 @@
     <div id="cupons-grid" class="admin-grid cupom-grid">
       <div class="loading-msg">⏳ Carregando...</div>
     </div>
+  </div>
+
+  <!-- ══ VIEW: NOTIFICAÇÕES ══ -->
+  <div id="view-notificacoes" class="view hidden">
+    <div class="view-bar">
+      <h2 class="view-title">🔔 Notificações</h2>
+      <div class="view-bar-right">
+        <button class="btn-sm btn-outline" onclick="limparNotificacoes()">🗑️ Limpar</button>
+      </div>
+    </div>
+    <p class="notif-subtext">Apenas notificações recebidas após o login são mostradas aqui.</p>
+    <div id="notif-list" class="notif-list"></div>
   </div>
 
   <!-- ══ VIEW: RELATÓRIO ══ -->
