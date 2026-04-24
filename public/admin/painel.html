@@ -54,7 +54,10 @@
   <!-- ══ VIEW: KANBAN ══ -->
   <div id="view-kanban" class="view hidden">
     <div class="view-bar">
-      <h2>Fila de Pedidos</h2>
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <h2>Fila de Pedidos</h2>
+        <span id="kanban-sync-time" style="font-size:.72rem;color:var(--text2)"></span>
+      </div>
       <div class="view-bar-right">
         <button class="btn-sm" onclick="refreshAll()">🔄 Atualizar</button>
         <a href="../gerador_pedido.html" class="btn-sm btn-accent" target="_blank">+ Novo Pedido</a>

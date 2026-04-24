@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setInterval(async () => {
     await loadPedidos();
     if (App.view === 'kanban') renderKanban();
-  }, 60_000);
+  }, 30_000);
 
   // Checa imediatamente quando o app volta para o foreground no celular
   document.addEventListener('visibilitychange', async () => {
@@ -107,6 +107,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadPedidos();
     if (App.view === 'kanban') renderKanban();
   });
+
+  // Sincroniza abas do mesmo browser instantaneamente via BroadcastChannel
+  if ('BroadcastChannel' in window) {
+    const _bc = new BroadcastChannel('pharmafit-admin');
+    _bc.addEventListener('message', e => {
+      if (e.data?.type === 'PEDIDOS_UPDATED') {
+        App.pedidos = e.data.pedidos;
+        updateSyncTime();
+        if (App.view === 'kanban') renderKanban();
+      }
+    });
+    window._adminBC = _bc;
+  }
 });
 
 function showLoading(on) {
@@ -163,6 +176,8 @@ async function loadPedidos() {
       localStorage.setItem('pf_known_ids', JSON.stringify([..._knownOrderIds]));
       App.pedidos = data.pedidos;
       updateSwState();
+      updateSyncTime();
+      window._adminBC?.postMessage({ type: 'PEDIDOS_UPDATED', pedidos: data.pedidos });
     }
   } catch (e) { console.error('loadPedidos', e); }
 }
@@ -1180,6 +1195,13 @@ function checkStockAlerts() {
   if (changed) {
     localStorage.setItem('pharmafit_stock_alerted', JSON.stringify([...alerted]));
   }
+}
+
+function updateSyncTime() {
+  const el = document.getElementById('kanban-sync-time');
+  if (!el) return;
+  const h = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  el.textContent = `· atualizado às ${h}`;
 }
 
 // ── BACKGROUND SYNC ───────────────────────────────────────────────────────────
