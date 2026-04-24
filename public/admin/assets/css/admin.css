@@ -83,6 +83,10 @@ button { cursor: pointer; }
 /* ── MAIN LAYOUT ──────────────────────────────────────────────────────────── */
 .admin-layout { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
 
+/* Hide all internal scrollbars — scroll still works via mouse wheel / drag / touch */
+.admin-layout * { scrollbar-width: none; -ms-overflow-style: none; }
+.admin-layout *::-webkit-scrollbar { display: none; }
+
 /* ── HEADER ───────────────────────────────────────────────────────────────── */
 .admin-header {
   display: flex; align-items: center; gap: 20px;
