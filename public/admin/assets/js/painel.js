@@ -76,11 +76,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   showLoading(false);
   setView('kanban');
   checkStockAlerts();
+  initKanbanDrag();
 
   setInterval(async () => {
     await loadPedidos();
     if (App.view === 'kanban') renderKanban();
-  }, 180_000);
+  }, 60_000);
 });
 
 function showLoading(on) {
@@ -118,17 +119,18 @@ async function loadPedidos() {
   try {
     const data = await API.pedidos();
     if (data.ok) {
-      if (_knownOrderIds !== null && Notification.permission === 'granted') {
-        data.pedidos
-          .filter(p => !_knownOrderIds.has(p.id) && p.status === 'Novo')
-          .forEach(order => {
-            new Notification(`📦 Novo pedido — ${order.clinica || ''}`, {
-              body: `${(order.produtos||'').split('\n')[0]?.replace(/^\d+x\s*/,'') || ''} · ${formatMoeda(order.total)}`,
-              icon: './icons/icon-192.svg',
-            });
-          });
+      if (_knownOrderIds !== null) {
+        const novos = data.pedidos.filter(p => !_knownOrderIds.has(String(p.id)) && p.status === 'Novo');
+        novos.forEach(order => {
+          const titulo = `📦 Novo pedido — ${order.clinica || ''}`;
+          const corpo  = `${(order.produtos||'').split('\n')[0]?.replace(/^\d+x\s*/,'') || ''} · ${formatMoeda(order.total)}`;
+          showToast(titulo, 'success');
+          if (Notification.permission === 'granted') {
+            new Notification(titulo, { body: corpo, icon: './icons/icon-192.svg' });
+          }
+        });
       }
-      _knownOrderIds = new Set(data.pedidos.map(p => p.id));
+      _knownOrderIds = new Set(data.pedidos.map(p => String(p.id)));
       App.pedidos = data.pedidos;
     }
   } catch (e) { console.error('loadPedidos', e); }
@@ -1093,6 +1095,31 @@ function promptInstall() {
 function dismissInstall() {
   document.getElementById('install-overlay')?.classList.add('hidden');
   document.getElementById('install-banner')?.classList.add('hidden');
+}
+
+// ── KANBAN DRAG SCROLL ────────────────────────────────────────────────────────
+function initKanbanDrag() {
+  const el = document.querySelector('.kanban-scroll');
+  if (!el) return;
+  let active = false, startX = 0, startLeft = 0;
+
+  el.addEventListener('mousedown', e => {
+    if (e.target.closest('.kanban-card, button, a, input, select, label')) return;
+    active = true;
+    el.classList.add('kanban-dragging');
+    startX    = e.clientX;
+    startLeft = el.scrollLeft;
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!active) return;
+    el.scrollLeft = startLeft - (e.clientX - startX);
+  });
+  window.addEventListener('mouseup', () => {
+    if (!active) return;
+    active = false;
+    el.classList.remove('kanban-dragging');
+  });
 }
 
 // ── GLOBAL SEARCH ─────────────────────────────────────────────────────────────

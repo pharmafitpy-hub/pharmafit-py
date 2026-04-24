@@ -153,7 +153,8 @@ button { cursor: pointer; }
 .stat-card .stat-lbl { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; }
 
 /* ── KANBAN ───────────────────────────────────────────────────────────────── */
-.kanban-scroll { flex: 1; overflow: auto; padding: 0 20px 20px; }
+.kanban-scroll { flex: 1; overflow: auto; padding: 0 20px 20px; cursor: grab; }
+.kanban-scroll.kanban-dragging { cursor: grabbing; user-select: none; }
 
 .kanban-board {
   display: flex; gap: 14px; min-height: 100%;
