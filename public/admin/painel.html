@@ -32,6 +32,10 @@
   </nav>
 
   <div class="header-right">
+    <div class="global-search-wrap">
+      <input type="search" id="global-search" class="global-search-input" placeholder="🔍 Buscar..." oninput="globalSearch(this.value)" onfocus="showGlobalResults()" onblur="setTimeout(hideGlobalResults,200)"/>
+      <div id="global-results" class="global-results hidden"></div>
+    </div>
     <span id="admin-nome" class="admin-nome"></span>
     <button class="btn-logout" onclick="logout()">Sair</button>
   </div>
@@ -102,22 +106,8 @@
         oninput="renderClientes()"/>
     </div>
 
-    <div class="table-view">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Clínica / Nome</th>
-            <th>Responsável</th>
-            <th>Telefone</th>
-            <th>Cidade</th>
-            <th style="text-align:center">Pedidos</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="clientes-tbody">
-          <tr><td colspan="6" class="loading-msg">⏳ Carregando...</td></tr>
-        </tbody>
-      </table>
+    <div id="clientes-grid" class="admin-grid cli-grid">
+      <div class="loading-msg">⏳ Carregando...</div>
     </div>
   </div>
 
@@ -126,7 +116,7 @@
     <div class="view-bar">
       <h2>Produtos & Estoque</h2>
       <div class="view-bar-right">
-        <span style="font-size:12px;color:var(--text2)">Edite diretamente na tabela</span>
+        <span style="font-size:12px;color:var(--text2)">Clique em Editar para alterar um produto</span>
         <button class="btn-sm btn-accent" onclick="abrirNovoProduto()">+ Novo Produto</button>
       </div>
     </div>
@@ -136,21 +126,8 @@
         oninput="renderProdutos()"/>
     </div>
 
-    <div class="table-view">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Produto</th>
-            <th>Concentração / Dose</th>
-            <th>Estoque</th>
-            <th>Preço Base</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="produtos-tbody">
-          <tr><td colspan="5" class="loading-msg">⏳ Carregando...</td></tr>
-        </tbody>
-      </table>
+    <div id="produtos-grid" class="admin-grid prod-grid">
+      <div class="loading-msg">⏳ Carregando...</div>
     </div>
   </div>
 
@@ -258,16 +235,8 @@
     <div class="search-bar-wrapper">
       <input type="search" id="busca-cupons" placeholder="🔍 Buscar cupom..." oninput="renderCupons()"/>
     </div>
-    <div class="table-view">
-      <table class="data-table">
-        <thead><tr>
-          <th>Código</th><th>Tipo</th><th>Valor</th><th>Validade</th>
-          <th>Criado por</th><th>Usos</th><th>Benefícios</th><th>Status</th><th></th>
-        </tr></thead>
-        <tbody id="cupons-tbody">
-          <tr><td colspan="9" class="loading-msg">⏳ Carregando...</td></tr>
-        </tbody>
-      </table>
+    <div id="cupons-grid" class="admin-grid cupom-grid">
+      <div class="loading-msg">⏳ Carregando...</div>
     </div>
   </div>
 

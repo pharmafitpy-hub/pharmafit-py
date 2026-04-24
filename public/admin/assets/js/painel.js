@@ -67,6 +67,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  if ('Notification' in window && Notification.permission === 'default') {
+    setTimeout(() => Notification.requestPermission(), 3000);
+  }
+
   showLoading(true);
   await loadAll();
   showLoading(false);
@@ -107,10 +111,25 @@ async function loadRelatorio() {
   } catch(e) {}
 }
 
+let _knownOrderIds = null;
+
 async function loadPedidos() {
   try {
     const data = await API.pedidos();
-    if (data.ok) App.pedidos = data.pedidos;
+    if (data.ok) {
+      if (_knownOrderIds !== null && Notification.permission === 'granted') {
+        data.pedidos
+          .filter(p => !_knownOrderIds.has(p.id) && p.status === 'Novo')
+          .forEach(order => {
+            new Notification(`📦 Novo pedido — ${order.clinica || ''}`, {
+              body: `${(order.produtos||'').split('\n')[0]?.replace(/^\d+x\s*/,'') || ''} · ${formatMoeda(order.total)}`,
+              icon: './icons/icon-192.svg',
+            });
+          });
+      }
+      _knownOrderIds = new Set(data.pedidos.map(p => p.id));
+      App.pedidos = data.pedidos;
+    }
   } catch (e) { console.error('loadPedidos', e); }
 }
 
@@ -361,6 +380,10 @@ function renderCard(order) {
       </div>
       <div class="card-actions">
         <button class="card-btn" onclick="event.stopPropagation();openDrawer(${order.id})">Detalhes</button>
+        ${order.telefone
+          ? `<a class="card-btn card-btn-wa" target="_blank" onclick="event.stopPropagation()"
+               href="https://wa.me/55${order.telefone.replace(/\D/g,'')}?text=${encodeURIComponent('Olá ' + (order.clinica||'') + '! Atualização do pedido #' + order.id + '.')}">WA</a>`
+          : ''}
         ${prev
           ? `<button class="card-btn card-btn-prev"
                onclick="event.stopPropagation();revertStatus(${order.id})">← Voltar</button>`
@@ -800,8 +823,8 @@ async function salvarNotaInterna(orderId) {
 
 // ── CLIENTES ──────────────────────────────────────────────────────────────────
 function renderClientes() {
-  const tbody = document.getElementById('clientes-tbody');
-  if (!tbody) return;
+  const grid = document.getElementById('clientes-grid');
+  if (!grid) return;
   const q = (document.getElementById('busca-clientes')?.value || '').toLowerCase();
   const lista = q
     ? App.clientes.filter(c =>
@@ -811,7 +834,6 @@ function renderClientes() {
         (c.responsavel || '').toLowerCase().includes(q))
     : App.clientes;
 
-  // Build order count map from loaded pedidos
   const countMap = {};
   App.pedidos.forEach(p => {
     const tel = (p.telefone || '').replace(/\D/g, '');
@@ -820,62 +842,73 @@ function renderClientes() {
   });
 
   document.getElementById('clientes-count').textContent = `${lista.length} clientes`;
-  tbody.innerHTML = lista.length === 0
-    ? `<tr><td colspan="6" class="empty-msg">Nenhum cliente encontrado</td></tr>`
-    : lista.map(c => {
-        const key = (c.telefone||'').replace(/\D/g,'') || (c.email||'').toLowerCase();
-        const nPed = countMap[key] || 0;
-        return `
-        <tr>
-          <td><strong>${esc(c.clinica)}</strong></td>
-          <td>${esc(c.responsavel || '—')}</td>
-          <td>${esc(c.telefone || '—')}</td>
-          <td>${esc(c.cidade || '—')}${c.estado ? ' — ' + esc(c.estado) : ''}</td>
-          <td style="text-align:center">
-            ${nPed > 0
-              ? `<button class="btn-xs" onclick="abrirHistoricoCliente('${escAttr(c.cpf||c.email)}','${escAttr(c.clinica)}')"
-                  title="Ver pedidos">${nPed} pedido${nPed>1?'s':''}</button>`
-              : `<span style="color:var(--text2);font-size:12px">0</span>`}
-          </td>
-          <td style="display:flex;gap:4px">
-            ${c.telefone ? `<a href="https://wa.me/55${c.telefone.replace(/\D/g,'')}" target="_blank" class="btn-xs">WhatsApp</a>` : ''}
-            <button class="btn-xs" onclick="abrirEditarCliente(${JSON.stringify(c).replace(/"/g,'&quot;')})">✏️ Editar</button>
-          </td>
-        </tr>`;
-      }).join('');
+  if (lista.length === 0) {
+    grid.innerHTML = '<div class="empty-msg">Nenhum cliente encontrado</div>';
+    return;
+  }
+  grid.innerHTML = lista.map(c => {
+    const key = (c.telefone||'').replace(/\D/g,'') || (c.email||'').toLowerCase();
+    const nPed = countMap[key] || 0;
+    const initials = (c.responsavel || c.clinica || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    return `
+      <div class="admin-card">
+        <div class="cli-avatar">${esc(initials)}</div>
+        <div class="cli-card-name">${esc(c.responsavel || c.clinica)}</div>
+        <div class="cli-card-clinic">${esc(c.clinica)}</div>
+        <div class="cli-card-info">
+          ${c.telefone ? `<span>📱 ${esc(c.telefone)}</span>` : ''}
+          ${c.cidade ? `<span>📍 ${esc(c.cidade)}${c.estado ? ' — ' + esc(c.estado) : ''}</span>` : ''}
+        </div>
+        <div class="admin-card-footer">
+          ${nPed > 0
+            ? `<button class="btn-xs" onclick="abrirHistoricoCliente('${escAttr(c.cpf||c.email)}','${escAttr(c.clinica)}')">${nPed} pedido${nPed>1?'s':''}</button>`
+            : `<span style="color:var(--text2);font-size:12px">0 pedidos</span>`}
+          <div style="display:flex;gap:4px">
+            ${c.telefone ? `<a href="https://wa.me/55${c.telefone.replace(/\D/g,'')}" target="_blank" class="btn-xs">WA</a>` : ''}
+            <button class="btn-xs" onclick="abrirEditarCliente(${JSON.stringify(c).replace(/"/g,'&quot;')})">✏️</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
 }
 
 // ── PRODUTOS ──────────────────────────────────────────────────────────────────
 function renderProdutos() {
-  const tbody = document.getElementById('produtos-tbody');
-  if (!tbody) return;
+  const grid = document.getElementById('produtos-grid');
+  if (!grid) return;
   const q = (document.getElementById('busca-produtos')?.value || '').toLowerCase();
   const lista = q
     ? App.produtos.filter(p => (p.nome || '').toLowerCase().includes(q) || (p.id || '').toLowerCase().includes(q))
     : App.produtos;
 
-  tbody.innerHTML = lista.length === 0
-    ? `<tr><td colspan="6" class="empty-msg">Nenhum produto encontrado</td></tr>`
-    : lista.map(p => {
-        const est = p.variantes?.length > 0
-          ? p.variantes.reduce((s, v) => s + (parseInt(v.estoque) || 0), 0)
-          : (parseInt(p.estoque) || 0);
-        const low = est < 5;
-        return `
-          <tr>
-            <td>${p.icone || '💊'} <strong>${esc(p.nome)}</strong></td>
-            <td style="color:var(--text2)">${esc(p.conc || '—')}</td>
-            <td class="${low ? 'stock-low' : ''}">
-              ${p.variantes?.length > 0
-                ? `<span title="Soma das variantes">${est}</span>`
-                : `<input type="number" class="stock-input" value="${est}" min="0"
-                     onchange="updateStock('${escAttr(p.id)}', this.value)"/>`}
-            </td>
-            <td>R$ ${formatNum(p.preco)}</td>
-            <td><span class="badge ${est > 0 ? 'badge-on' : 'badge-off'}">${est > 0 ? 'Ativo' : 'Esgotado'}</span></td>
-            <td><button class="btn-xs" onclick="abrirEditarProduto('${escAttr(p.id)}')">✏️ Editar</button></td>
-          </tr>`;
-      }).join('');
+  if (lista.length === 0) {
+    grid.innerHTML = '<div class="empty-msg">Nenhum produto encontrado</div>';
+    return;
+  }
+  grid.innerHTML = lista.map(p => {
+    const est = p.variantes?.length > 0
+      ? p.variantes.reduce((s, v) => s + (parseInt(v.estoque) || 0), 0)
+      : (parseInt(p.estoque) || 0);
+    const low = est < 5;
+    return `
+      <div class="admin-card">
+        <div class="prod-card-icon">${p.icone || '💊'}</div>
+        <div class="prod-card-name">${esc(p.nome)}</div>
+        <div class="prod-card-conc">${esc(p.conc || '—')}</div>
+        <div class="prod-card-stock${low ? ' stock-low' : ''}">
+          ${p.variantes?.length > 0
+            ? `<span>${est} un. (${p.variantes.length} doses)</span>`
+            : `<input type="number" class="stock-input" value="${est}" min="0"
+                 onchange="updateStock('${escAttr(p.id)}', this.value)"/>
+               <span style="color:var(--text2);font-size:11px">un.</span>`}
+        </div>
+        <div class="prod-card-price">R$ ${formatNum(p.preco)}</div>
+        <div class="admin-card-footer">
+          <span class="badge ${est > 0 ? 'badge-on' : 'badge-off'}">${est > 0 ? 'Ativo' : 'Esgotado'}</span>
+          <button class="btn-xs" onclick="abrirEditarProduto('${escAttr(p.id)}')">✏️ Editar</button>
+        </div>
+      </div>`;
+  }).join('');
 }
 
 async function updateStock(prodId, valor) {
@@ -992,6 +1025,67 @@ function dismissInstall() {
   if (b) b.classList.add('hidden');
 }
 
+// ── GLOBAL SEARCH ─────────────────────────────────────────────────────────────
+function globalSearch(value) {
+  const q = value.toLowerCase().trim();
+  const results = document.getElementById('global-results');
+  if (!results) return;
+  if (!q || q.length < 2) { results.innerHTML = ''; results.classList.add('hidden'); return; }
+
+  const items = [];
+
+  App.pedidos.filter(p =>
+    (p.clinica || '').toLowerCase().includes(q) ||
+    (p.telefone || '').includes(q) ||
+    String(p.id).includes(q)
+  ).slice(0, 4).forEach(p => {
+    items.push(`<div class="global-result-item" onclick="hideGlobalResults();setView('kanban');setTimeout(()=>openDrawer(${p.id}),120)">
+      <span class="global-result-icon">📦</span>
+      <span class="global-result-label">#${p.id} ${esc(p.clinica)}</span>
+      <span class="global-result-sub">${esc(p.status)}</span>
+    </div>`);
+  });
+
+  App.clientes.filter(c =>
+    (c.clinica || '').toLowerCase().includes(q) ||
+    (c.responsavel || '').toLowerCase().includes(q) ||
+    (c.telefone || '').includes(q)
+  ).slice(0, 3).forEach(c => {
+    const label = escAttr((c.responsavel || c.clinica || '').replace(/'/g, ''));
+    items.push(`<div class="global-result-item" onclick="hideGlobalResults();setView('clientes');setTimeout(()=>{const el=document.getElementById('busca-clientes');if(el){el.value='${label}';renderClientes();}},120)">
+      <span class="global-result-icon">👤</span>
+      <span class="global-result-label">${esc(c.responsavel || c.clinica)}</span>
+      <span class="global-result-sub">${esc(c.clinica)}</span>
+    </div>`);
+  });
+
+  App.produtos.filter(p =>
+    (p.nome || '').toLowerCase().includes(q) ||
+    (p.id || '').toLowerCase().includes(q)
+  ).slice(0, 3).forEach(p => {
+    const label = escAttr((p.nome || '').replace(/'/g, ''));
+    items.push(`<div class="global-result-item" onclick="hideGlobalResults();setView('produtos');setTimeout(()=>{const el=document.getElementById('busca-produtos');if(el){el.value='${label}';renderProdutos();}},120)">
+      <span class="global-result-icon">${p.icone||'💊'}</span>
+      <span class="global-result-label">${esc(p.nome)}</span>
+      <span class="global-result-sub">${esc(p.conc || '')}</span>
+    </div>`);
+  });
+
+  results.innerHTML = items.length
+    ? items.join('')
+    : '<div class="global-result-empty">Nenhum resultado</div>';
+  results.classList.remove('hidden');
+}
+
+function showGlobalResults() {
+  const q = document.getElementById('global-search')?.value || '';
+  if (q.length >= 2) document.getElementById('global-results')?.classList.remove('hidden');
+}
+
+function hideGlobalResults() {
+  document.getElementById('global-results')?.classList.add('hidden');
+}
+
 // ── UTILS ─────────────────────────────────────────────────────────────────────
 function logout() {
   sessionStorage.removeItem('pharmafit_admin');
@@ -1102,39 +1196,42 @@ function exportarCSV() {
 
 // ── CUPONS ────────────────────────────────────────────────────────────────────
 function renderCupons() {
-  const tbody = document.getElementById('cupons-tbody');
-  if (!tbody) return;
+  const grid = document.getElementById('cupons-grid');
+  if (!grid) return;
   const q = (document.getElementById('busca-cupons')?.value || '').toLowerCase();
-  const lista = q ? App.cupons.filter(c => c.codigo.toLowerCase().includes(q) || (c.vendedora||'').toLowerCase().includes(q)) : App.cupons;
+  const lista = q
+    ? App.cupons.filter(c => c.codigo.toLowerCase().includes(q) || (c.vendedora||'').toLowerCase().includes(q))
+    : App.cupons;
 
-  const statusCls = { Ativo: 'badge-on', Desativado: 'badge-off', Expirado: 'badge-off' };
-  tbody.innerHTML = lista.length === 0
-    ? `<tr><td colspan="9" class="empty-msg">Nenhum cupom encontrado</td></tr>`
-    : lista.map(c => {
-        const parcBadge  = `<span class="badge ${c.parcelamento === 'SIM' ? 'badge-on' : 'badge-off'}"
-          style="font-size:10px;${c.parcelamento !== 'SIM' ? 'opacity:.35' : ''}" title="3x sem juros">3x</span>`;
-        const freteBadge = `<span class="badge ${c.freteAcima ? 'badge-on' : 'badge-off'}"
-          style="font-size:10px;${!c.freteAcima ? 'opacity:.35' : ''}" title="${c.freteAcima ? `Frete grátis +R$${esc(c.freteAcima)}` : 'Sem frete grátis'}">🚚</span>`;
-        const beneficios = `${parcBadge} ${freteBadge}`;
-        return `
-      <tr>
-        <td><strong>${esc(c.codigo)}</strong></td>
-        <td>${esc(c.tipo === '%' ? '% Desconto' : 'Preço Fixo')}</td>
-        <td>${c.tipo === '%' ? c.valor + '%' : '—'}</td>
-        <td style="font-size:12px;color:var(--text2)">${esc(c.validade)}</td>
-        <td style="font-size:12px;color:var(--text2)">${esc(c.vendedora || '—')}</td>
-        <td style="text-align:center">${c.usos}</td>
-        <td style="white-space:nowrap">${beneficios}</td>
-        <td><span class="badge ${statusCls[c.status] || 'badge-off'}">${esc(c.status)}</span></td>
-        <td style="display:flex;gap:4px">
-          <button class="btn-xs ${c.status === 'Ativo' ? 'btn-xs-danger' : ''}"
-            onclick="toggleCupomAdmin('${escAttr(c.codigo)}','${c.status}')">
-            ${c.status === 'Ativo' ? 'Desativar' : 'Ativar'}
-          </button>
-          <button class="btn-xs btn-xs-danger"
-            onclick="apagarCupomAdmin('${escAttr(c.codigo)}')">🗑️</button>
-        </td>
-      </tr>`;}).join('');
+  if (lista.length === 0) {
+    grid.innerHTML = '<div class="empty-msg">Nenhum cupom encontrado</div>';
+    return;
+  }
+  grid.innerHTML = lista.map(c => {
+    const isAtivo = c.status === 'Ativo';
+    return `
+      <div class="admin-card">
+        <div class="cupom-card-code">${esc(c.codigo)}</div>
+        <div class="cupom-card-type">${c.tipo === '%' ? `${c.valor}% desconto` : 'Preço fixo'}</div>
+        <div class="cupom-card-validity">Validade: ${esc(c.validade)}</div>
+        <div class="cupom-card-benefits">
+          ${c.parcelamento === 'SIM' ? '<span class="badge badge-on" style="font-size:10px">3x sem juros</span>' : ''}
+          ${c.freteAcima ? `<span class="badge badge-on" style="font-size:10px">🚚 +R$${esc(c.freteAcima)}</span>` : ''}
+          <span style="color:var(--text2);font-size:11px">${c.usos} uso${c.usos !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="admin-card-footer">
+          <span class="badge ${isAtivo ? 'badge-on' : 'badge-off'}">${esc(c.status)}</span>
+          <div style="display:flex;gap:4px">
+            <button class="btn-xs ${isAtivo ? 'btn-xs-danger' : ''}"
+              onclick="toggleCupomAdmin('${escAttr(c.codigo)}','${c.status}')">
+              ${isAtivo ? 'Desativar' : 'Ativar'}
+            </button>
+            <button class="btn-xs btn-xs-danger"
+              onclick="apagarCupomAdmin('${escAttr(c.codigo)}')">🗑️</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
 }
 
 function toggleFormCupom() {
