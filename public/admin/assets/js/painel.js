@@ -1013,15 +1013,17 @@ function showToast(msg, type = 'success') {
 }
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
-function openModal(html) {
+function openModal(html, opts = {}) {
   const box = document.getElementById('modal-box');
   const ov  = document.getElementById('modal-overlay');
   box.innerHTML = html;
+  box.classList.toggle('wide', !!opts.wide);
   box.classList.add('open');
   ov.classList.add('open');
 }
 function closeModal() {
-  document.getElementById('modal-box').classList.remove('open');
+  const box = document.getElementById('modal-box');
+  box.classList.remove('open', 'wide');
   document.getElementById('modal-overlay').classList.remove('open');
 }
 
@@ -1495,37 +1497,58 @@ function abrirEditarProtocolo(prodId) {
   if (!p) return;
   App.currentEditProdId = prodId;
   const proto = (App.protocolos && App.protocolos[prodId]) || {};
-  const ta = (id, label, val, rows) => `
-    <div class="field-inline" style="grid-column:1/-1">
-      <label>${label}</label>
-      <textarea id="${id}" rows="${rows}" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text);font-size:13px;resize:vertical;font-family:inherit">${esc(val)}</textarea>
+  const ta = (id, label, val, rows = 3) => `
+    <div>
+      <span class="proto-label">${label}</span>
+      <textarea id="${id}" rows="${rows}" class="proto-ta">${esc(val)}</textarea>
     </div>`;
   openModal(`
     <div class="modal-header">
-      <span>${p.icone||'💊'} ${esc(p.nome)} — Protocolo</span>
+      <span>${p.icone||'💊'} ${esc(p.nome)}</span>
       <button onclick="closeModal()">✕</button>
     </div>
-    <form class="cfg-form" onsubmit="salvarProtocolo(event)" style="max-height:65vh;overflow-y:auto;padding-right:4px">
-      <div style="display:grid;gap:10px">
-        ${ta('pp-mecanismo',      'Mecanismo de Ação',  proto.mecanismo||'',      3)}
-        ${ta('pp-reconstituicao', 'Reconstituição',     proto.reconstituicao||'', 3)}
-        ${ta('pp-dosagem',        'Dosagem',            proto.dosagem||'',        3)}
-        ${ta('pp-protocolo1',     'Protocolo 1',        proto.protocolo1||'',     4)}
-        ${ta('pp-protocolo2',     'Protocolo 2',        proto.protocolo2||'',     4)}
-        ${ta('pp-protocolo3',     'Protocolo 3',        proto.protocolo3||'',     4)}
-        ${ta('pp-cuidados',       'Cuidados',           proto.cuidados||'',       3)}
-        <div class="field-inline" style="grid-column:1/-1">
-          <label>Link da Página</label>
-          <input id="pp-pagina" type="text" value="${escAttr(proto.pagina||'')}" style="width:100%"/>
+    <form onsubmit="salvarProtocolo(event)" style="overflow-y:auto;max-height:72vh;padding-right:2px">
+
+      <div class="proto-section" style="border-top:none;padding-top:0;margin-top:0">
+        <div class="proto-section-title">Farmacologia</div>
+        ${ta('pp-mecanismo', 'Mecanismo de Ação', proto.mecanismo||'', 2)}
+      </div>
+
+      <div class="proto-section">
+        <div class="proto-section-title">Preparo & Posologia</div>
+        <div class="proto-cols proto-cols-2">
+          ${ta('pp-reconstituicao', 'Reconstituição', proto.reconstituicao||'', 2)}
+          ${ta('pp-dosagem',        'Dosagem',        proto.dosagem||'',        2)}
         </div>
       </div>
-      <div id="pp-status" class="cfg-status-msg" style="margin-top:8px"></div>
-      <div style="display:flex;gap:8px;margin-top:12px">
+
+      <div class="proto-section">
+        <div class="proto-section-title">Protocolos de Uso</div>
+        <div class="proto-cols proto-cols-3">
+          ${ta('pp-protocolo1', 'Protocolo 1 — Iniciante',  proto.protocolo1||'', 4)}
+          ${ta('pp-protocolo2', 'Protocolo 2 — Manutenção', proto.protocolo2||'', 4)}
+          ${ta('pp-protocolo3', 'Protocolo 3 — Avançado',   proto.protocolo3||'', 4)}
+        </div>
+      </div>
+
+      <div class="proto-section">
+        <div class="proto-section-title">Extras</div>
+        <div class="proto-cols proto-cols-2">
+          ${ta('pp-cuidados', 'Cuidados & Observações', proto.cuidados||'', 2)}
+          <div>
+            <span class="proto-label">Link da Página</span>
+            <input id="pp-pagina" type="text" value="${escAttr(proto.pagina||'')}" class="proto-ta" style="resize:none"/>
+          </div>
+        </div>
+      </div>
+
+      <div id="pp-status" class="cfg-status-msg" style="margin-top:10px"></div>
+      <div style="display:flex;gap:8px;margin-top:14px">
         <button type="submit" class="btn-sm btn-accent">Salvar Protocolo</button>
         <button type="button" class="btn-sm" onclick="closeModal()">Cancelar</button>
       </div>
     </form>
-  `);
+  `, { wide: true });
 }
 
 async function salvarProtocolo(e) {
