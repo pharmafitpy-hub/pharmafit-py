@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1c1405"/>
+      <stop offset="100%" stop-color="#0a0f1e"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="36" fill="url(#g)"/>
+  <text x="96" y="74" font-family="system-ui,sans-serif" font-size="44" font-weight="800" fill="#f59e0b" text-anchor="middle">PF</text>
+  <text x="96" y="112" font-family="system-ui,sans-serif" font-size="15" font-weight="500" fill="#d97706" text-anchor="middle">Vendedoras</text>
+  <rect x="40" y="126" width="112" height="2" rx="1" fill="#2a1f06"/>
+  <text x="96" y="154" font-family="system-ui,sans-serif" font-size="13" fill="#f59e0b" text-anchor="middle" opacity=".6">PharmaFit</text>
+</svg>

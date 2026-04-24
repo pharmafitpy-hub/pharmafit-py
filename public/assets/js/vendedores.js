@@ -3,11 +3,11 @@ let SESSION = null;
 
 function salvarSession(email, senha, nome) {
   SESSION = { email, senha, nome };
-  sessionStorage.setItem('pf_vendedora_b2b', JSON.stringify(SESSION));
+  localStorage.setItem('pf_vendedora_b2b', JSON.stringify(SESSION));
 }
 function carregarSession() {
   try {
-    const s = sessionStorage.getItem('pf_vendedora_b2b');
+    const s = localStorage.getItem('pf_vendedora_b2b');
     if (s) SESSION = JSON.parse(s);
   } catch(e) { SESSION = null; }
 }
@@ -47,16 +47,24 @@ async function checkPin() {
 
 function logout() {
   SESSION = null;
-  sessionStorage.removeItem('pf_vendedora_b2b');
+  localStorage.removeItem('pf_vendedora_b2b');
   document.getElementById('tela-app').classList.remove('show');
   document.getElementById('tela-auth').classList.add('show');
   document.getElementById('hist-resultado').style.display = 'none';
-  document.getElementById('pin-overlay').style.display = 'flex';
   document.getElementById('main-header').classList.remove('show');
-  document.getElementById('pin-input').value = '';
-  document.getElementById('pin-err').textContent = '';
+  setAuthMode('login');
   setMode('criar');
 }
+
+// ── INIT: se já logada, pula o PIN direto pro app ─────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  carregarSession();
+  if (SESSION) {
+    document.getElementById('pin-overlay').style.display = 'none';
+    document.getElementById('main-header').classList.add('show');
+    entrarNoApp(SESSION.nome);
+  }
+});
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 function setAuthMode(modo) {
@@ -100,7 +108,7 @@ async function confirmarTrocarSenha() {
     const data = await r.json();
     if (data.ok) {
       SESSION.senha = nova;
-      sessionStorage.setItem('pf_vendedora_b2b', JSON.stringify(SESSION));
+      localStorage.setItem('pf_vendedora_b2b', JSON.stringify(SESSION));
       msg.textContent = '✅ Senha alterada com sucesso!'; msg.classList.add('ok');
       setTimeout(() => fecharModal('modal-senha'), 1800);
     } else {
