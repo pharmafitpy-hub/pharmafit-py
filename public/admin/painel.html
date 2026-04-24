@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <title>PharmaFit Admin — Painel</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#1abc9c"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="PharmaFit"/>
+<link rel="apple-touch-icon" href="icons/icon-192.svg"/>
 <link rel="stylesheet" href="../assets/css/theme.css"/>
 <link rel="stylesheet" href="assets/css/admin.css"/>
 </head>
@@ -374,6 +381,13 @@
 <!-- Modal -->
 <div id="modal-overlay" class="modal-overlay" onclick="closeModal()"></div>
 <div id="modal-box" class="modal-box"></div>
+
+<!-- PWA Install Banner -->
+<div id="install-banner" class="install-banner hidden">
+  <span class="install-banner-text">📲 Instalar PharmaFit como app?</span>
+  <button class="btn-sm btn-accent" onclick="promptInstall()">Instalar</button>
+  <button class="install-banner-close" onclick="dismissInstall()">✕</button>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="../assets/js/config.js"></script>

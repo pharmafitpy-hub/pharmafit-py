@@ -946,6 +946,52 @@ async function cadastrarAdmin(e) {
   }
 }
 
+// ── PWA ───────────────────────────────────────────────────────────────────────
+let _installPrompt = null;
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _installPrompt = e;
+  if (!localStorage.getItem('pwa_dismissed')) {
+    setTimeout(() => {
+      const b = document.getElementById('install-banner');
+      if (b) b.classList.remove('hidden');
+    }, 4000);
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  const b = document.getElementById('install-banner');
+  if (b) b.classList.add('hidden');
+  _installPrompt = null;
+});
+
+function promptInstall() {
+  if (!_installPrompt) {
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (isIOS) {
+      alert('Para instalar no iPhone: toque em Compartilhar (⬆️) → "Adicionar à Tela de Início"');
+    }
+    return;
+  }
+  _installPrompt.prompt();
+  _installPrompt.userChoice.then(() => {
+    _installPrompt = null;
+    const b = document.getElementById('install-banner');
+    if (b) b.classList.add('hidden');
+  });
+}
+
+function dismissInstall() {
+  localStorage.setItem('pwa_dismissed', '1');
+  const b = document.getElementById('install-banner');
+  if (b) b.classList.add('hidden');
+}
+
 // ── UTILS ─────────────────────────────────────────────────────────────────────
 function logout() {
   sessionStorage.removeItem('pharmafit_admin');
@@ -1984,7 +2030,7 @@ function renderRelatorio() {
       labels:   stLabels,
       datasets: [{ data: stLabels.map(k => d.por_status[k]), backgroundColor: stLabels.map(k => statusCores[k] || '#6b7280'), borderWidth: 0 }],
     },
-    options: { responsive: true, plugins: { legend: { position: 'right', labels: { color: '#7aaccb', font: { size: 11 } } } } },
+    options: { responsive: true, plugins: { legend: { position: window.innerWidth < 768 ? 'bottom' : 'right', labels: { color: '#7aaccb', font: { size: window.innerWidth < 768 ? 10 : 11 } } } } },
   });
 
   if (d.por_pagamento && Object.keys(d.por_pagamento).length > 0) {
@@ -1996,7 +2042,7 @@ function renderRelatorio() {
         labels:   pagLabels,
         datasets: [{ data: pagLabels.map(k => d.por_pagamento[k]), backgroundColor: pagLabels.map((_, i) => pagCores[i % pagCores.length]), borderWidth: 0 }],
       },
-      options: { responsive: true, plugins: { legend: { position: 'right', labels: { color: '#7aaccb', font: { size: 11 } } } } },
+      options: { responsive: true, plugins: { legend: { position: window.innerWidth < 768 ? 'bottom' : 'right', labels: { color: '#7aaccb', font: { size: window.innerWidth < 768 ? 10 : 11 } } } } },
     });
   }
 
