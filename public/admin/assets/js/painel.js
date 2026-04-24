@@ -83,6 +83,13 @@ async function loadCupons() {
   } catch(e) {}
 }
 
+async function loadProtocolos() {
+  try {
+    const data = await API.protocolos();
+    if (data && typeof data === 'object' && !data.erro) App.protocolos = data;
+  } catch(e) {}
+}
+
 async function loadRelatorio() {
   try {
     const data = await API.relatorio();
@@ -138,12 +145,13 @@ function setView(view) {
 }
 
 function renderCurrentView() {
-  if (App.view === 'kanban')   renderKanban();
-  if (App.view === 'clientes') renderClientes();
-  if (App.view === 'produtos') renderProdutos();
-  if (App.view === 'cupons')   { loadCupons().then(renderCupons); }
-  if (App.view === 'relatorio') { loadRelatorio().then(renderRelatorio); }
-  if (App.view === 'config')   { loadAdmins().then(renderConfig); }
+  if (App.view === 'kanban')     renderKanban();
+  if (App.view === 'clientes')   renderClientes();
+  if (App.view === 'produtos')   renderProdutos();
+  if (App.view === 'protocolos') { loadProtocolos().then(renderProtocolos); }
+  if (App.view === 'cupons')     { loadCupons().then(renderCupons); }
+  if (App.view === 'relatorio')  { loadRelatorio().then(renderRelatorio); }
+  if (App.view === 'config')     { loadAdmins().then(renderConfig); }
 }
 
 // ── STATS BAR ─────────────────────────────────────────────────────────────────
@@ -1446,6 +1454,100 @@ async function salvarProduto(e) {
       closeModal();
       await loadProdutos();
       renderProdutos();
+    } else {
+      msg.textContent = data.erro || 'Erro ao salvar';
+      msg.style.color = 'var(--danger)';
+    }
+  } catch(ex) {
+    msg.textContent = 'Erro de conexão';
+    msg.style.color = 'var(--danger)';
+  }
+}
+
+// ── PROTOCOLOS ────────────────────────────────────────────────────────────────
+function renderProtocolos() {
+  const tbody = document.getElementById('protocolos-tbody');
+  if (!tbody) return;
+  const q = (document.getElementById('busca-protocolos')?.value || '').toLowerCase().trim();
+  const lista = q
+    ? App.produtos.filter(p => (p.nome||'').toLowerCase().includes(q) || (p.conc||'').toLowerCase().includes(q))
+    : App.produtos;
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="color:var(--text2);padding:20px;text-align:center">Nenhum produto encontrado</td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(p => {
+    const temProto = !!(App.protocolos && App.protocolos[p.id]);
+    return `<tr>
+      <td><span style="font-size:18px;margin-right:6px">${p.icone||'💊'}</span>${esc(p.nome)}</td>
+      <td style="color:var(--text2);font-size:12px">${esc(p.conc||'')}</td>
+      <td style="text-align:center"><span class="badge ${temProto ? 'badge-on' : 'badge-off'}">${temProto ? '✓ Tem' : '— Sem'}</span></td>
+      <td><button class="btn-xs" onclick="abrirEditarProtocolo('${escAttr(p.id)}')">✏️ Editar</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function abrirEditarProtocolo(prodId) {
+  const p = App.produtos.find(x => x.id === prodId);
+  if (!p) return;
+  App.currentEditProdId = prodId;
+  const proto = (App.protocolos && App.protocolos[prodId]) || {};
+  const ta = (id, label, val, rows) => `
+    <div class="field-inline" style="grid-column:1/-1">
+      <label>${label}</label>
+      <textarea id="${id}" rows="${rows}" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text);font-size:13px;resize:vertical;font-family:inherit">${esc(val)}</textarea>
+    </div>`;
+  openModal(`
+    <div class="modal-header">
+      <span>${p.icone||'💊'} ${esc(p.nome)} — Protocolo</span>
+      <button onclick="closeModal()">✕</button>
+    </div>
+    <form class="cfg-form" onsubmit="salvarProtocolo(event)" style="max-height:65vh;overflow-y:auto;padding-right:4px">
+      <div style="display:grid;gap:10px">
+        ${ta('pp-mecanismo',      'Mecanismo de Ação',  proto.mecanismo||'',      3)}
+        ${ta('pp-reconstituicao', 'Reconstituição',     proto.reconstituicao||'', 3)}
+        ${ta('pp-dosagem',        'Dosagem',            proto.dosagem||'',        3)}
+        ${ta('pp-protocolo1',     'Protocolo 1',        proto.protocolo1||'',     4)}
+        ${ta('pp-protocolo2',     'Protocolo 2',        proto.protocolo2||'',     4)}
+        ${ta('pp-protocolo3',     'Protocolo 3',        proto.protocolo3||'',     4)}
+        ${ta('pp-cuidados',       'Cuidados',           proto.cuidados||'',       3)}
+        <div class="field-inline" style="grid-column:1/-1">
+          <label>Link da Página</label>
+          <input id="pp-pagina" type="text" value="${escAttr(proto.pagina||'')}" style="width:100%"/>
+        </div>
+      </div>
+      <div id="pp-status" class="cfg-status-msg" style="margin-top:8px"></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button type="submit" class="btn-sm btn-accent">Salvar Protocolo</button>
+        <button type="button" class="btn-sm" onclick="closeModal()">Cancelar</button>
+      </div>
+    </form>
+  `);
+}
+
+async function salvarProtocolo(e) {
+  e.preventDefault();
+  const prodId = App.currentEditProdId || '';
+  const msg = document.getElementById('pp-status');
+  msg.textContent = 'Salvando...';
+  if (!prodId) { msg.textContent = 'Erro: produto não identificado'; msg.style.color = 'var(--danger)'; return; }
+  try {
+    const data = await API.editarProtocolo({
+      prod_id:       prodId,
+      mecanismo:      document.getElementById('pp-mecanismo')?.value      || '',
+      reconstituicao: document.getElementById('pp-reconstituicao')?.value || '',
+      dosagem:        document.getElementById('pp-dosagem')?.value        || '',
+      protocolo1:     document.getElementById('pp-protocolo1')?.value     || '',
+      protocolo2:     document.getElementById('pp-protocolo2')?.value     || '',
+      protocolo3:     document.getElementById('pp-protocolo3')?.value     || '',
+      cuidados:       document.getElementById('pp-cuidados')?.value       || '',
+      pagina:         document.getElementById('pp-pagina')?.value         || '',
+    });
+    if (data.ok) {
+      showToast('Protocolo salvo!');
+      closeModal();
+      await loadProtocolos();
+      renderProtocolos();
     } else {
       msg.textContent = data.erro || 'Erro ao salvar';
       msg.style.color = 'var(--danger)';

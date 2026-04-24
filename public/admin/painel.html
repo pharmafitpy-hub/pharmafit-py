@@ -18,6 +18,7 @@
     <button class="nav-btn active" data-view="kanban">📦 Fila de Pedidos</button>
     <button class="nav-btn" data-view="clientes">👥 Clientes</button>
     <button class="nav-btn" data-view="produtos">💊 Produtos & Estoque</button>
+    <button class="nav-btn" data-view="protocolos">🔬 Protocolos</button>
     <button class="nav-btn" data-view="cupons">🎟️ Cupons</button>
     <button class="nav-btn" data-view="relatorio">📊 Relatório</button>
     <button class="nav-btn" data-view="config">⚙️ Configurações</button>
@@ -143,6 +144,35 @@
     </div>
   </div>
 
+
+  <!-- ══ VIEW: PROTOCOLOS ══ -->
+  <div id="view-protocolos" class="view hidden">
+    <div class="view-bar">
+      <h2>Protocolos</h2>
+      <div class="view-bar-right">
+        <span style="font-size:12px;color:var(--text2)">Clique em Editar para alterar o protocolo de um produto</span>
+      </div>
+    </div>
+    <div class="search-bar-wrapper">
+      <input type="search" id="busca-protocolos" placeholder="🔍 Buscar produto..."
+        oninput="renderProtocolos()"/>
+    </div>
+    <div class="table-view">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Concentração</th>
+            <th style="text-align:center">Protocolo</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="protocolos-tbody">
+          <tr><td colspan="4" class="loading-msg">⏳ Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
   <!-- ══ VIEW: CUPONS ══ -->
   <div id="view-cupons" class="view hidden">
