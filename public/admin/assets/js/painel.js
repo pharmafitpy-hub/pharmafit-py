@@ -146,7 +146,7 @@ async function loadPedidos() {
     if (data.ok) {
       if (_knownOrderIds === null) {
         // Primeira carga: restaura do sessionStorage para não re-notificar pedidos já existentes
-        const saved = sessionStorage.getItem('pf_known_ids');
+        const saved = localStorage.getItem('pf_known_ids');
         _knownOrderIds = saved
           ? new Set(JSON.parse(saved))
           : new Set(data.pedidos.map(p => String(p.id)));
@@ -160,7 +160,7 @@ async function loadPedidos() {
         addNotificacao(titulo, corpo);
       });
       _knownOrderIds = new Set(data.pedidos.map(p => String(p.id)));
-      sessionStorage.setItem('pf_known_ids', JSON.stringify([..._knownOrderIds]));
+      localStorage.setItem('pf_known_ids', JSON.stringify([..._knownOrderIds]));
       App.pedidos = data.pedidos;
       updateSwState();
     }
