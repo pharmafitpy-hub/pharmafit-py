@@ -83,11 +83,6 @@ button { cursor: pointer; }
 /* ── MAIN LAYOUT ──────────────────────────────────────────────────────────── */
 .admin-layout { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
 
-/* iOS/Android safe area */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .admin-layout { padding-bottom: env(safe-area-inset-bottom); }
-}
-
 /* ── HEADER ───────────────────────────────────────────────────────────────── */
 .admin-header {
   display: flex; align-items: center; gap: 20px;
@@ -820,9 +815,11 @@ button { cursor: pointer; }
     font-size: 12px; padding: 5px 11px; white-space: nowrap;
   }
 
-  /* View area */
-  .admin-main { overflow: auto; }
-  .view { overflow: visible; }
+  /* Layout mobile: scroll natural, header fixo no topo */
+  .admin-layout { height: auto; min-height: 100vh; min-height: 100svh; overflow: visible; }
+  .admin-header { position: sticky; top: 0; z-index: 300; }
+  .admin-main { overflow: visible; padding-bottom: max(60px, env(safe-area-inset-bottom, 0px)); }
+  .view { overflow: visible; flex: none; }
   .view-bar { padding: 12px 14px 8px; flex-wrap: wrap; gap: 8px; }
   .view-bar-right { flex-wrap: wrap; gap: 6px; }
   .view-bar h2 { font-size: 15px; }

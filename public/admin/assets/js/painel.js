@@ -178,7 +178,15 @@ function renderCurrentView() {
   if (App.view === 'kanban')     renderKanban();
   if (App.view === 'clientes')   renderClientes();
   if (App.view === 'produtos')   renderProdutos();
-  if (App.view === 'protocolos') { loadProtocolos().then(renderProtocolos); }
+  if (App.view === 'protocolos') {
+    if (!App.protocolos) {
+      const g = document.getElementById('protocolos-grid');
+      if (g) g.innerHTML = '<div class="loading-msg">⏳ Carregando protocolos...</div>';
+      loadProtocolos().then(renderProtocolos);
+    } else {
+      renderProtocolos();
+    }
+  }
   if (App.view === 'cupons')     { loadCupons().then(renderCupons); }
   if (App.view === 'relatorio')  { loadRelatorio().then(renderRelatorio); }
   if (App.view === 'config')     { loadAdmins().then(renderConfig); }

@@ -137,7 +137,8 @@
     <div class="view-bar">
       <h2>Protocolos</h2>
       <div class="view-bar-right">
-        <span style="font-size:12px;color:var(--text2)">Clique em Editar para alterar o protocolo de um produto</span>
+        <button class="btn-sm" onclick="App.protocolos=null;document.getElementById('protocolos-grid').innerHTML='<div class=\'loading-msg\'>⏳ Carregando...</div>';loadProtocolos().then(renderProtocolos)">🔄</button>
+        <span style="font-size:12px;color:var(--text2)">Clique em Editar para alterar o protocolo</span>
       </div>
     </div>
     <div class="kanban-toolbar">
