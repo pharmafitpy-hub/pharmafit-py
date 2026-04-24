@@ -342,6 +342,13 @@
             No iPhone: funciona apenas com o app instalado na tela inicial (iOS 16.4+).<br>
             No Android: funciona no Chrome, mesmo sem instalar.
           </p>
+          <hr style="margin:16px 0;border-color:var(--border)">
+          <p style="font-size:13px;color:var(--text);margin:0 0 8px;line-height:1.5">
+            <strong>Notificações em segundo plano (app fechado)</strong><br>
+            Rode o setup uma vez após o primeiro deploy para ativar o push em background.
+          </p>
+          <button id="vapid-setup-btn" class="btn-sm" onclick="runVapidSetup()" style="background:var(--border);color:var(--text)">⚙️ Configurar Push Background</button>
+          <p id="vapid-setup-status" style="font-size:11px;color:var(--text2);margin:6px 0 0"></p>
         </div>
       </div>
 

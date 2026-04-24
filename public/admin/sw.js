@@ -1,4 +1,4 @@
-const CACHE = 'pharmafit-admin-v2';
+const CACHE = 'pharmafit-admin-v3';
 
 self.addEventListener('install', e => {
   self.skipWaiting();
@@ -30,6 +30,19 @@ self.addEventListener('notificationclick', e => {
       clients.openWindow(targetUrl);
     }
   })());
+});
+
+// ── WEB PUSH ──────────────────────────────────────────────────────────────────
+self.addEventListener('push', e => {
+  e.waitUntil(
+    self.registration.showNotification('📦 PharmaFit — Novo Pedido', {
+      body:     'Um novo pedido foi recebido. Toque para abrir o painel.',
+      icon:     './icons/icon-192.svg',
+      badge:    './icons/icon-192.svg',
+      tag:      'pharmafit-push',
+      renotify: true,
+    })
+  );
 });
 
 // ── PERIODIC BACKGROUND SYNC ──────────────────────────────────────────────────

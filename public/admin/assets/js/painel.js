@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initKanbanDrag();
   updateSwState();
   registerPeriodicSync();
+  subscribeToPush();
 
   // Abre pedido se a notificação foi clicada com o app fechado
   const _openOrderId = new URLSearchParams(location.search).get('openOrder');
@@ -1149,6 +1150,7 @@ async function solicitarNotificacoes() {
   updateNotifStatus();
   if (result === 'granted') {
     showNotif('✅ PharmaFit Admin', { body: 'Notificações ativadas! Você receberá alertas de novos pedidos.' });
+    subscribeToPush();
   }
 }
 
@@ -1227,6 +1229,49 @@ async function registerPeriodicSync() {
       await reg.periodicSync.register('check-pedidos', { minInterval: 60_000 });
     }
   } catch(_) {}
+}
+
+// ── WEB PUSH SUBSCRIPTION ─────────────────────────────────────────────────────
+function _urlB64ToUint8(b64) {
+  const pad = '='.repeat((4 - b64.length % 4) % 4);
+  const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function runVapidSetup() {
+  const btn = document.getElementById('vapid-setup-btn');
+  const st  = document.getElementById('vapid-setup-status');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Configurando...'; }
+  try {
+    const data = await API.setupVapid();
+    if (data.ok) {
+      if (st)  st.textContent  = '✅ ' + (data.msg || 'Setup concluído! Trigger ativo.');
+      if (btn) btn.textContent = '✅ Configurado';
+    } else {
+      if (st)  st.textContent  = '❌ Erro: ' + (data.erro || 'falha desconhecida');
+      if (btn) { btn.disabled = false; btn.textContent = '⚙️ Tentar novamente'; }
+    }
+  } catch(e) {
+    if (st)  st.textContent  = '❌ Erro de conexão';
+    if (btn) { btn.disabled = false; btn.textContent = '⚙️ Tentar novamente'; }
+  }
+}
+
+async function subscribeToPush() {
+  try {
+    if (!('PushManager' in window) || Notification.permission !== 'granted') return;
+    const reg  = await navigator.serviceWorker.ready;
+    const data = await API.vapidPublicKey();
+    if (!data?.ok) return;
+    const key  = _urlB64ToUint8(data.publicKey);
+    let sub    = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
+    }
+    await API.savePushSub(JSON.stringify(sub));
+  } catch(e) {
+    console.warn('Push subscription:', e);
+  }
 }
 
 // ── PWA ───────────────────────────────────────────────────────────────────────

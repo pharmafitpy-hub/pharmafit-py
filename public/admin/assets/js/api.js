@@ -47,4 +47,9 @@ const API = {
   retornarEstoque:  (id)                => API.call({ action: 'retornar_estoque', id }),
   protocolos:       ()                  => API.call({ action: 'protocolos' }),
   editarProtocolo:  (p)                 => API.call({ action: 'editar_protocolo', ...p }),
+
+  vapidPublicKey:   ()                  => API.call({ action: 'vapid_public_key' }),
+  savePushSub:      (subscription)      => API.call({ action: 'save_push_subscription', subscription }),
+  deletePushSub:    (endpoint)          => API.call({ action: 'delete_push_subscription', endpoint }),
+  setupVapid:       ()                  => API.call({ action: 'setup_vapid' }),
 };
