@@ -1124,25 +1124,35 @@ function salvarConfigEstoque(val) {
 function checkStockAlerts() {
   if (Notification.permission !== 'granted') return;
   const threshold = getStockAlertThreshold();
-  const alerted = new Set(JSON.parse(sessionStorage.getItem('pharmafit_stock_alerted') || '[]'));
-  const newAlerted = [];
+  const alerted = new Set(JSON.parse(localStorage.getItem('pharmafit_stock_alerted') || '[]'));
+  let changed = false;
+
   App.produtos.forEach(p => {
     const est = p.variantes?.length > 0
       ? p.variantes.reduce((s, v) => s + (parseInt(v.estoque) || 0), 0)
       : (parseInt(p.estoque) || 0);
     const nome = p.nome || p.id;
     const key = `${p.id}:${est}`;
+
+    // Se o estoque voltou ao normal, limpa alertas antigos deste produto
+    // para que uma futura queda volte a notificar
+    if (est > threshold) {
+      [...alerted].filter(k => k.startsWith(`${p.id}:`)).forEach(k => { alerted.delete(k); changed = true; });
+      return;
+    }
+
     if (alerted.has(key)) return;
     if (est === 0) {
       showNotif(`🚨 Estoque zerado — ${nome}`, { body: `O estoque de ${nome} acabou! Faça o reabastecimento urgente.` });
-      newAlerted.push(key);
-    } else if (est > 0 && est <= threshold) {
+    } else {
       showNotif(`⚠️ Estoque crítico — ${nome}`, { body: `Restam apenas ${est} unidade${est !== 1 ? 's' : ''} de ${nome}. Considere reabastecer.` });
-      newAlerted.push(key);
     }
+    alerted.add(key);
+    changed = true;
   });
-  if (newAlerted.length > 0) {
-    sessionStorage.setItem('pharmafit_stock_alerted', JSON.stringify([...alerted, ...newAlerted]));
+
+  if (changed) {
+    localStorage.setItem('pharmafit_stock_alerted', JSON.stringify([...alerted]));
   }
 }
 
