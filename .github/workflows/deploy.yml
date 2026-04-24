@@ -33,6 +33,19 @@ jobs:
             echo "SHEETS_URL injected."
           fi
 
+      - name: Cache bust local assets
+        run: |
+          BUST="${GITHUB_SHA:0:8}"
+          find public -name "*.html" | while read f; do
+            sed -i \
+              -e "s|\.css\"|\.css?v=${BUST}\"|g" \
+              -e "s|\.css'|\.css?v=${BUST}'|g" \
+              -e "s|\(assets/[^\"']*\)\.js\"|\1.js?v=${BUST}\"|g" \
+              -e "s|\(assets/[^\"']*\)\.js'|\1.js?v=${BUST}'|g" \
+              "$f"
+          done
+          echo "Cache bust ${BUST} applied."
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
