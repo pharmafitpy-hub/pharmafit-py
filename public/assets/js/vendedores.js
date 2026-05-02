@@ -1,13 +1,33 @@
+// ── ESCAPE HTML ──
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+  return String(s || '').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+// ── HELPER POST ───────────────────────────────────────────────────────────────
+// Usado em endpoints que recebem credenciais — evita senha em URL/logs.
+async function postAction_(action, paramsObj) {
+  const body = new URLSearchParams();
+  body.append('action', action);
+  for (const [k, v] of Object.entries(paramsObj || {})) {
+    if (v !== undefined && v !== null) body.append(k, v);
+  }
+  const r = await fetch(SHEETS_URL, { method: 'POST', body });
+  return r.json();
+}
+
 // ── SESSÃO ────────────────────────────────────────────────────────────────────
 let SESSION = null;
 
 function salvarSession(email, senha, nome) {
   SESSION = { email, senha, nome };
-  localStorage.setItem('pf_vendedora_b2b', JSON.stringify(SESSION));
+  sessionStorage.setItem('lp_vendedora', JSON.stringify(SESSION));
 }
 function carregarSession() {
   try {
-    const s = localStorage.getItem('pf_vendedora_b2b');
+    const s = sessionStorage.getItem('lp_vendedora');
     if (s) SESSION = JSON.parse(s);
   } catch(e) { SESSION = null; }
 }
@@ -21,8 +41,11 @@ async function checkPin() {
   btn.disabled = true;
   err.textContent = '⏳ Verificando...';
   try {
-    const res  = await fetch(`${SHEETS_URL}?action=verificar_pin&pin=${encodeURIComponent(val)}`);
-    const data = await res.json();
+    // GET pra verificar_pin — endpoint não recebe credencial sensível
+    // (PIN é compartilhado pela equipe, não pessoal); evita CORS preflight
+    // e funciona sem precisar do user redeployar Apps Script com nova versão.
+    const r    = await fetch(`${SHEETS_URL}?action=verificar_pin&pin=${encodeURIComponent(val)}`);
+    const data = await r.json();
     if (!data.ok) {
       err.textContent = '❌ PIN incorreto.';
       document.getElementById('pin-input').value = '';
@@ -47,24 +70,16 @@ async function checkPin() {
 
 function logout() {
   SESSION = null;
-  localStorage.removeItem('pf_vendedora_b2b');
+  sessionStorage.removeItem('lp_vendedora');
   document.getElementById('tela-app').classList.remove('show');
   document.getElementById('tela-auth').classList.add('show');
   document.getElementById('hist-resultado').style.display = 'none';
+  document.getElementById('pin-overlay').style.display = 'flex';
   document.getElementById('main-header').classList.remove('show');
-  setAuthMode('login');
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-err').textContent = '';
   setMode('criar');
 }
-
-// ── INIT: se já logada, pula o PIN direto pro app ─────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  carregarSession();
-  if (SESSION) {
-    document.getElementById('pin-overlay').style.display = 'none';
-    document.getElementById('main-header').classList.add('show');
-    entrarNoApp(SESSION.nome);
-  }
-});
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 function setAuthMode(modo) {
@@ -103,12 +118,10 @@ async function confirmarTrocarSenha() {
   if (nova.length < 6) { msg.textContent = 'Nova senha deve ter ao menos 6 caracteres.'; msg.classList.add('err'); return; }
   btn.disabled = true; btn.textContent = 'Salvando…';
   try {
-    const params = new URLSearchParams({ action:'trocar_senha', email:SESSION.email, senha_atual:atual, nova_senha:nova });
-    const r    = await fetch(`${SHEETS_URL}?${params}`);
-    const data = await r.json();
+    const data = await postAction_('trocar_senha', { email: SESSION.email, senha_atual: atual, nova_senha: nova });
     if (data.ok) {
       SESSION.senha = nova;
-      localStorage.setItem('pf_vendedora_b2b', JSON.stringify(SESSION));
+      sessionStorage.setItem('lp_vendedora', JSON.stringify(SESSION));
       msg.textContent = '✅ Senha alterada com sucesso!'; msg.classList.add('ok');
       setTimeout(() => fecharModal('modal-senha'), 1800);
     } else {
@@ -131,9 +144,7 @@ async function recuperarSenha() {
   if (nova.length < 6) { msg.textContent = 'Nova senha deve ter ao menos 6 caracteres.'; msg.classList.add('err'); return; }
   btn.disabled = true; btn.textContent = 'Verificando…';
   try {
-    const params = new URLSearchParams({ action:'trocar_senha', email, data_nasc:nasc, nova_senha:nova });
-    const r    = await fetch(`${SHEETS_URL}?${params}`);
-    const data = await r.json();
+    const data = await postAction_('trocar_senha', { email, data_nasc: nasc, nova_senha: nova });
     if (data.ok) {
       msg.textContent = '✅ Senha redefinida! Faça login com a nova senha.'; msg.classList.add('ok');
       setTimeout(() => setAuthMode('login'), 2200);
@@ -152,8 +163,7 @@ async function fazerLogin() {
   if (!email || !senha) { msg.textContent = 'Preencha e-mail e senha.'; msg.className = 'auth-msg err'; return; }
   msg.textContent = ''; btn.disabled = true; btn.textContent = 'Verificando…';
   try {
-    const r    = await fetch(`${SHEETS_URL}?action=login&email=${encodeURIComponent(email)}&senha=${encodeURIComponent(senha)}`);
-    const data = await r.json();
+    const data = await postAction_('login', { email, senha });
     if (data.ok) {
       salvarSession(email, senha, data.nome);
       document.getElementById('tela-auth').classList.remove('show');
@@ -181,9 +191,7 @@ async function criarConta() {
   if (senha.length < 6) { msg.textContent = 'Senha deve ter ao menos 6 caracteres.'; msg.className = 'auth-msg err'; return; }
   msg.textContent = ''; btn.disabled = true; btn.textContent = 'Criando conta…';
   try {
-    const params = new URLSearchParams({ action:'registrar', nome, data_nasc:nasc, email, senha });
-    const r    = await fetch(`${SHEETS_URL}?${params}`);
-    const data = await r.json();
+    const data = await postAction_('registrar', { nome, data_nasc: nasc, email, senha });
     if (data.ok) {
       salvarSession(email, senha, data.nome);
       document.getElementById('tela-auth').classList.remove('show');
@@ -219,6 +227,7 @@ function setMode(modo) {
 
 // ── PRODUTOS ──────────────────────────────────────────────────────────────────
 let PRODUTOS = [], selecionados = new Set(), tipoAtual = 'pct';
+let precosFixos = {}; // { prodId: '99.90' } — preserva valores ao re-renderizar tabela
 
 async function carregarProdutos() {
   try {
@@ -248,10 +257,10 @@ function renderProdutos(lista) {
     const sel = selecionados.has(p.id);
     const precoNum = parseFloat(p.preco)||0;
     const preco = precoNum > 0 ? `R$ ${precoNum.toLocaleString('pt-BR',{minimumFractionDigits:2})}` : '—';
-    return `<div class="prod-card${sel?' selected':''}" onclick="toggleProd('${p.id}')">
+    return `<div class="prod-card${sel?' selected':''}" onclick="toggleProd('${escAttr(p.id)}')">
       <div class="prod-check">${sel?'✓':''}</div>
-      <div><div class="prod-name">${p.icone||'💊'} ${p.nome}</div>
-        ${p.conc?`<div class="prod-conc">${p.conc}</div>`:''}
+      <div><div class="prod-name">${esc(p.icone||'💊')} ${esc(p.nome)}</div>
+        ${p.conc?`<div class="prod-conc">${esc(p.conc)}</div>`:''}
         <div class="prod-price">${preco}</div></div>
     </div>`;
   }).join('');
@@ -281,14 +290,23 @@ function setTipo(tipo) {
 }
 
 function renderTabelaPrecos() {
+  // 1) Captura valores atuais antes do re-render destruir o DOM
+  document.querySelectorAll('input[id^="novo-preco-"]').forEach(inp => {
+    if (inp.value) precosFixos[inp.id.replace('novo-preco-','')] = inp.value;
+  });
+  // 2) Limpa valores de produtos que foram desselecionados
+  Object.keys(precosFixos).forEach(id => {
+    if (!selecionados.has(id)) delete precosFixos[id];
+  });
+
   const wrap  = document.getElementById('tabela-precos-wrap');
   const prods = PRODUTOS.filter(p=>selecionados.has(p.id));
   if (!prods.length) { wrap.innerHTML='<p style="color:var(--gray);font-size:.82rem">Selecione os produtos acima para definir os preços.</p>'; return; }
   wrap.innerHTML = `<table class="preco-table"><thead><tr><th>Produto</th><th>Preço atual</th><th>Novo preço (R$)</th></tr></thead><tbody>
     ${prods.map(p=>`<tr>
-      <td class="td-nome">${p.icone||'💊'} ${p.nome}${p.conc?` <span style="color:var(--gray);font-weight:400">${p.conc}</span>`:''}</td>
+      <td class="td-nome">${esc(p.icone||'💊')} ${esc(p.nome)}${p.conc?` <span style="color:var(--gray);font-weight:400">${esc(p.conc)}</span>`:''}</td>
       <td class="td-orig">R$ ${(parseFloat(p.preco)||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
-      <td class="td-novo"><input type="number" id="novo-preco-${p.id}" min="0" step="0.01" placeholder="${(parseFloat(p.preco)||0).toFixed(2)}"/></td>
+      <td class="td-novo"><input type="number" id="novo-preco-${escAttr(p.id)}" min="0" step="0.01" placeholder="${(parseFloat(p.preco)||0).toFixed(2)}" value="${escAttr(precosFixos[p.id]||'')}" oninput="precosFixos[this.id.replace('novo-preco-','')]=this.value"/></td>
     </tr>`).join('')}
   </tbody></table>`;
 }
@@ -323,12 +341,11 @@ async function criarCupom() {
   alertEl.classList.remove('show');
   const codigo   = document.getElementById('f_codigo').value.trim().toUpperCase();
   const validade = document.getElementById('f_validade').value;
-  const indet    = document.getElementById('btn-indet').classList.contains('active');
   if (selecionados.size===0 && tipoAtual!=='pct') { mostrarAlerta('Selecione pelo menos 1 produto.'); return; }
   if (!codigo) { mostrarAlerta('Gere ou digite um código para o cupom.'); return; }
-  if (!indet && !validade) { mostrarAlerta('Defina a validade do cupom ou clique em Indeterminado.'); return; }
-  let validadeFmt = '';
-  if (validade && !indet) { const [y,m,d] = validade.split('-'); validadeFmt = `${d}/${m}/${y}`; }
+  // Sem data preenchida = INDETERMINADO (não força clicar no botão)
+  let validadeFmt = 'INDETERMINADO';
+  if (validade) { const [y,m,d] = validade.split('-'); validadeFmt = `${d}/${m}/${y}`; }
   let produtos, precos, valor;
   if (tipoAtual==='pct') {
     valor = parseFloat(document.getElementById('f_pct').value);
@@ -352,17 +369,17 @@ async function criarCupom() {
   const btn = document.getElementById('btn-submit');
   btn.disabled=true; btn.textContent='Salvando…';
   try {
-    const parcelamento = document.getElementById('f_parcelamento').checked ? 'SIM' : '';
-    const freteGratis  = document.getElementById('f_frete_gratis').checked  ? '5000' : '';
-    const params = new URLSearchParams({
-      action:'criarcupom',
-      email:SESSION.email, senha:SESSION.senha,
-      codigo, tipo:tipoAtual==='pct'?'%':'fixo',
-      valor:valor||0, produtos, precos, validade:validadeFmt,
-      parcelamento, frete_gratis_acima:freteGratis,
+    const parcelamento  = document.getElementById('f_parcelamento').checked ? 'SIM' : 'NAO';
+    const freteAtivo    = document.getElementById('f_frete_gratis').checked;
+    const freteMin      = parseFloat(document.getElementById('f_frete_minimo').value) || 0;
+    const data = await postAction_('criarcupom', {
+      email: SESSION.email, senha: SESSION.senha,
+      codigo, tipo: tipoAtual === 'pct' ? '%' : 'fixo',
+      valor: valor || 0, produtos, precos, validade: validadeFmt,
+      parcelamento,
+      frete_gratis_acima: freteAtivo ? freteMin.toFixed(2) : '',
+      frete_gratis_ativo: freteAtivo ? 'SIM' : 'NAO',
     });
-    const res  = await fetch(`${SHEETS_URL}?${params}`);
-    const data = await res.json();
     if (data.ok) {
       document.getElementById('suc-code').textContent = codigo;
       document.getElementById('success-box').classList.add('show');
@@ -411,8 +428,7 @@ async function buscarHistorico() {
   errEl.style.display = 'none';
   btn.disabled=true; btn.textContent='Buscando…';
   try {
-    const r    = await fetch(`${SHEETS_URL}?action=historico_vendedora&email=${encodeURIComponent(SESSION.email)}&senha=${encodeURIComponent(SESSION.senha)}`);
-    const data = await r.json();
+    const data = await postAction_('historico_vendedora', { email: SESSION.email, senha: SESSION.senha });
     if (!data.ok) { errEl.textContent='⚠️ '+(data.erro||'Erro.'); errEl.style.display='block'; return; }
     mostrarHistorico(data);
   } catch(e) { errEl.textContent='⚠️ Erro de conexão.'; errEl.style.display='block'; }
@@ -430,7 +446,7 @@ function mostrarHistorico(data) {
   `;
   const cupons = data.cupons||[];
   document.getElementById('hist-cupons-linha').innerHTML = cupons.length
-    ? `Seus cupons: ${cupons.map(c=>`<span class="cupom-badge">${c}</span>`).join('')}`
+    ? `Seus cupons: ${cupons.map(c=>`<span class="cupom-badge">${esc(c)}</span>`).join('')}`
     : '<span style="color:var(--gray)">Nenhum cupom criado ainda.</span>';
   const listEl = document.getElementById('hist-list');
   if (!data.pedidos||!data.pedidos.length) {
@@ -438,16 +454,16 @@ function mostrarHistorico(data) {
     return;
   }
   listEl.innerHTML = data.pedidos.map(p=>{
-    const itensH = (p.produtos||'').split('\n').filter(Boolean).map(l=>`<div>• ${l}</div>`).join('');
+    const itensH = (p.produtos||'').split('\n').filter(Boolean).map(l=>`<div>• ${esc(l)}</div>`).join('');
     return `<div class="ped-item">
-      <div class="ped-top"><div class="ped-cliente">${p.clinica||'—'}</div><div class="ped-data">📅 ${p.data||'—'}</div></div>
+      <div class="ped-top"><div class="ped-cliente">${esc(p.clinica||'—')}</div><div class="ped-data">📅 ${esc(p.data||'—')}</div></div>
       <div class="ped-row">
         <span class="ped-total">R$ ${fmtBrl(p.total)}</span>
         ${p.desconto>0?`<span class="ped-desc">🎟️ −R$ ${fmtBrl(p.desconto)}</span>`:''}
-        ${p.pagamento?`<span class="ped-pag">${p.pagamento}</span>`:''}
+        ${p.pagamento?`<span class="ped-pag">${esc(p.pagamento)}</span>`:''}
       </div>
-      ${p.cupom?`<div class="ped-cupom">cupom: ${p.cupom}</div>`:''}
-      ${p.telefone?`<div class="ped-tel">📞 ${p.telefone}</div>`:''}
+      ${p.cupom?`<div class="ped-cupom">cupom: ${esc(p.cupom)}</div>`:''}
+      ${p.telefone?`<div class="ped-tel">📞 ${esc(p.telefone)}</div>`:''}
       ${itensH?`<div class="ped-prods">${itensH}</div>`:''}
     </div>`;
   }).join('');
@@ -462,8 +478,7 @@ async function carregarMeusCupons() {
   errEl.style.display = 'none';
   btn.disabled = true; btn.textContent = 'Carregando…';
   try {
-    const r    = await fetch(`${SHEETS_URL}?action=meus_cupons&email=${encodeURIComponent(SESSION.email)}&senha=${encodeURIComponent(SESSION.senha)}`);
-    const data = await r.json();
+    const data = await postAction_('meus_cupons', { email: SESSION.email, senha: SESSION.senha });
     if (!data.ok) { errEl.textContent = '⚠️ '+(data.erro||'Erro.'); errEl.style.display='block'; return; }
     renderMeusCupons(data.cupons||[]);
   } catch(e) { errEl.textContent = '⚠️ Erro de conexão.'; errEl.style.display='block'; }
@@ -472,8 +487,8 @@ async function carregarMeusCupons() {
 
 function getNomeProduto(key) {
   const p = PRODUTOS.find(x => x.id === key);
-  if (p) return `${p.icone||'💊'} ${p.nome}${p.conc ? ' <span style="opacity:.6">' + p.conc + '</span>' : ''}`;
-  return key;
+  if (p) return `${esc(p.icone||'💊')} ${esc(p.nome)}${p.conc ? ' <span style="opacity:.6">' + esc(p.conc) + '</span>' : ''}`;
+  return esc(key);
 }
 
 function toggleProdsList(uid) {
@@ -496,7 +511,7 @@ function renderMeusCupons(cupons) {
     const extras = [];
     if (c.parcelamento)       extras.push('⚡ Parcelamento sem juros (3×)');
     if (c.frete_gratis_acima) extras.push(`🚚 Frete grátis acima de R$ ${fmtBrl(c.frete_gratis_acima)}`);
-    const tipoStr = c.tipo === '%' ? `${c.valor}% de desconto` : 'Preço fixo por produto';
+    const tipoStr = c.tipo === '%' ? `${esc(c.valor)}% de desconto` : 'Preço fixo por produto';
     let prodsHtml = '';
     if (c.produtos === 'todos') {
       prodsHtml = '<div style="font-size:.72rem;color:var(--gray);margin-top:5px">🌐 Todos os produtos</div>';
@@ -519,13 +534,13 @@ function renderMeusCupons(cupons) {
     return `<div class="sec" style="margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
         <div style="flex:1;min-width:0">
-          <div style="font-family:monospace;font-size:1.35rem;font-weight:800;letter-spacing:6px;color:var(--accent)">${c.codigo}</div>
+          <div style="font-family:monospace;font-size:1.35rem;font-weight:800;letter-spacing:6px;color:var(--accent)">${esc(c.codigo)}</div>
           <div style="font-size:.78rem;color:var(--light);margin-top:3px">${tipoStr}</div>
           ${prodsHtml}
           ${extras.map(e => `<div style="font-size:.72rem;color:var(--green);margin-top:2px">${e}</div>`).join('')}
-          <div style="font-size:.68rem;color:var(--gray);margin-top:7px;opacity:.7">Validade: ${c.validade} · Criado: ${c.criado}</div>
+          <div style="font-size:.68rem;color:var(--gray);margin-top:7px;opacity:.7">Validade: ${esc(c.validade)} · Criado: ${esc(c.criado)}</div>
         </div>
-        <button onclick="deletarCupomMeu('${c.codigo}',this)"
+        <button onclick="deletarCupomMeu('${escAttr(c.codigo)}',this)"
           style="background:transparent;border:1px solid var(--red);color:var(--red);padding:8px 16px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">
           🗑️ Excluir
         </button>
@@ -538,9 +553,7 @@ async function deletarCupomMeu(codigo, btn) {
   if (!confirm(`Excluir o cupom ${codigo}? Esta ação não pode ser desfeita.`)) return;
   btn.disabled = true; btn.textContent = 'Excluindo…';
   try {
-    const params = new URLSearchParams({ action:'deletar_cupom', email:SESSION.email, senha:SESSION.senha, codigo });
-    const r    = await fetch(`${SHEETS_URL}?${params}`);
-    const data = await r.json();
+    const data = await postAction_('deletar_cupom', { email: SESSION.email, senha: SESSION.senha, codigo });
     if (data.ok) {
       carregarMeusCupons();
     } else {

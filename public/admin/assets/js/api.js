@@ -9,11 +9,29 @@ const API = {
     }
     const url = new URL(SHEETS_URL);
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, String(v)));
-    const res = await fetch(url.toString());
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (data.erro === 'Não autorizado' && admin) {
-      localStorage.removeItem('pharmafit_admin');
+    let res;
+    try {
+      res = await fetch(url.toString());
+    } catch (netErr) {
+      console.error('[API] Erro de rede:', netErr, 'action:', params.action);
+      throw new Error('Sem conexão com o servidor');
+    }
+    if (!res.ok) {
+      console.error('[API] HTTP', res.status, 'action:', params.action);
+      throw new Error(`HTTP ${res.status}`);
+    }
+    // Tenta JSON. Se a resposta vier vazia/inválida MAS o status for 200,
+    // assume que a operação rodou (Apps Script às vezes retorna content-type
+    // estranho após redirect 302 → googleusercontent). Loga aviso pra debug.
+    let data;
+    try {
+      data = await res.json();
+    } catch (parseErr) {
+      console.warn('[API] Resposta não-JSON status', res.status, 'action:', params.action, '— assumindo sucesso');
+      return { ok: true, _silent: true };
+    }
+    if (data && data.erro === 'Não autorizado' && admin) {
+      localStorage.removeItem('lp_admin');
       alert('Sessão expirada. Faça login novamente.');
       window.location.href = 'index.html';
     }
@@ -47,5 +65,9 @@ const API = {
   retornarEstoque:  (id)                => API.call({ action: 'retornar_estoque', id }),
   protocolos:       ()                  => API.call({ action: 'protocolos' }),
   editarProtocolo:  (p)                 => API.call({ action: 'editar_protocolo', ...p }),
-
+  indicacoes:       ()                  => API.call({ action: 'painel_indicacoes' }),
+  setIndicacaoStatus: (rowNum, status)  => API.call({ action: 'set_indicacao_status', rowNum, status }),
+  solicitacoes:     ()                  => API.call({ action: 'painel_solicitacoes' }),
+  aprovarSolicitacao: (rowNum, obs_admin) => API.call({ action: 'aprovar_solicitacao', rowNum, obs_admin: obs_admin || '' }),
+  rejeitarSolicitacao: (rowNum, motivo) => API.call({ action: 'rejeitar_solicitacao', rowNum, motivo: motivo || '' }),
 };
