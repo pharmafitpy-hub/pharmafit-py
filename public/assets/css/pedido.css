@@ -2361,7 +2361,7 @@ header span.required-mark { color: #F59E0B !important; }
 .step-panel { color: #E8F0F5 !important; }
 .panel-title { color: #FFFFFF !important; }
 .panel-subtitle { color: rgba(255,255,255,0.7) !important; }
-/* Cards de produto/catálogo — claros pra destacar do fundo escuro */
+/* Cards de produto/catálogo — glass petrol pra integrar com fundo */
 .products-grid .product-card,
 .product-card,
 .cat-tile,
@@ -2369,7 +2369,34 @@ header span.required-mark { color: #F59E0B !important; }
 .review-card,
 .cupom-section,
 .frete-section,
-.payment-options .pay-opt,
+.payment-options .pay-opt {
+  background: rgba(13,43,62,0.85) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(245,158,11,0.18) !important;
+  color: #E8F0F5 !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+.products-grid .product-card:hover,
+.product-card:hover,
+.cat-tile:hover,
+.rec-card:hover {
+  border-color: rgba(245,158,11,0.45) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+}
+.product-card .pc-name, .product-card .pc-price, .pc-name { color: #FFFFFF !important; }
+.product-card .pc-price { color: #F59E0B !important; }
+.product-card .pc-conc, .pc-conc { color: rgba(255,255,255,0.65) !important; }
+.product-card.selected, .pay-opt.selected, .frete-opt.selected {
+  background: rgba(245,158,11,0.14) !important;
+  border-color: #F59E0B !important;
+  box-shadow: 0 8px 24px rgba(245,158,11,0.35), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+}
+.cat-tile-name, .rec-card-name, .pay-name, .fo-name { color: #FFFFFF !important; }
+.cat-tile-count, .rec-card-conc, .pay-desc, .fo-days { color: rgba(255,255,255,0.65) !important; }
+.rec-card-price { color: #F59E0B !important; }
+/* Modais/popups continuam claros pra leitura */
 .success-screen,
 .cart-expanded,
 .proto-modal-body,
@@ -2379,17 +2406,8 @@ header span.required-mark { color: #F59E0B !important; }
   background: #FFFFFF !important;
   border-color: rgba(255,255,255,0.15) !important;
   color: #1A2530 !important;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5) !important;
 }
-.product-card .pc-name, .product-card .pc-price, .pc-name { color: #1A2530 !important; }
-.product-card .pc-conc, .pc-conc { color: #4A6278 !important; }
-.product-card.selected, .pay-opt.selected, .frete-opt.selected {
-  background: #FFF8EC !important;
-  border-color: #F59E0B !important;
-  box-shadow: 0 6px 20px rgba(245,158,11,0.35) !important;
-}
-.cat-tile-name, .rec-card-name, .pay-name, .fo-name { color: #1A2530 !important; }
-.cat-tile-count, .rec-card-conc, .pay-desc, .fo-days { color: #4A6278 !important; }
 /* Títulos de seção sobre o fundo petrol */
 .cat-section-title, .catalog-title h2, .rec-section h2 { color: #FFFFFF !important; }
 .cat-section-sub { color: rgba(255,255,255,0.7) !important; }
