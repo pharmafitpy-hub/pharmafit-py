@@ -2316,3 +2316,151 @@
   .cli-field { margin-top: 8px; }
   .cli-hbtn-name { max-width: 90px; }
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   PEDIDO PHARMAFIT-PY — fundo azul petrol (igual hero do index)
+   Override final — aplicado APENAS no pedido.html. Admin/perfil continuam dark.
+   ════════════════════════════════════════════════════════════════════════════ */
+body {
+  background: linear-gradient(135deg, #0D2B3E 0%, #1B4F72 45%, #1a6a9a 75%, #0e4a6e 100%) !important;
+  background-attachment: fixed !important;
+  color: #E8F0F5 !important;
+}
+/* Wrappers principais transparentes pra mostrar o fundo */
+main, .page-wrap, .pedido-wrap, .conteudo, .container, .step-content,
+.catalog-section, .rec-section, .review-section {
+  background: transparent !important;
+}
+/* Header sólido escuro (mais escuro que o body pra destacar) */
+header {
+  background: #0D2B3E !important;
+  color: #FFFFFF !important;
+  border-bottom: 2px solid #F59E0B !important;
+}
+header h1 { color: #FFFFFF !important; }
+header span.required-mark { color: #F59E0B !important; }
+/* Stepper com tom petrol intermediário */
+.stepper-wrap {
+  background: rgba(13,43,62,0.55) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(245,158,11,0.25) !important;
+}
+.step-circle {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.25) !important;
+  color: rgba(255,255,255,0.65) !important;
+}
+.step.active .step-circle { background: #F59E0B !important; border-color: #F59E0B !important; color: #0D2B3E !important; }
+.step.done .step-circle { background: #5DADE2 !important; border-color: #5DADE2 !important; color: #0D2B3E !important; }
+.step-line { background: rgba(255,255,255,0.18) !important; }
+.step.done ~ .step-line, .step-line.done { background: #5DADE2 !important; }
+.step-label { color: rgba(255,255,255,0.65) !important; }
+.step.active .step-label { color: #F59E0B !important; font-weight: 700; }
+/* Painéis (texto sobre fundo escuro) */
+.step-panel { color: #E8F0F5 !important; }
+.panel-title { color: #FFFFFF !important; }
+.panel-subtitle { color: rgba(255,255,255,0.7) !important; }
+/* Cards de produto/catálogo — claros pra destacar do fundo escuro */
+.products-grid .product-card,
+.product-card,
+.cat-tile,
+.rec-card,
+.review-card,
+.cupom-section,
+.frete-section,
+.payment-options .pay-opt,
+.success-screen,
+.cart-expanded,
+.proto-modal-body,
+.modal,
+.lp-wrap,
+.lp-logado-bar {
+  background: #FFFFFF !important;
+  border-color: rgba(255,255,255,0.15) !important;
+  color: #1A2530 !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+}
+.product-card .pc-name, .product-card .pc-price, .pc-name { color: #1A2530 !important; }
+.product-card .pc-conc, .pc-conc { color: #4A6278 !important; }
+.product-card.selected, .pay-opt.selected, .frete-opt.selected {
+  background: #FFF8EC !important;
+  border-color: #F59E0B !important;
+  box-shadow: 0 6px 20px rgba(245,158,11,0.35) !important;
+}
+.cat-tile-name, .rec-card-name, .pay-name, .fo-name { color: #1A2530 !important; }
+.cat-tile-count, .rec-card-conc, .pay-desc, .fo-days { color: #4A6278 !important; }
+/* Títulos de seção sobre o fundo petrol */
+.cat-section-title, .catalog-title h2, .rec-section h2 { color: #FFFFFF !important; }
+.cat-section-sub { color: rgba(255,255,255,0.7) !important; }
+/* Inputs claros pra contraste */
+input[type="text"], input[type="email"], input[type="tel"], input[type="number"],
+input[type="search"], input[type="password"], select, textarea {
+  background: #FFFFFF !important;
+  border-color: #BFD7E5 !important;
+  color: #1A2530 !important;
+}
+input::placeholder, textarea::placeholder { color: #94a3b8 !important; }
+.field label { color: rgba(255,255,255,0.85) !important; }
+/* Sticky cart / total bar — wrapper sem fundo, painel glass mantido */
+.cart-sticky {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.total-bar {
+  background: rgba(13,43,62,0.85) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(245,158,11,0.45) !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+.total-bar .tb-label { color: rgba(255,255,255,0.65) !important; }
+.total-bar .tb-items { color: #FFFFFF !important; }
+.total-bar .tb-total { color: #F59E0B !important; }
+.total-bar .tb-currency { color: rgba(255,255,255,0.65) !important; }
+/* Botões */
+.btn-back {
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
+  color: rgba(255,255,255,0.85) !important;
+}
+.btn-back:hover { background: rgba(255,255,255,0.14) !important; border-color: #F59E0B !important; color: #FFFFFF !important; }
+.btn-next {
+  background: linear-gradient(135deg, #F59E0B, #D97706) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 6px 20px rgba(245,158,11,.45) !important;
+}
+.btn-wa { background: #25D366 !important; color: #FFFFFF !important; }
+/* Hero carousel */
+.hero-carousel, .hero-slide { color: #FFFFFF; }
+/* Mini-carrinho */
+.cart-expanded .ce-header { color: #1A2530 !important; border-bottom-color: #E5E8EA !important; }
+.cart-expanded .ce-item { border-bottom-color: #E5E8EA !important; }
+.ce-name, .cart-expanded { color: #1A2530 !important; }
+.ce-dose, .ce-price { color: #4A6278 !important; }
+.ce-qty { background: #F4F6F7 !important; border-color: #BFD7E5 !important; }
+.ce-qty-val { color: #1A2530 !important; }
+/* Modais */
+.modal-header, .modal-overlay .modal { color: #1A2530 !important; }
+.modal-header { border-bottom-color: #BFD7E5 !important; }
+/* Cupom/código */
+.cupom-row input, #f_codigo {
+  background: #FFFFFF !important; border: 1px solid #BFD7E5 !important; color: #1A2530 !important;
+}
+.cupom-hint { color: rgba(255,255,255,0.7) !important; }
+.cupom-hint code { background: rgba(255,255,255,0.12) !important; border-color: rgba(255,255,255,0.2) !important; color: #F59E0B !important; }
+/* Login panel */
+.lp-title { color: #1A2530 !important; }
+.lp-input { background: #FFFFFF !important; border-color: #BFD7E5 !important; color: #1A2530 !important; }
+.lp-sub { color: #4A6278 !important; }
+/* Empty state */
+.empty-state { color: rgba(255,255,255,0.65) !important; }
+.empty-title { color: #FFFFFF !important; }
+
+/* Skeletons em tom petrol claro pra integrar com fundo */
+.sk-hero, .sk-cat-tile {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+.sk-hero-icon, .sk-line { background: rgba(255,255,255,0.12) !important; }
