@@ -2482,3 +2482,21 @@ input::placeholder, textarea::placeholder { color: #94a3b8 !important; }
   border-color: rgba(255,255,255,0.12) !important;
 }
 .sk-hero-icon, .sk-line { background: rgba(255,255,255,0.12) !important; }
+
+/* Sticky actions bar (Voltar / Revisar Pedido / Próximo) — sem gradiente */
+.step-actions-sticky {
+  background: transparent !important;
+}
+
+/* Select dropdown — options legíveis sobre o tema petrol */
+select, .field select, #parcelas-select, [name="parcelas"] {
+  color: #1A2530 !important;
+}
+select option, .field select option {
+  background: #FFFFFF !important;
+  color: #1A2530 !important;
+}
+select option:checked, select option:hover {
+  background: #F59E0B !important;
+  color: #FFFFFF !important;
+}
