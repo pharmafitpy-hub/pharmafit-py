@@ -2532,7 +2532,10 @@ function abrirEditarCliente(c) {
         <div class="field-inline"><label>Cidade</label><input id="ec-cidade" value="${escAttr(c.cidade||'')}"/></div>
         <div class="field-inline"><label>Estado</label><input id="ec-estado" value="${escAttr(c.estado||'')}"/></div>
       </div>
-      <div class="field-inline"><label>Endereço</label><input id="ec-end" value="${escAttr(c.endereco||'')}"/></div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>Endereço</label><input id="ec-end" value="${escAttr(c.endereco||'')}"/></div>
+        <div class="field-inline" style="max-width:180px"><label>Data de Nascimento</label><input type="date" id="ec-nasc" value="${escAttr(c.data_nasc||'')}"/></div>
+      </div>
       <div class="field-inline"><label>Categoria</label>
         <select id="ec-categoria">
           <option value="" ${!c.categoria?'selected':''}>— Padrão —</option>
@@ -2563,6 +2566,7 @@ async function salvarCliente(e, cpf, emailCli) {
     cidade:      document.getElementById('ec-cidade')?.value.trim(),
     estado:      document.getElementById('ec-estado')?.value.trim(),
     endereco:    document.getElementById('ec-end')?.value.trim(),
+    data_nasc:   document.getElementById('ec-nasc')?.value.trim(),
     categoria:   document.getElementById('ec-categoria')?.value ?? '',
   };
   try {
@@ -2603,7 +2607,14 @@ function abrirNovoCliente() {
         <div class="field-inline"><label>Cidade</label><input id="nn-cidade"/></div>
         <div class="field-inline"><label>Estado</label><input id="nn-estado" maxlength="2" placeholder="SP"/></div>
       </div>
-      <div class="field-inline"><label>Endereço</label><input id="nn-end"/></div>
+      <div class="cfg-row">
+        <div class="field-inline"><label>Endereço</label><input id="nn-end"/></div>
+        <div class="field-inline" style="max-width:180px"><label>Data de Nascimento *</label><input type="date" id="nn-nasc" required/></div>
+      </div>
+      <div style="font-size:.78rem;color:var(--text2);margin-top:6px;padding:8px 10px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:6px;line-height:1.4">
+        🔐 Senha inicial gerada automaticamente a partir do telefone (apenas dígitos).<br>
+        Para "Esqueci a senha", o cliente precisa do <strong>e-mail + CPF + data de nascimento</strong>.
+      </div>
       <div id="nn-status" class="cfg-status-msg"></div>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button type="submit" class="btn-sm btn-accent">Cadastrar</button>
@@ -2612,21 +2623,41 @@ function abrirNovoCliente() {
     </form>`);
 }
 
+// Gera senha inicial a partir do telefone (apenas dígitos), garantindo mínimo de 6 caracteres.
+// Fallback: usa CPF se telefone for curto demais; padding com '0' se ambos curtos.
+function _gerarSenhaInicial(tel, cpf) {
+  const digTel = String(tel || '').replace(/\D/g, '');
+  const digCpf = String(cpf || '').replace(/\D/g, '');
+  let senha = digTel || digCpf;
+  if (senha.length < 6) senha = (senha + digCpf + '000000').slice(0, 6);
+  return senha || '000000';
+}
+
 async function salvarNovoCliente(e) {
   e.preventDefault();
   const msg = document.getElementById('nn-status');
   msg.textContent = 'Cadastrando...';
+  const tel = document.getElementById('nn-tel').value.trim();
+  const cpf = document.getElementById('nn-cpf').value.trim();
+  const dataNasc = document.getElementById('nn-nasc')?.value.trim() || '';
+  if (!dataNasc) {
+    msg.textContent = 'Data de nascimento é obrigatória (necessária pra recuperar senha).';
+    msg.style.color = 'var(--danger)';
+    return;
+  }
   const params = {
     action:      'cadastrar',
     clinica:     document.getElementById('nn-clinica').value.trim(),
     responsavel: document.getElementById('nn-resp').value.trim(),
     cargo:       document.getElementById('nn-cargo').value.trim(),
-    telefone:    document.getElementById('nn-tel').value.trim(),
+    telefone:    tel,
     email:       document.getElementById('nn-email').value.trim(),
-    cpf:         document.getElementById('nn-cpf').value.trim(),
+    cpf:         cpf,
     cidade:      document.getElementById('nn-cidade').value.trim(),
     estado:      document.getElementById('nn-estado').value.trim(),
     endereco:    document.getElementById('nn-end').value.trim(),
+    data_nasc:   dataNasc,
+    senha:       _gerarSenhaInicial(tel, cpf),
   };
   try {
     const url = new URL(SHEETS_URL);
