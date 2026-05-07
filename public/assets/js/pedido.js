@@ -1834,6 +1834,7 @@ function _clearFieldError(el) {
 
 function validateStep2() {
   const FIELD_LABELS = {
+    f_documento: 'CPF / CNPJ',
     f_clinica: 'Nome',
     f_responsavel: 'Apelido',
     f_telefone: 'Telefone / WhatsApp',
@@ -1842,7 +1843,7 @@ function validateStep2() {
     f_numero: 'Número',
     f_bairro: 'Bairro',
   };
-  const base = ['f_clinica','f_responsavel','f_telefone','f_email'];
+  const base = ['f_documento','f_clinica','f_responsavel','f_telefone','f_email'];
   const enderecoFields = ['f_rua','f_numero','f_bairro'];
   const required = _clienteJaLogado ? base : [...base, ...enderecoFields];
   let ok = true;
@@ -1869,6 +1870,15 @@ function validateStep2() {
       if (!firstError) firstError = el;
       ok = false;
       return;
+    }
+    if (id === 'f_documento') {
+      const dig = val.replace(/\D/g,'').length;
+      if (dig !== 11 && dig !== 14) {
+        _markFieldError(el, 'CPF (11 dígitos) ou CNPJ (14 dígitos)');
+        if (!firstError) firstError = el;
+        ok = false;
+        return;
+      }
     }
     _clearFieldError(el);
   });
