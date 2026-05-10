@@ -185,8 +185,8 @@
               <input type="email" name="email" autocomplete="email" required/>
             </div>
             <div class="cli-field">
-              <label>CPF / CNPJ</label>
-              <input type="text" name="cpf" placeholder="Opcional"/>
+              <label>CPF / CNPJ <span class="req">*</span></label>
+              <input type="text" name="cpf" placeholder="00000000000" required/>
             </div>
             <div class="cli-field">
               <label>CEP</label>
@@ -508,10 +508,11 @@
     const senha      = get('senha');
     const senhaConf  = get('senha_conf');
 
-    if (!clinica || !apelido || !telefone || !email || !dataNasc || !senha || !senhaConf) {
+    if (!clinica || !apelido || !telefone || !email || !cpf || !dataNasc || !senha || !senhaConf) {
       _setMsg(form, 'Preencha todos os campos obrigatórios.', 'err'); return;
     }
     if (!email.includes('@') || !email.includes('.')) { _setMsg(form, 'E-mail inválido.', 'err'); return; }
+    if (cpf.length !== 11 && cpf.length !== 14) { _setMsg(form, 'CPF (11 dígitos) ou CNPJ (14 dígitos).', 'err'); return; }
     if (senha.length < 6)      { _setMsg(form, 'Senha deve ter ao menos 6 caracteres.', 'err'); return; }
     if (senha !== senhaConf)   { _setMsg(form, 'As senhas não coincidem.', 'err'); return; }
 
