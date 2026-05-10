@@ -58,6 +58,7 @@ const API = {
   criarCupom:       (p)                 => API.call({ action: 'criar_cupom_admin', ...p }),
   editarProduto:    (p)                 => API.call({ action: 'editar_produto_completo', ...p }),
   editarCliente:    (p)                 => API.call({ action: 'editar_cliente', ...p }),
+  apagarCliente:    (documento, email)  => API.call({ action: 'apagar_cliente', documento: documento || '', email_cli: email || '' }),
   pedidosCliente:   (documento)         => API.call({ action: 'pedidos_cliente_admin', documento }),
   relatorio:        ()                  => API.call({ action: 'relatorio' }),
   salvarNotaInt:    (id, nota)          => API.call({ action: 'salvar_nota_interna', id, nota }),

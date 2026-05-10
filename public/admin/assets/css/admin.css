@@ -149,6 +149,8 @@ button { cursor: pointer; }
   text-decoration: none; display: inline-block;
 }
 .btn-xs:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+.btn-xs.btn-danger { border-color: rgba(239,68,68,.5); color: var(--danger); cursor: pointer; }
+.btn-xs.btn-danger:hover { background: rgba(239,68,68,.1); border-color: var(--danger); color: var(--danger); }
 
 /* ── STATS BAR ────────────────────────────────────────────────────────────── */
 .stats-bar {

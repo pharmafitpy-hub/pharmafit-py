@@ -981,10 +981,38 @@ function renderClientes() {
             <button class="btn-vip-toggle ${isVip?'active':''}" onclick="toggleClienteVip(${JSON.stringify(c).replace(/"/g,'&quot;')})">${isVip ? '⭐ Marcado' : '⭐ VIP'}</button>
             ${c.telefone ? `<a href="https://wa.me/55${c.telefone.replace(/\D/g,'')}" target="_blank" class="btn-xs">WA</a>` : ''}
             <button class="btn-xs" onclick="abrirEditarCliente(${JSON.stringify(c).replace(/"/g,'&quot;')})">✏️</button>
+            <button class="btn-xs btn-danger" onclick="apagarCliente(${JSON.stringify(c).replace(/"/g,'&quot;')})" title="Apagar cliente">🗑️</button>
           </div>
         </div>
       </div>`;
   }).join('');
+}
+
+async function apagarCliente(cli) {
+  if (typeof cli === 'string') cli = JSON.parse(cli);
+  const nome = cli.responsavel || cli.clinica || cli.email || 'cliente';
+  if (!confirm(`Apagar "${nome}" definitivamente?\n\nEsta ação não pode ser desfeita.`)) return;
+  try {
+    const data = await API.apagarCliente(cli.cpf || '', cli.email || '');
+    if (data && (data.ok || data._silent)) {
+      // Verifica se sumiu mesmo (proteção contra _silent que mente)
+      await loadClientes();
+      const aindaExiste = (App.clientes || []).find(x =>
+        (x.cpf && cli.cpf && x.cpf === cli.cpf) ||
+        (x.email && cli.email && x.email === cli.email)
+      );
+      if (aindaExiste) {
+        showToast('⚠️ Servidor não confirmou exclusão. Verifique a planilha.', 'error');
+      } else {
+        showToast('Cliente apagado');
+      }
+      renderClientes();
+    } else {
+      showToast(`Erro: ${(data && data.erro) || 'falha'}`, 'error');
+    }
+  } catch (e) {
+    showToast('Erro de conexão', 'error');
+  }
 }
 
 async function toggleClienteVip(cli) {
@@ -2327,18 +2355,47 @@ async function salvarProduto(e) {
   // Destaque aceita 'destaque' ou 'recomendado' (ou vazio). Aqui é binário —
   // checkbox marcado = 'destaque'. Pra 'recomendado' edita manualmente na planilha.
   params.destaque = document.getElementById('ep-destaque')?.checked ? 'destaque' : '';
+  // Pós-save: verifica se a alteração realmente persistiu (proteção contra
+  // CORS no redirect do GAS que joga catch sem ter falhado de fato).
+  const verificarPersistencia = async () => {
+    await loadProdutos();
+    const atual = (App.produtos || []).find(p =>
+      String(p.prod_id || p.id || '') === String(prodId)
+    );
+    if (!atual) return false;
+    if (params.nome && (atual.nome || '').trim() !== params.nome.trim()) return false;
+    if (params.preco && String(atual.preco || '').replace(/\D/g,'') !== String(params.preco).replace(/\D/g,'')) return false;
+    return true;
+  };
+
   try {
     const data = await API.editarProduto(params);
-    if (data.ok) {
-      showToast('Produto atualizado!');
-      closeModal();
-      await loadProdutos();
-      renderProdutos();
+    if (data && (data.ok || data._silent)) {
+      const persistiu = await verificarPersistencia();
+      if (persistiu) {
+        showToast('Produto atualizado!');
+        closeModal();
+        renderProdutos();
+      } else {
+        msg.textContent = '⚠️ Backend não confirmou alteração. Recarregue (F5) e verifique.';
+        msg.style.color = 'var(--danger)';
+        renderProdutos();
+      }
     } else {
-      msg.textContent = data.erro || 'Erro ao salvar';
+      msg.textContent = (data && data.erro) || 'Erro ao salvar';
       msg.style.color = 'var(--danger)';
     }
   } catch(ex) {
+    // Network error pode ter salvo mesmo assim (CORS no redirect do GAS)
+    try {
+      const persistiu = await verificarPersistencia();
+      if (persistiu) {
+        showToast('Produto atualizado!');
+        closeModal();
+        renderProdutos();
+        return;
+      }
+    } catch(_) {}
     msg.textContent = 'Erro de conexão';
     msg.style.color = 'var(--danger)';
   }
@@ -2555,6 +2612,7 @@ async function salvarCliente(e, cpf, emailCli) {
   e.preventDefault();
   const msg = document.getElementById('ec-status');
   msg.textContent = 'Salvando...';
+  msg.style.color = '';
   const params = {
     documento:   cpf, email_cli: emailCli,
     clinica:     document.getElementById('ec-clinica')?.value.trim(),
@@ -2566,21 +2624,62 @@ async function salvarCliente(e, cpf, emailCli) {
     cidade:      document.getElementById('ec-cidade')?.value.trim(),
     estado:      document.getElementById('ec-estado')?.value.trim(),
     endereco:    document.getElementById('ec-end')?.value.trim(),
-    data_nasc:   document.getElementById('ec-nasc')?.value.trim(),
+    data_nasc:   document.getElementById('ec-nasc')?.value.trim() || '',
     categoria:   document.getElementById('ec-categoria')?.value ?? '',
   };
+
+  // Pós-save: verifica se a alteração realmente persistiu na planilha.
+  // Necessário pq o api.js às vezes retorna {_silent:true} (parse fail)
+  // e o backend pode silenciosamente não achar o cliente (cpf vazio, etc).
+  const cpfBuscaAtualizado = params.cpf_novo || cpf;
+  const emailBuscaAtualizado = params.email_novo || emailCli;
+  const verificarPersistencia = async () => {
+    await loadClientes();
+    const atual = (App.clientes || []).find(x =>
+      (x.cpf && cpfBuscaAtualizado && x.cpf === cpfBuscaAtualizado) ||
+      (x.email && emailBuscaAtualizado && x.email === emailBuscaAtualizado)
+    );
+    if (!atual) return false;
+    // Confere 2-3 campos chave (nem todos os backends devolvem tudo)
+    const checks = [
+      [params.clinica,     atual.clinica],
+      [params.responsavel, atual.responsavel],
+      [params.telefone,    atual.telefone],
+    ];
+    return checks.every(([sent, got]) =>
+      !sent || (got || '').toString().replace(/\D/g,'') === sent.toString().replace(/\D/g,'') ||
+      (got || '').toString().trim() === sent.toString().trim()
+    );
+  };
+
   try {
     const data = await API.editarCliente(params);
-    if (data.ok) {
-      showToast('Cliente atualizado!');
-      closeModal();
-      await loadClientes();
-      renderClientes();
+    if (data && (data.ok || data._silent)) {
+      const persistiu = await verificarPersistencia();
+      if (persistiu) {
+        showToast('Cliente atualizado!');
+        closeModal();
+        renderClientes();
+      } else {
+        msg.textContent = '⚠️ Backend não confirmou alteração. Verifique se o CPF do cliente está cadastrado na planilha.';
+        msg.style.color = 'var(--danger)';
+        renderClientes();
+      }
     } else {
-      msg.textContent = data.erro || 'Erro ao salvar';
+      msg.textContent = (data && data.erro) || 'Erro ao salvar';
       msg.style.color = 'var(--danger)';
     }
   } catch(ex) {
+    // Network error: pode ter salvo mesmo assim (CORS no redirect)
+    try {
+      const persistiu = await verificarPersistencia();
+      if (persistiu) {
+        showToast('Cliente atualizado!');
+        closeModal();
+        renderClientes();
+        return;
+      }
+    } catch(_) {}
     msg.textContent = 'Erro de conexão';
     msg.style.color = 'var(--danger)';
   }
