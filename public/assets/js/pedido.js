@@ -1999,6 +1999,7 @@ function buildReview() {
 
     // Verifica se este item tem desconto de cupom
     let cupomHtml = '';
+    let novoPrecoUnit = null; // pra mostrar strike-through quando há preço promocional
     if (cupomAplicado && cupomData) {
       const { id: baseId } = parseCartKey(key);
       if (cupomData.tipo === 'fixo') {
@@ -2007,6 +2008,7 @@ function buildReview() {
                      : precos[baseId] !== undefined ? parseFloat(precos[baseId])
                      : null;
         if (novoP !== null) {
+          novoPrecoUnit = novoP;
           cupomHtml = `<div style="font-size:.72rem;color:var(--accent);margin-top:1px">🎟️ Cupom: R$ ${novoP.toLocaleString('pt-BR',{minimumFractionDigits:2})} / un.</div>`;
         }
       } else if (cupomData.tipo === '%') {
@@ -2014,13 +2016,47 @@ function buildReview() {
         if (!prods || prods.includes(key) || prods.includes(baseId)) {
           cupomHtml = `<div style="font-size:.72rem;color:var(--accent);margin-top:1px">🎟️ Cupom: −${esc(cupomData.valor)}%</div>`;
         }
+      } else if (cupomData.tipo === 'combo') {
+        const itens = cupomData.itens || [];
+        const partOfCombo = cupomData.modo === 'variante'
+          ? itens.includes(key)
+          : itens.includes(baseId);
+        if (partOfCombo) {
+          let novoP = null;
+          // Caso 1: preços individuais explícitos
+          if (cupomData.precosIndiv && Object.keys(cupomData.precosIndiv).length > 0) {
+            const ix = cupomData.precosIndiv;
+            const k = cupomData.modo === 'variante' ? key : baseId;
+            if (ix[k] !== undefined) novoP = parseFloat(ix[k]);
+          }
+          // Caso 2: preço final único — calcula proporcional pro item
+          if (novoP === null && cupomData.precoFinal > 0) {
+            const precoNormalUmCombo = itens.reduce((s, itemId) => s + (getPriceByKey(itemId) || 0), 0);
+            if (precoNormalUmCombo > 0) {
+              novoP = price * (cupomData.precoFinal / precoNormalUmCombo);
+            }
+          }
+          if (novoP !== null && !isNaN(novoP) && novoP < price) {
+            novoPrecoUnit = novoP;
+            cupomHtml = `<div style="font-size:.72rem;color:var(--accent);margin-top:1px">🎁 Combo: R$ ${novoP.toLocaleString('pt-BR',{minimumFractionDigits:2})} / un.</div>`;
+          }
+        }
       }
     }
 
+    // Se houver preço promocional unitário, mostra preço original com strike + preço novo + subtotal efetivo
+    const precoUnitHtml = (novoPrecoUnit !== null && novoPrecoUnit < price)
+      ? `${qty} × <span style="text-decoration:line-through;color:var(--gray);opacity:.7">R$${price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span> <span style="color:var(--accent);font-weight:700">R$${novoPrecoUnit.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`
+      : `${qty} × R$${price.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+    const subEfetivo = novoPrecoUnit !== null && novoPrecoUnit < price ? novoPrecoUnit * qty : sub;
+    const subHtml = (novoPrecoUnit !== null && novoPrecoUnit < price)
+      ? `<span style="text-decoration:line-through;color:var(--gray);opacity:.7;font-size:.85em;margin-right:6px">R$ ${sub.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span><span style="color:var(--accent)">R$ ${subEfetivo.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`
+      : `R$ ${sub.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+
     html += `<div class="rp-item">
       <div><div class="rp-name">${esc(p.icon)} ${esc(p.name)}</div><div class="rp-detail">${esc(varLabel)}</div>${cupomHtml}</div>
-      <div><div style="text-align:right; font-size:.8rem; color:var(--gray)">${qty} × R$${price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
-      <div class="rp-total">R$ ${sub.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></div>
+      <div><div style="text-align:right; font-size:.8rem; color:var(--gray)">${precoUnitHtml}</div>
+      <div class="rp-total">${subHtml}</div></div>
     </div>`;
   });
   document.getElementById('review-products').innerHTML = html;
