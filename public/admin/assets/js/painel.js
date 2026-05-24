@@ -2308,7 +2308,10 @@ function renderPrecosFixos() {
   const items = document.getElementById('nc-precos-items');
   if (!wrap || !items) return;
   const tipo = document.getElementById('nc-tipo')?.value;
-  if (tipo !== 'fixo') { wrap.classList.add('hidden'); return; }
+  // Aplicável pra 'fixo' OU 'combo' com preço por item
+  const comboPrecoTipo = document.querySelector('input[name="nc-combo-preco-tipo"]:checked')?.value;
+  const ehFixoOuComboItem = tipo === 'fixo' || (tipo === 'combo' && comboPrecoTipo === 'item');
+  if (!ehFixoOuComboItem) { wrap.classList.add('hidden'); return; }
   const checked = [...document.querySelectorAll('.prod-pick-cb:checked')].map(cb => cb.value);
 
   // 1) Captura valores atuais antes do re-render destruir o DOM
