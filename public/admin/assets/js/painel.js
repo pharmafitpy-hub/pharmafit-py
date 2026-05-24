@@ -414,17 +414,19 @@ function toggleDevZone(header) {
 function getWaMsg(order) {
   const nome = order.responsavel || order.clinica || 'cliente';
   const id = '#' + order.id;
+  const empresa = (typeof CLIENT !== 'undefined' && CLIENT && CLIENT.name) ? CLIENT.name : 'nossa equipe';
+  const assinatura = `\n\n— Equipe ${empresa}`;
   const msgs = {
-    'Novo':            `Olá ${nome}! 👋 Recebemos seu pedido ${id} e em breve confirmaremos o pagamento. Obrigado pela confiança!`,
-    'Pag. Confirmado': `Olá ${nome}! ✅ Confirmamos o pagamento do pedido ${id}. Estamos preparando tudo com cuidado!`,
-    'Em Separação':    `Olá ${nome}! 📋 Estamos separando os itens do pedido ${id}. Em breve estará embalado!`,
-    'Embalado':        `Olá ${nome}! 📦 Seu pedido ${id} foi embalado e está pronto para envio!`,
-    'Etiqueta Gerada': `Olá ${nome}! 🏷️ A etiqueta do pedido ${id} foi gerada. Aguardando coleta!`,
-    'Enviado':         `Olá ${nome}! 🚚 Seu pedido ${id} foi enviado!${order.rastreio ? `\nRastreio: *${order.rastreio}*\nhttps://rastreamento.correios.com.br/app/resultado.app?objeto=${order.rastreio}` : ''} Em breve chegará até você!`,
-    'Entregue':        `Olá ${nome}! 🎉 Confirmamos a entrega do pedido ${id}. Esperamos que tudo chegou perfeitamente! Qualquer dúvida estamos à disposição.`,
-    'Cancelado':       `Olá ${nome}, o pedido ${id} foi cancelado. Em caso de dúvidas, entre em contato conosco.`,
+    'Novo':            `Olá ${nome}! 👋 Recebemos seu pedido ${id} e em breve confirmaremos o pagamento. Obrigado pela confiança!${assinatura}`,
+    'Pag. Confirmado': `Olá ${nome}! ✅ Confirmamos o pagamento do pedido ${id}. Estamos preparando tudo com cuidado!${assinatura}`,
+    'Em Separação':    `Olá ${nome}! 📋 Estamos separando os itens do pedido ${id}. Em breve estará embalado!${assinatura}`,
+    'Embalado':        `Olá ${nome}! 📦 Seu pedido ${id} foi embalado e está pronto para envio!${assinatura}`,
+    'Etiqueta Gerada': `Olá ${nome}! 🏷️ A etiqueta do pedido ${id} foi gerada. Aguardando coleta!${assinatura}`,
+    'Enviado':         `Olá ${nome}! 🚚 Seu pedido ${id} foi enviado!${order.rastreio ? `\nRastreio: *${order.rastreio}*\nhttps://rastreamento.correios.com.br/app/resultado.app?objeto=${order.rastreio}` : ''} Em breve chegará até você!${assinatura}`,
+    'Entregue':        `Olá ${nome}! 🎉 Confirmamos a entrega do pedido ${id}. Esperamos que tudo chegou perfeitamente! Qualquer dúvida estamos à disposição.${assinatura}`,
+    'Cancelado':       `Olá ${nome}, o pedido ${id} foi cancelado. Em caso de dúvidas, entre em contato conosco.${assinatura}`,
   };
-  return msgs[order.status] || `Olá ${nome}! Atualização sobre o pedido ${id}.`;
+  return msgs[order.status] || `Olá ${nome}! Atualização sobre o pedido ${id}.${assinatura}`;
 }
 
 function renderCard(order) {
@@ -669,9 +671,10 @@ function renderDrawer(order) {
   const addrParts = [order.endereco, order.cidade, order.estado ? `— ${order.estado}` : '', order.cep ? `CEP ${order.cep}` : '']
     .filter(Boolean).join(', ');
 
+  const _empresa = (typeof CLIENT !== 'undefined' && CLIENT && CLIENT.name) ? CLIENT.name : 'nossa equipe';
   const waRastreioHref = order.rastreio && order.telefone
     ? `https://wa.me/55${order.telefone.replace(/\D/g,'')}?text=${encodeURIComponent(
-        `Olá ${order.clinica}! 📦\nSeu pedido foi enviado!\nRastreio: *${order.rastreio}*\nAcompanhe em: https://rastreamento.correios.com.br/app/resultado.app?objeto=${order.rastreio}`
+        `Olá ${order.clinica}! 📦\nSeu pedido foi enviado!\nRastreio: *${order.rastreio}*\nAcompanhe em: https://rastreamento.correios.com.br/app/resultado.app?objeto=${order.rastreio}\n\n— Equipe ${_empresa}`
       )}`
     : null;
 
@@ -698,9 +701,13 @@ function renderDrawer(order) {
       <div class="drawer-section">
         <h3>📋 Produtos</h3>
         <table class="items-table">
-          <thead><tr><th>Produto</th><th>Dose</th><th style="width:50px;text-align:center">Qtd</th></tr></thead>
+          <thead><tr><th style="width:48px"></th><th>Produto</th><th>Dose</th><th style="width:50px;text-align:center">Qtd</th></tr></thead>
           <tbody>${itens.map(it => `
             <tr>
+              <td>${it.imagem
+                ? `<img src="../assets/img/produtos/${escAttr(it.imagem)}" alt="" style="width:36px;height:36px;border-radius:6px;object-fit:cover;display:block" onerror="this.outerHTML='<div style=\\'width:36px;height:36px;border-radius:6px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px\\'>📦</div>'"/>`
+                : `<div style="width:36px;height:36px;border-radius:6px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px">📦</div>`}
+              </td>
               <td>${esc(it.nome)}</td>
               <td>${esc(it.dose || '—')}</td>
               <td style="text-align:center">${it.qty}</td>
@@ -837,21 +844,26 @@ function parseItens(order) {
         const prod = App.produtos.find(p => p.id === prodId);
         if (prod && varIdx !== undefined && prod.variantes?.[parseInt(varIdx)]) {
           const v = prod.variantes[parseInt(varIdx)];
-          return { nome: prod.nome, dose: v.dose, qty };
+          return { nome: prod.nome, dose: v.dose, qty, imagem: prod.imagem || '' };
         }
-        if (prod) return { nome: prod.nome, dose: prod.conc, qty };
-        return { nome: prodId, dose: '', qty };
+        if (prod) return { nome: prod.nome, dose: prod.conc, qty, imagem: prod.imagem || '' };
+        return { nome: prodId, dose: '', qty, imagem: '' };
       });
       if (itens.length > 0) return itens;
     } catch (e) {}
   }
   const prods = (order.produtos || '').split('\n').filter(Boolean);
   const qtds  = (order.quantidades || '').split('\n').filter(Boolean);
-  return prods.map((p, i) => ({
-    nome: p.replace(/^\d+x\s*/, '').trim(),
-    dose: '',
-    qty:  qtds[i] || '1',
-  }));
+  return prods.map((p, i) => {
+    const nome = p.replace(/^\d+x\s*/, '').trim();
+    const found = App.produtos.find(pr => pr.nome === nome);
+    return {
+      nome,
+      dose: '',
+      qty:  qtds[i] || '1',
+      imagem: found?.imagem || '',
+    };
+  });
 }
 
 async function salvarLogistica(orderId) {
@@ -965,7 +977,7 @@ function renderClientes() {
     const initials = (c.responsavel || c.clinica || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
     const isVip = c.vip === 'SIM';
     return `
-      <div class="admin-card">
+      <div class="admin-card" data-cli-doc="${escAttr(c.cpf || c.documento || c.email || '')}" title="Right-click pra mais opções">
         <div class="cli-avatar">${esc(initials)}</div>
         <div class="cli-card-name">${esc(c.responsavel || c.clinica)}${isVip ? '<span class="vip-badge">⭐ VIP</span>' : ''}</div>
         <div class="cli-card-clinic">${esc(c.clinica)}</div>
@@ -1061,7 +1073,7 @@ function renderProdutos() {
       : (parseInt(p.estoque) || 0);
     const low = est < 5;
     return `
-      <div class="admin-card">
+      <div class="admin-card" data-prod-id="${escAttr(p.id)}" title="Right-click pra mais opções">
         <div class="prod-card-icon">${p.icone || '💊'}</div>
         <div class="prod-card-name">${esc(p.nome)}</div>
         <div class="prod-card-conc">${esc(p.conc || '—')}</div>
@@ -1107,32 +1119,95 @@ async function carregarConfigIndicacao() {
   try {
     const data = await API.call({ action: 'get_config_indicacao' });
     if (data && data.ok) {
-      const pctEl = document.getElementById('cfg-ind-pct');
-      const diasEl = document.getElementById('cfg-ind-dias');
-      if (pctEl) pctEl.value = data.pct_display || '5.0';
+      const pctEl   = document.getElementById('cfg-ind-pct');
+      const diasEl  = document.getElementById('cfg-ind-dias');
+      const ativaEl = document.getElementById('cfg-ind-ativa');
+      if (pctEl)  pctEl.value  = data.pct_display || '5.0';
       if (diasEl) diasEl.value = String(data.carencia_dias || 14);
+      const ativa = (data.ativa !== false); // default true
+      if (ativaEl) ativaEl.checked = ativa;
+      _aplicarToggleIndicacaoUI(ativa);
     }
   } catch (e) { /* silently */ }
 }
 
-async function salvarConfigIndicacao() {
-  const pctEl = document.getElementById('cfg-ind-pct');
+// Desabilita visualmente os campos pct/dias quando indicação está desativada
+function _aplicarToggleIndicacaoUI(ativa) {
+  const pctEl  = document.getElementById('cfg-ind-pct');
   const diasEl = document.getElementById('cfg-ind-dias');
-  const status = document.getElementById('cfg-ind-status');
+  [pctEl, diasEl].forEach(el => {
+    if (!el) return;
+    el.disabled = !ativa;
+    el.style.opacity = ativa ? '1' : '0.5';
+  });
+}
+
+async function salvarConfigIndicacao() {
+  const pctEl   = document.getElementById('cfg-ind-pct');
+  const diasEl  = document.getElementById('cfg-ind-dias');
+  const ativaEl = document.getElementById('cfg-ind-ativa');
+  const status  = document.getElementById('cfg-ind-status');
   if (!pctEl || !diasEl) return;
-  const pct  = parseFloat(pctEl.value);
-  const dias = parseInt(diasEl.value);
+  const pct   = parseFloat(pctEl.value);
+  const dias  = parseInt(diasEl.value);
+  const ativa = ativaEl ? !!ativaEl.checked : true;
   if (status) { status.textContent = '⏳ Salvando…'; status.style.color = 'var(--text2)'; }
   try {
-    const data = await API.call({ action: 'set_config_indicacao', pct, carencia_dias: dias });
+    const data = await API.call({ action: 'set_config_indicacao', pct, carencia_dias: dias, ativa: ativa ? 'true' : 'false' });
     if (data && data.ok) {
       if (status) { status.textContent = '✅ Salvo'; status.style.color = '#22C55E'; setTimeout(() => status.textContent = '', 2500); }
-      showToast('Configuração de indicação salva');
+      showToast(ativa ? 'Indicação ativa e config salva' : 'Sistema de indicação DESATIVADO');
+      _aplicarToggleIndicacaoUI(ativa);
     } else {
       if (status) { status.textContent = '⚠️ ' + (data?.erro || 'Erro'); status.style.color = '#FCA5A5'; }
     }
   } catch (e) {
     if (status) { status.textContent = '⚠️ Erro de conexão'; status.style.color = '#FCA5A5'; }
+  }
+}
+
+// Toggle inline (chamado pelo onchange do checkbox no HTML)
+function onToggleIndicacaoAtiva(el) {
+  _aplicarToggleIndicacaoUI(!!el.checked);
+}
+
+// ── FEATURE FLAGS (Recursos Opcionais) ───────────────────────────────────────
+async function carregarConfigFeatures() {
+  try {
+    const data = await API.call({ action: 'get_config_features' });
+    if (!data || !data.ok || !data.flags) return;
+    const map = {
+      'cfg-feat-pagina-produto':   'feature_pagina_produto',
+      'cfg-feat-fotos-produtos':   'feature_fotos_produtos',
+      'cfg-feat-informativos-novo':'feature_informativos_novo_layout',
+    };
+    Object.keys(map).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.checked = data.flags[map[id]] !== false; // default true
+    });
+  } catch (e) { /* silently */ }
+}
+
+async function salvarFeatureFlag(el) {
+  const chave = el.dataset.feature;
+  const valor = !!el.checked;
+  const status = document.getElementById('cfg-feat-status');
+  if (status) { status.textContent = '⏳ Salvando…'; status.style.color = 'var(--text2)'; }
+  el.disabled = true;
+  try {
+    const data = await API.call({ action: 'set_config_features', chave, valor: valor ? 'true' : 'false' });
+    if (data && data.ok) {
+      if (status) { status.textContent = '✅ ' + (valor ? 'Ativado' : 'Desativado'); status.style.color = '#22C55E'; setTimeout(() => { if (status) status.textContent = ''; }, 2500); }
+      showToast(valor ? 'Recurso ATIVADO' : 'Recurso DESATIVADO');
+    } else {
+      el.checked = !valor; // reverte UI
+      if (status) { status.textContent = '⚠️ ' + ((data && data.erro) || 'Erro ao salvar'); status.style.color = '#FCA5A5'; }
+    }
+  } catch (e) {
+    el.checked = !valor; // reverte UI
+    if (status) { status.textContent = '⚠️ Erro de conexão'; status.style.color = '#FCA5A5'; }
+  } finally {
+    el.disabled = false;
   }
 }
 
@@ -1142,6 +1217,7 @@ function renderConfig() {
   const stockEl = document.getElementById('cfg-stock-alert');
   if (stockEl) stockEl.value = String(getStockAlertThreshold());
   carregarConfigIndicacao();
+  carregarConfigFeatures();
   updateNotifStatus();
 
   const tbody = document.getElementById('admins-tbody');
@@ -2220,9 +2296,10 @@ function buildVariantesStr(prefix) {
     }).filter(Boolean).join('|');
 }
 
-// Preview ao vivo da imagem do produto no editor
-function previewImagemProduto(filename) {
-  const wrap = document.getElementById('ep-imagem-preview');
+// Preview ao vivo da imagem do produto no editor (ep) e no novo produto (np)
+function previewImagemProduto(filename, prefix) {
+  const pref = prefix || 'ep';
+  const wrap = document.getElementById(pref + '-imagem-preview');
   if (!wrap) return;
   const f = (filename || '').trim();
   if (!f) { wrap.innerHTML = '📦'; return; }
@@ -2244,8 +2321,14 @@ function abrirEditarProduto(prodId) {
     <form class="cfg-form" onsubmit="salvarProduto(event)">
       <div class="cfg-row">
         <div class="field-inline" style="flex:0 0 60px"><label>Ícone</label><input id="ep-icone" value="${escAttr(p.icone||'💊')}" maxlength="4" style="text-align:center;font-size:20px"/></div>
+        <div class="field-inline" style="flex:0 0 110px"><label>ID</label>
+          <input id="ep-id" value="${escAttr(p.id||'')}" style="font-family:monospace"/>
+        </div>
         <div class="field-inline"><label>Nome</label><input id="ep-nome" value="${escAttr(p.nome)}"/></div>
         <div class="field-inline"><label>Concentração / Dose</label><input id="ep-conc" value="${escAttr(p.conc||'')}"/></div>
+      </div>
+      <div style="font-size:.7rem;color:var(--text2);margin-top:-6px;line-height:1.3">
+        ⚠️ Mudar o <strong>ID</strong> quebra link com pedidos antigos. O protocolo é sincronizado automaticamente.
       </div>
       <div class="cfg-row">
         <div class="field-inline"><label>Preço Base (R$)</label><input type="number" step="0.01" id="ep-preco" value="${p.preco||0}" ${hasVariantes?'disabled':''}/>  </div>
@@ -2271,8 +2354,12 @@ function abrirEditarProduto(prodId) {
       <div class="cfg-row">
         <div class="field-inline" style="flex:0 0 240px">
           <label>Imagem (arquivo)</label>
-          <input id="ep-imagem" value="${escAttr(p.imagem||'')}" placeholder="bpc-157.webp"
-            oninput="previewImagemProduto(this.value)"/>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input id="ep-imagem" value="${escAttr(p.imagem||'')}" placeholder="bpc-157.webp"
+              oninput="previewImagemProduto(this.value,'ep')" style="flex:1"/>
+            <button type="button" class="btn-sm" title="Remover imagem"
+              onclick="document.getElementById('ep-imagem').value='';previewImagemProduto('','ep');">🗑</button>
+          </div>
           <small style="font-size:.7rem;color:var(--gray);margin-top:4px;display:block;line-height:1.3">
             Suba o arquivo em <code>assets/img/produtos/</code> no GitHub e coloque o nome aqui.
           </small>
@@ -2298,10 +2385,13 @@ function abrirEditarProduto(prodId) {
             <option value="false">Inativo</option>
           </select>
         </div>
-        <div class="field-inline" style="flex:0 0 auto;align-items:flex-end">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-            <input type="checkbox" id="ep-destaque" ${p.destaque==='sim'?'checked':''}/> Destaque
-          </label>
+        <div class="field-inline" style="flex:0 0 160px">
+          <label>Destaque</label>
+          <select id="ep-destaque">
+            <option value="" ${!p.destaque?'selected':''}>— Nenhum —</option>
+            <option value="destaque" ${p.destaque==='destaque'?'selected':''}>⭐ Destaque</option>
+            <option value="recomendado" ${p.destaque==='recomendado'?'selected':''}>👍 Recomendado</option>
+          </select>
         </div>
       </div>
 
@@ -2315,9 +2405,10 @@ function abrirEditarProduto(prodId) {
       </details>
 
       <div id="ep-status" class="cfg-status-msg"></div>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:8px;align-items:center">
         <button type="submit" class="btn-sm btn-accent">Salvar</button>
         <button type="button" class="btn-sm" onclick="closeModal()">Cancelar</button>
+        <button type="button" class="btn-sm btn-danger" style="margin-left:auto" onclick="apagarProdutoConfirm('${escAttr(prodId)}','${escAttr(p.nome||'')}')">🗑 Apagar</button>
       </div>
     </form>`);
   // Populate variant rows after modal renders
@@ -2333,6 +2424,9 @@ async function salvarProduto(e) {
   msg.textContent = 'Salvando...';
   if (!prodId) { msg.textContent = 'Erro: ID do produto não encontrado'; msg.style.color = 'var(--danger)'; return; }
   const params = { prod_id: prodId, id: prodId, rowNum: App.currentEditRow || '' };
+  // Mudança de ID: backend detecta e sincroniza com aba Protocolos.
+  const novoId = document.getElementById('ep-id')?.value.trim();
+  if (novoId && novoId !== prodId) params.novo_id = novoId;
   const nome = document.getElementById('ep-nome')?.value.trim(); if (nome) params.nome = nome;
   const conc = document.getElementById('ep-conc')?.value.trim(); if (conc !== undefined) params.conc = conc;
   const temVar = document.getElementById('ep-tem-variantes')?.checked;
@@ -2351,30 +2445,56 @@ async function salvarProduto(e) {
   const icone = document.getElementById('ep-icone')?.value.trim(); if (icone) params.icone = icone;
   const cat = document.getElementById('ep-categoria')?.value; if (cat !== undefined) params.categoria = cat;
   const tags = document.getElementById('ep-tags')?.value.trim(); if (tags !== undefined) params.tags = tags;
-  const img = document.getElementById('ep-imagem')?.value.trim(); if (img !== undefined) params.imagem = img;
-  // Destaque aceita 'destaque' ou 'recomendado' (ou vazio). Aqui é binário —
-  // checkbox marcado = 'destaque'. Pra 'recomendado' edita manualmente na planilha.
-  params.destaque = document.getElementById('ep-destaque')?.checked ? 'destaque' : '';
-  // Pós-save: verifica se a alteração realmente persistiu (proteção contra
-  // CORS no redirect do GAS que joga catch sem ter falhado de fato).
+  // Imagem é salva em chamada SEPARADA (endpoint dedicado salvar_imagem_produto)
+  // — não vai junto no editar_produto_completo pra evitar URL longa.
+  const novaImagem = document.getElementById('ep-imagem')?.value.trim();
+  const imagemAtual = (App.produtos.find(p => p.id === prodId)?.imagem || '').trim();
+  const imagemMudou = novaImagem !== undefined && novaImagem !== imagemAtual;
+  // Destaque: select com 3 opções (vazio | 'destaque' | 'recomendado')
+  const destEl = document.getElementById('ep-destaque');
+  if (destEl) params.destaque = destEl.value || '';
+  // Pós-save: verifica se a alteração textual realmente persistiu.
+  // Imagem é chamada à parte (endpoint dedicado), então não entra aqui.
   const verificarPersistencia = async () => {
     await loadProdutos();
+    const buscaId = (params.novo_id && params.novo_id !== prodId) ? params.novo_id : prodId;
     const atual = (App.produtos || []).find(p =>
-      String(p.prod_id || p.id || '') === String(prodId)
+      String(p.prod_id || p.id || '') === String(buscaId)
     );
     if (!atual) return false;
     if (params.nome && (atual.nome || '').trim() !== params.nome.trim()) return false;
     if (params.preco && String(atual.preco || '').replace(/\D/g,'') !== String(params.preco).replace(/\D/g,'')) return false;
+    if (params.destaque !== undefined && (atual.destaque || '').trim() !== params.destaque.trim()) return false;
     return true;
+  };
+
+  // Helper pra salvar imagem em chamada separada
+  const salvarImagemSeMudou = async () => {
+    if (!imagemMudou) return { ok: true, skipped: true };
+    msg.textContent = 'Salvando imagem...';
+    try {
+      const r = await API.salvarImagemProduto(
+        (params.novo_id && params.novo_id !== prodId) ? params.novo_id : prodId,
+        novaImagem
+      );
+      return r || { ok: false, erro: 'sem resposta' };
+    } catch(imgEx) {
+      return { ok: false, erro: 'conexão imagem' };
+    }
   };
 
   try {
     const data = await API.editarProduto(params);
     if (data && (data.ok || data._silent)) {
+      const imgRes = await salvarImagemSeMudou();
       const persistiu = await verificarPersistencia();
-      if (persistiu) {
+      if (persistiu && imgRes.ok) {
         showToast('Produto atualizado!');
         closeModal();
+        renderProdutos();
+      } else if (!imgRes.ok) {
+        msg.textContent = '⚠️ Texto salvo, mas imagem falhou: ' + (imgRes.erro || 'erro');
+        msg.style.color = 'var(--danger)';
         renderProdutos();
       } else {
         msg.textContent = '⚠️ Backend não confirmou alteração. Recarregue (F5) e verifique.';
@@ -2388,8 +2508,9 @@ async function salvarProduto(e) {
   } catch(ex) {
     // Network error pode ter salvo mesmo assim (CORS no redirect do GAS)
     try {
+      const imgRes = await salvarImagemSeMudou();
       const persistiu = await verificarPersistencia();
-      if (persistiu) {
+      if (persistiu && imgRes.ok) {
         showToast('Produto atualizado!');
         closeModal();
         renderProdutos();
@@ -2400,6 +2521,214 @@ async function salvarProduto(e) {
     msg.style.color = 'var(--danger)';
   }
 }
+
+// ── APAGAR PRODUTO ────────────────────────────────────────────────────────────
+async function apagarProdutoConfirm(prodId, nome) {
+  if (!prodId) return;
+  const label = nome ? `"${nome}" (${prodId})` : prodId;
+  if (!confirm('Apagar o produto ' + label + '?\n\nIsso apaga o produto E o protocolo. Pedidos antigos mantêm o histórico, mas perdem o link com este produto.\n\nAÇÃO IRREVERSÍVEL.')) return;
+  if (!confirm('Tem CERTEZA? Última confirmação.')) return;
+  try {
+    const data = await API.apagarProduto(prodId);
+    if (data && data.ok) {
+      showToast('Produto apagado.');
+      closeModal && closeModal();
+      await loadProdutos();
+      renderProdutos();
+    } else {
+      alert('Erro ao apagar: ' + ((data && data.erro) || 'falha desconhecida'));
+    }
+  } catch(ex) {
+    alert('Erro de conexão ao apagar.');
+  }
+}
+
+// ── CONTEXT MENU CUSTOMIZADO ──────────────────────────────────────────────────
+// Substitui o menu do navegador por opções do site.
+// Uso: showContextMenu(event, [{icon:'✏️', label:'Editar', action: fn}, {divider:true}, {icon:'🗑', label:'Apagar', danger:true, action: fn}])
+function showContextMenu(e, items) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.querySelectorAll('.ctx-menu').forEach(m => m.remove());
+  if (!items || !items.length) return;
+
+  const menu = document.createElement('div');
+  menu.className = 'ctx-menu';
+  items.forEach(it => {
+    if (it.divider) {
+      const d = document.createElement('div');
+      d.className = 'ctx-menu-divider';
+      menu.appendChild(d);
+      return;
+    }
+    const li = document.createElement('div');
+    li.className = 'ctx-menu-item' + (it.danger ? ' danger' : '') + (it.disabled ? ' disabled' : '');
+    li.innerHTML = '<span class="ctx-icon">' + (it.icon || '•') + '</span><span>' + it.label + '</span>';
+    if (!it.disabled) {
+      li.addEventListener('click', function() {
+        menu.remove();
+        try { it.action && it.action(); } catch(err) { console.error(err); }
+      });
+    }
+    menu.appendChild(li);
+  });
+  document.body.appendChild(menu);
+
+  // Posicionar — ajusta se sair da viewport
+  const w = menu.offsetWidth, h = menu.offsetHeight;
+  let x = e.clientX, y = e.clientY;
+  if (x + w > window.innerWidth)  x = window.innerWidth  - w - 8;
+  if (y + h > window.innerHeight) y = window.innerHeight - h - 8;
+  menu.style.left = x + 'px';
+  menu.style.top  = y + 'px';
+
+  // Fechar ao clicar fora ou pressionar Esc
+  function close(ev) {
+    if (ev && menu.contains(ev.target)) return;
+    menu.remove();
+    document.removeEventListener('mousedown', close);
+    document.removeEventListener('contextmenu', close);
+    document.removeEventListener('keydown', escClose);
+    window.removeEventListener('scroll', close, true);
+    window.removeEventListener('resize', close);
+  }
+  function escClose(ev) { if (ev.key === 'Escape') close(); }
+  setTimeout(() => {
+    document.addEventListener('mousedown', close);
+    document.addEventListener('contextmenu', close);
+    document.addEventListener('keydown', escClose);
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+  }, 0);
+}
+
+// Acopla um listener contextmenu (right-click) num elemento, recebendo um
+// builder que retorna os items dinamicamente (pra usar valores atualizados).
+function bindContextMenu(el, itemsBuilder) {
+  if (!el) return;
+  el.addEventListener('contextmenu', function(e) {
+    const items = (typeof itemsBuilder === 'function') ? itemsBuilder(e) : itemsBuilder;
+    showContextMenu(e, items);
+  });
+}
+
+// ── HELPERS DE AÇÃO RÁPIDA ────────────────────────────────────────────────────
+async function toggleAtivoProduto(prodId, ativar) {
+  try {
+    const data = await API.editarProduto({ prod_id: prodId, id: prodId, ativo: ativar ? 'true' : 'false' });
+    if (data && (data.ok || data._silent)) {
+      showToast(ativar ? 'Produto ativado' : 'Produto desativado');
+      await loadProdutos();
+      renderProdutos();
+    } else {
+      alert('Erro: ' + ((data && data.erro) || 'falha'));
+    }
+  } catch(ex) { alert('Erro de conexão'); }
+}
+
+async function copiarParaClipboard(texto) {
+  try {
+    await navigator.clipboard.writeText(texto);
+    showToast('Copiado!');
+  } catch(_) {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = texto; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); showToast('Copiado!'); } catch(__) {}
+    ta.remove();
+  }
+}
+
+// Builders de menu por entidade (chamados via right-click nos cards)
+function menuItemsProduto(prod) {
+  return [
+    { icon: '✏️',  label: 'Editar',          action: () => abrirEditarProduto(prod.id) },
+    { icon: '📋',  label: 'Copiar ID',       action: () => copiarParaClipboard(prod.id) },
+    { divider: true },
+    { icon: prod.ativo === false ? '✅' : '⏸',
+      label: prod.ativo === false ? 'Ativar' : 'Desativar',
+      action: () => toggleAtivoProduto(prod.id, prod.ativo === false) },
+    { icon: '📝',  label: 'Editar protocolo', action: () => (typeof abrirEditarProtocolo === 'function') && abrirEditarProtocolo(prod.id) },
+    { divider: true },
+    { icon: '🗑',  label: 'Apagar produto',  danger: true,
+      action: () => apagarProdutoConfirm(prod.id, prod.nome) },
+  ];
+}
+
+function menuItemsPedido(order) {
+  const tel = order && order.telefone ? order.telefone.replace(/\D/g,'') : '';
+  return [
+    { icon: '👁',  label: 'Ver detalhes',       action: () => openDrawer && openDrawer(order.id) },
+    { icon: '📋',  label: 'Copiar nº do pedido', action: () => copiarParaClipboard(String(order.id)) },
+    { divider: true },
+    { icon: '💬',  label: 'WhatsApp cliente',    action: () => tel ? window.open('https://wa.me/55'+tel, '_blank') : alert('Sem telefone'),
+      disabled: !tel },
+    { divider: true },
+    { icon: '🏷',  label: 'Editar nota interna', action: () => openDrawer && openDrawer(order.id) },
+  ];
+}
+
+function menuItemsCliente(cli) {
+  const docu = cli && (cli.documento || cli.cpfCnpj || '') || '';
+  const tel  = cli && cli.telefone ? cli.telefone.replace(/\D/g,'') : '';
+  return [
+    { icon: '✏️',  label: 'Editar',          action: () => (typeof abrirEditarCliente === 'function') && abrirEditarCliente(cli) },
+    { icon: '📦',  label: 'Ver pedidos',     action: () => (typeof verPedidosCliente === 'function') && verPedidosCliente(docu) },
+    { divider: true },
+    { icon: '💬',  label: 'WhatsApp',        action: () => tel ? window.open('https://wa.me/55'+tel, '_blank') : alert('Sem telefone'),
+      disabled: !tel },
+    { icon: '📋',  label: 'Copiar email',    action: () => copiarParaClipboard(cli.email || '') },
+    { divider: true },
+    { icon: '🗑',  label: 'Apagar cliente',  danger: true,
+      action: () => (typeof apagarClienteConfirm === 'function')
+        ? apagarClienteConfirm(docu, cli.email)
+        : confirm('Apagar ' + (cli.nome||cli.clinica||'cliente') + '?') && API.apagarCliente(docu, cli.email).then(() => loadClientes().then(() => (typeof renderClientes === 'function') && renderClientes())) },
+  ];
+}
+
+function menuItemsProtocolo(prod) {
+  return [
+    { icon: '✏️',  label: 'Editar protocolo', action: () => (typeof abrirEditarProtocolo === 'function') && abrirEditarProtocolo(prod.id) },
+    { icon: '💊',  label: 'Editar produto',  action: () => abrirEditarProduto(prod.id) },
+    { divider: true },
+    { icon: '📋',  label: 'Copiar ID',       action: () => copiarParaClipboard(prod.id) },
+  ];
+}
+
+// Acopla via event delegation no document — funciona pra cards renderizados depois
+document.addEventListener('contextmenu', function(e) {
+  // Produto card
+  const pCard = e.target.closest('[data-prod-id]');
+  if (pCard) {
+    const id = pCard.getAttribute('data-prod-id');
+    const prod = (App.produtos || []).find(p => String(p.id) === String(id));
+    if (prod) return showContextMenu(e, menuItemsProduto(prod));
+  }
+  // Pedido card
+  const oCard = e.target.closest('.kanban-card[onclick*="openDrawer"]');
+  if (oCard) {
+    const m = oCard.getAttribute('onclick').match(/openDrawer\((\d+)\)/);
+    if (m) {
+      const id = parseInt(m[1]);
+      const order = (App.pedidos || []).find(p => p.id === id);
+      if (order) return showContextMenu(e, menuItemsPedido(order));
+    }
+  }
+  // Cliente row
+  const cRow = e.target.closest('[data-cli-doc]');
+  if (cRow) {
+    const docu = cRow.getAttribute('data-cli-doc');
+    const cli  = (App.clientes || []).find(c => String(c.documento||c.cpfCnpj||'') === String(docu));
+    if (cli) return showContextMenu(e, menuItemsCliente(cli));
+  }
+  // Protocolo row
+  const ptRow = e.target.closest('[data-proto-id]');
+  if (ptRow) {
+    const id = ptRow.getAttribute('data-proto-id');
+    const prod = (App.produtos || []).find(p => String(p.id) === String(id));
+    if (prod) return showContextMenu(e, menuItemsProtocolo(prod));
+  }
+});
 
 // ── PROTOCOLOS ────────────────────────────────────────────────────────────────
 function setProtoFilter(btn) {
@@ -2424,7 +2753,7 @@ function renderProtocolos() {
   }
   grid.innerHTML = lista.map(p => {
     const temProto = !!(App.protocolos && App.protocolos[p.id]);
-    return `<div class="proto-card">
+    return `<div class="proto-card" data-proto-id="${escAttr(p.id)}" title="Right-click pra mais opções">
       <div class="proto-card-icon">${p.icone||'💊'}</div>
       <div class="proto-card-nome">${esc(p.nome)}</div>
       <div class="proto-card-conc">${esc(p.conc||'')}</div>
@@ -2815,6 +3144,29 @@ function abrirNovoProduto() {
           <input id="np-tags" placeholder="ex: tag1, tag2"/></div>
       </div>
 
+      <div class="cfg-row">
+        <div class="field-inline" style="flex:0 0 240px">
+          <label>Imagem (arquivo)</label>
+          <input id="np-imagem" placeholder="bpc-157.webp"
+            oninput="previewImagemProduto(this.value,'np')"/>
+          <small style="font-size:.7rem;color:var(--gray);margin-top:4px;display:block;line-height:1.3">
+            Suba o arquivo em <code>assets/img/produtos/</code> no GitHub e coloque o nome aqui.
+          </small>
+        </div>
+        <div class="field-inline" style="flex:0 0 88px;align-items:center">
+          <label>Preview</label>
+          <div id="np-imagem-preview" style="width:72px;height:72px;border-radius:10px;background:var(--input-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:1.6rem">📦</div>
+        </div>
+        <div class="field-inline" style="flex:0 0 160px">
+          <label>Destaque</label>
+          <select id="np-destaque">
+            <option value="">— Nenhum —</option>
+            <option value="destaque">⭐ Destaque</option>
+            <option value="recomendado">👍 Recomendado</option>
+          </select>
+        </div>
+      </div>
+
       <div class="var-section">
         <label class="var-toggle-label">
           <input type="checkbox" id="np-tem-variantes" onchange="toggleVariantEditor(this,'np')"/>
@@ -2852,6 +3204,8 @@ async function salvarNovoProduto(e) {
     variantes: temVar ? buildVariantesStr('np') : '',
     categoria: document.getElementById('np-categoria').value,
     tags:      document.getElementById('np-tags').value.trim(),
+    imagem:    document.getElementById('np-imagem')?.value.trim() || '',
+    destaque:  document.getElementById('np-destaque')?.value || '',
   };
   try {
     const data = await API.criarProduto(params);

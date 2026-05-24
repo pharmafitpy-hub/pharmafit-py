@@ -2,6 +2,7 @@
 let CATALOG   = [];
 let catAtiva  = '';
 let queryAtiva = '';
+let FLAGS     = { feature_pagina_produto: true, feature_fotos_produtos: true };
 
 // ── ESCAPE HTML ──
 function esc(s) {
@@ -16,8 +17,18 @@ window.onload = init;
 
 async function init() {
   try {
-    const res  = await fetch(`${SHEETS_URL}?action=produtos`);
-    CATALOG    = await res.json();
+    // Carrega feature flags em paralelo com produtos
+    const [resProd, resCfg] = await Promise.all([
+      fetch(`${SHEETS_URL}?action=produtos`),
+      fetch(`${SHEETS_URL}?action=get_config_features`).catch(() => null),
+    ]);
+    CATALOG = await resProd.json();
+    if (resCfg) {
+      try {
+        const cfg = await resCfg.json();
+        if (cfg && cfg.ok && cfg.flags) Object.assign(FLAGS, cfg.flags);
+      } catch (e) { /* mantém defaults */ }
+    }
     document.getElementById('loadingMsg').style.display = 'none';
     document.getElementById('catalogGrid').style.display = '';
     buildChips();
@@ -160,10 +171,21 @@ function buildCard(p) {
       <div class="variants-list">${rows}</div>`;
   }
 
+  // Foto opcional (feature_fotos_produtos) — fallback emoji se 404
+  const temFoto = FLAGS.feature_fotos_produtos !== false && p.foto;
+  const iconHtml = temFoto
+    ? `<img class="card-foto" src="assets/img/produtos/${escAttr(p.foto)}" alt="${escAttr(p.nome)}" loading="lazy" onerror="this.outerHTML='<div class=\\'card-icon\\'>${esc(p.icone || '💊').replace(/'/g,'&apos;')}</div>'"/>`
+    : `<div class="card-icon">${esc(p.icone || '💊')}</div>`;
+
+  // Link pra página de produto (feature_pagina_produto)
+  const linkDetalhes = FLAGS.feature_pagina_produto !== false && p.id
+    ? `<a href="produto.html?id=${escAttr(p.id)}" class="card-link-detalhes">Ver detalhes →</a>`
+    : '';
+
   return `
     <div class="card${promo ? ' em-promo' : ''}">
       <div class="card-head">
-        <div class="card-icon">${esc(p.icone || '💊')}</div>
+        ${iconHtml}
         <div class="card-info">
           <div class="card-name">${esc(p.nome)}</div>
           ${p.conc ? `<div class="card-conc">${esc(p.conc)}</div>` : ''}
@@ -176,6 +198,7 @@ function buildCard(p) {
         ${priceHtml}
         ${badgeHtml}
       </div>
+      ${linkDetalhes}
     </div>`;
 }
 
