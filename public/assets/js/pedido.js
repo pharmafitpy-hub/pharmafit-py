@@ -665,6 +665,39 @@ function _aplicarComoCupom(codigo) {
         const n = Object.keys(cart).filter(k => { const b = k.split('__')[0]; return prods.includes(k) || prods.includes(b); }).length;
         msgTxt = `✅ Cupom <strong>${esc(codigo)}</strong> aplicado! ${esc(cupomData.valor)}% em ${n || prods.length} produto(s)${descStr}.`;
       }
+    } else if (cupomData.tipo === 'combo') {
+      // Verifica se carrinho atende: n_combos = floor(min(qty de cada item))
+      const itensCombo = cupomData.itens || [];
+      const qtyPorItem = {};
+      itensCombo.forEach(id => qtyPorItem[id] = 0);
+      Object.entries(cart).forEach(([key, qty]) => {
+        if (cupomData.modo === 'variante') {
+          if (qtyPorItem[key] !== undefined) qtyPorItem[key] += qty;
+        } else {
+          const bid = key.split('__')[0];
+          if (qtyPorItem[bid] !== undefined) qtyPorItem[bid] += qty;
+        }
+      });
+      const qtys = Object.values(qtyPorItem);
+      const nCombos = qtys.length > 0 ? Math.min.apply(null, qtys) : 0;
+
+      if (nCombos === 0) {
+        // Combo incompleto — não aplica + lista o que falta
+        const faltantes = itensCombo.filter(id => qtyPorItem[id] === 0);
+        const nomesFaltantes = faltantes.map(id => {
+          const baseId = id.split('__')[0];
+          const p = (typeof PRODUTOS !== 'undefined' && Array.isArray(PRODUTOS))
+            ? PRODUTOS.find(x => x.id === baseId) : null;
+          return p ? p.nome : baseId;
+        });
+        cupomAplicado = false; cupomCodigo = ''; cupomDesconto = 0; cupomData = null;
+        document.getElementById('f_codigo').disabled   = false;
+        document.getElementById('btn-codigo').disabled = false;
+        msg.innerHTML = `<div class="cupom-err">⚠️ Cupom combo precisa de <strong>${itensCombo.length} produtos</strong> diferentes. Falta(m): <strong>${nomesFaltantes.map(esc).join(', ')}</strong>. Adicione ao carrinho pra ativar.</div>`;
+        buildReview();
+        return;
+      }
+      msgTxt = `✅ Combo <strong>${esc(codigo)}</strong> aplicado! ${nCombos}× combo${nCombos > 1 ? 's' : ''} (${itensCombo.length} produtos cada)${descStr}.`;
     } else {
       const precos = cupomData.precos || {};
       const n = Object.keys(cart).filter(k => { const b = k.split('__')[0]; return precos[k] !== undefined || precos[b] !== undefined; }).length;
@@ -727,6 +760,37 @@ function calcularDescontoCupom() {
       }
     });
     return desc;
+  }
+  if (cupomData.tipo === 'combo') {
+    const itensCombo = cupomData.itens || [];
+    if (itensCombo.length < 2) return 0;
+
+    const qtyPorItem = {};
+    itensCombo.forEach(id => qtyPorItem[id] = 0);
+    Object.entries(cart).forEach(([key, qty]) => {
+      if (cupomData.modo === 'variante') {
+        if (qtyPorItem[key] !== undefined) qtyPorItem[key] += qty;
+      } else {
+        const bid = key.split('__')[0];
+        if (qtyPorItem[bid] !== undefined) qtyPorItem[bid] += qty;
+      }
+    });
+    const qtys = Object.values(qtyPorItem);
+    const nCombos = qtys.length > 0 ? Math.min.apply(null, qtys) : 0;
+    if (nCombos === 0) return 0;
+
+    let precoNormalUmCombo = 0;
+    itensCombo.forEach(id => { precoNormalUmCombo += (getPriceByKey(id) || 0); });
+
+    let precoComboDesc = 0;
+    if (cupomData.precoFinal > 0) {
+      precoComboDesc = cupomData.precoFinal;
+    } else {
+      const indiv = cupomData.precosIndiv || {};
+      itensCombo.forEach(id => { precoComboDesc += (indiv[id] || 0); });
+    }
+
+    return Math.max(0, precoNormalUmCombo - precoComboDesc) * nCombos;
   }
   return 0;
 }

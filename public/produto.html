@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Produto · Sua Empresa</title>
+<meta property="og:title" content="Produto · Sua Empresa" />
+<meta property="og:type"  content="website" />
+<link rel="stylesheet" href="assets/css/theme.css" />
+<link rel="stylesheet" href="assets/css/pedido.css" />
+<link rel="stylesheet" href="assets/css/produto.css" />
+<link rel="stylesheet" href="assets/css/produto-theme.css" />
+</head>
+<body>
+
+<header class="produto-header">
+  <a href="index.html" class="produto-logo-link">
+    <img src="assets/img/logo.png" alt="Sua Empresa" class="produto-logo" />
+  </a>
+  <div class="produto-header-right">
+    <a href="pedido.html" class="produto-header-btn">📋 Catálogo</a>
+    <a href="pedido.html#carrinho" class="produto-header-btn">🛒 Carrinho</a>
+  </div>
+</header>
+
+<main class="produto-main">
+
+  <!-- BREADCRUMB -->
+  <div class="produto-breadcrumb">
+    <a href="index.html">Início</a>
+    <span>›</span>
+    <a href="pedido.html">Catálogo</a>
+    <span>›</span>
+    <span id="bc-categoria">…</span>
+    <span>›</span>
+    <span id="bc-produto" class="produto-bc-current">Carregando…</span>
+  </div>
+
+  <!-- LOADING -->
+  <div class="produto-loading" id="produto-loading">
+    ⏳ Carregando produto…
+  </div>
+
+  <!-- ERRO (produto não encontrado) -->
+  <div class="produto-erro" id="produto-erro" style="display:none">
+    <div class="produto-erro-icon">😕</div>
+    <div class="produto-erro-title">Produto não encontrado</div>
+    <div class="produto-erro-sub">Ele pode ter sido removido ou desativado.</div>
+    <a href="pedido.html" class="btn btn-next" style="margin-top:14px;display:inline-block">← Voltar ao catálogo</a>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div class="produto-wrap" id="produto-wrap" style="display:none">
+
+    <!-- COLUNA ESQUERDA — GALERIA -->
+    <div class="produto-gallery">
+      <div class="produto-image-main" id="produto-image-main">
+        <div class="img-placeholder tone-0"><span class="ph-icon">📦</span></div>
+      </div>
+      <div class="produto-badges" id="produto-badges"></div>
+    </div>
+
+    <!-- COLUNA DIREITA — INFO -->
+    <div class="produto-info">
+      <div class="produto-lab" id="produto-lab"></div>
+      <h1 class="produto-name" id="produto-name">…</h1>
+      <div class="produto-conc" id="produto-conc"></div>
+
+      <!-- PREÇO -->
+      <div class="produto-price-block" id="produto-price-block"></div>
+
+      <!-- VARIANTES (se houver) -->
+      <div class="produto-variantes" id="produto-variantes" style="display:none">
+        <div class="produto-variantes-label">Selecione a dose:</div>
+        <div class="produto-variantes-list" id="produto-variantes-list"></div>
+      </div>
+
+      <!-- QUANTIDADE + ADICIONAR -->
+      <div class="produto-qty-row">
+        <div class="produto-qty-control">
+          <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+          <input type="number" id="produto-qty" value="1" min="1" />
+          <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+        <button class="btn btn-next produto-btn-add" id="produto-btn-add" onclick="addAoCarrinho()">
+          🛒 Adicionar ao carrinho
+        </button>
+      </div>
+
+      <!-- TAGS -->
+      <div class="produto-tags" id="produto-tags"></div>
+
+      <!-- INFO SECUNDÁRIA -->
+      <div class="produto-meta">
+        <div class="produto-meta-item">
+          <span class="produto-meta-icon">📦</span>
+          <span id="produto-estoque">Estoque: —</span>
+        </div>
+        <div class="produto-meta-item">
+          <span class="produto-meta-icon">🏷️</span>
+          <span id="produto-categoria-label">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABAS DESCRIÇÃO / PROTOCOLO -->
+  <div class="produto-tabs-wrap" id="produto-tabs-wrap" style="display:none">
+    <div class="produto-tabs">
+      <button class="produto-tab active" data-tab="descricao" onclick="setTab('descricao')">Descrição</button>
+      <button class="produto-tab" data-tab="protocolo" onclick="setTab('protocolo')">Protocolo</button>
+    </div>
+    <div class="produto-tab-content" id="tab-descricao">
+      <div id="produto-descricao-body">—</div>
+    </div>
+    <div class="produto-tab-content" id="tab-protocolo" style="display:none">
+      <div id="produto-protocolo-body">—</div>
+    </div>
+  </div>
+
+  <!-- PRODUTOS RELACIONADOS -->
+  <section class="produto-relacionados-section" id="produto-relacionados-section" style="display:none">
+    <h2 class="produto-relacionados-title">Produtos relacionados</h2>
+    <div class="produto-relacionados-grid" id="produto-relacionados-grid"></div>
+  </section>
+
+</main>
+
+<footer class="produto-footer">
+  <span>© <span data-client-name>Sua Empresa</span> · Catálogo B2B</span>
+</footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/produto.js"></script>
+<script src="assets/js/informativo.js"></script>
+</body>
+</html>

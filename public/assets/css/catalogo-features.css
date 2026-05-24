@@ -1,0 +1,44 @@
+/*
+ * catalogo-features.css
+ * Estilos pras features novas do card do catálogo:
+ *   - .card-foto              → foto JPEG do produto (feature_fotos_produtos)
+ *   - .card-link-detalhes     → link "Ver detalhes →" (feature_pagina_produto)
+ *
+ * Usa só var(--...) — respeita o theme.css de cada site.
+ * Carregar DEPOIS de catalogo_interno.css no <head>.
+ */
+
+.card-foto {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  display: block;
+}
+
+.card-link-detalhes {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: background .15s, border-color .15s;
+}
+.card-link-detalhes:hover {
+  background: rgba(245,158,11,0.08);
+  border-color: var(--accent);
+}
+
+@media (max-width: 480px) {
+  .card-foto { width: 48px; height: 48px; border-radius: 8px; }
+}

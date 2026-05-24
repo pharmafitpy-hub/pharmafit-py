@@ -2396,17 +2396,28 @@ header span.required-mark { color: #F59E0B !important; }
 .cat-tile-name, .rec-card-name, .pay-name, .fo-name { color: #FFFFFF !important; }
 .cat-tile-count, .rec-card-conc, .pay-desc, .fo-days { color: rgba(255,255,255,0.65) !important; }
 .rec-card-price { color: #F59E0B !important; }
-/* Modais/popups continuam claros pra leitura */
+/* Popups auxiliares ainda claros (cart, login, success) */
 .success-screen,
 .cart-expanded,
-.proto-modal-body,
-.modal,
 .lp-wrap,
 .lp-logado-bar {
   background: #FFFFFF !important;
   border-color: rgba(255,255,255,0.15) !important;
   color: #1A2530 !important;
   box-shadow: 0 12px 40px rgba(0,0,0,0.5) !important;
+}
+/* Modal "Saber mais" e demais modais: fundo dark do tema pra integrar com o site */
+.modal,
+.proto-modal-body {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5) !important;
+}
+.modal h2, .modal h3, .modal h4, .modal p,
+.proto-modal-body h2, .proto-modal-body h3, .proto-modal-body h4, .proto-modal-body p,
+.proto-modal-body div, .proto-modal-body span {
+  color: var(--text) !important;
 }
 /* Títulos de seção sobre o fundo petrol */
 .cat-section-title, .catalog-title h2, .rec-section h2 { color: #FFFFFF !important; }
@@ -2460,8 +2471,10 @@ input::placeholder, textarea::placeholder { color: #94a3b8 !important; }
 .ce-qty { background: #F4F6F7 !important; border-color: #BFD7E5 !important; }
 .ce-qty-val { color: #1A2530 !important; }
 /* Modais */
-.modal-header, .modal-overlay .modal { color: #1A2530 !important; }
-.modal-header { border-bottom-color: #BFD7E5 !important; }
+.modal-header, .modal-overlay .modal { color: var(--text) !important; }
+.modal-header { border-bottom-color: var(--border) !important; }
+.modal-close { color: var(--gray) !important; }
+.modal-close:hover { color: var(--text) !important; }
 /* Cupom/código */
 .cupom-row input, #f_codigo {
   background: #FFFFFF !important; border: 1px solid #BFD7E5 !important; color: #1A2530 !important;

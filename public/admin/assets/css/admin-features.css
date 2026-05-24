@@ -1,0 +1,80 @@
+/*
+ * admin-features.css
+ * Estilos pras features novas do admin:
+ *   - .card-total-2lines / .ct-vista / .ct-cartao  → total à vista + cartão no card
+ *   - .fin-total-cartao                            → total com juros no drawer
+ *
+ * Usa só var(--...) — respeita o theme.css.
+ * Carregar DEPOIS de admin.css no <head>.
+ */
+
+.card-total-2lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+.card-total-2lines .ct-vista {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--accent);
+  line-height: 1.1;
+}
+.card-total-2lines .ct-cartao {
+  font-size: 0.72rem;
+  color: var(--gray);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.fin-total-cartao {
+  border-top: 1px dashed var(--border);
+  margin-top: 4px;
+  padding-top: 8px;
+}
+.fin-total-cartao strong {
+  color: var(--accent) !important;
+}
+
+/* ── Desconto pós-venda ─────────────────────────────────────────────────── */
+.fin-desc-pos {
+  background: rgba(245,158,11,0.10);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-top: 4px;
+  color: var(--accent) !important;
+}
+.fin-desc-pos strong {
+  color: var(--accent) !important;
+  font-weight: 800;
+}
+.fin-total-efetivo {
+  border-top: 2px solid var(--accent);
+  margin-top: 6px;
+  padding-top: 10px;
+  font-size: 1.05rem;
+}
+.fin-total-efetivo strong {
+  color: var(--accent) !important;
+  font-size: 1.15rem;
+}
+
+.fin-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+.btn-desc-pos {
+  flex: 0 0 auto;
+}
+.btn-ghost {
+  background: transparent !important;
+  border: 1px solid var(--border) !important;
+  color: var(--gray) !important;
+}
+.btn-ghost:hover {
+  border-color: var(--accent) !important;
+  color: var(--text) !important;
+}
