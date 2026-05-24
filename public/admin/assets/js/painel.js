@@ -414,17 +414,42 @@ function toggleDevZone(header) {
 function getWaMsg(order) {
   const nome = order.responsavel || order.clinica || 'cliente';
   const id = '#' + order.id;
+  const empresa = (typeof CLIENT !== 'undefined' && CLIENT && CLIENT.name) ? CLIENT.name : 'nossa equipe';
+  const assinatura = `\n\n— Equipe ${empresa}`;
   const msgs = {
-    'Novo':            `Olá ${nome}! 👋 Recebemos seu pedido ${id} e em breve confirmaremos o pagamento. Obrigado pela confiança!`,
-    'Pag. Confirmado': `Olá ${nome}! ✅ Confirmamos o pagamento do pedido ${id}. Estamos preparando tudo com cuidado!`,
-    'Em Separação':    `Olá ${nome}! 📋 Estamos separando os itens do pedido ${id}. Em breve estará embalado!`,
-    'Embalado':        `Olá ${nome}! 📦 Seu pedido ${id} foi embalado e está pronto para envio!`,
-    'Etiqueta Gerada': `Olá ${nome}! 🏷️ A etiqueta do pedido ${id} foi gerada. Aguardando coleta!`,
-    'Enviado':         `Olá ${nome}! 🚚 Seu pedido ${id} foi enviado!${order.rastreio ? `\nRastreio: *${order.rastreio}*\nhttps://rastreamento.correios.com.br/app/resultado.app?objeto=${order.rastreio}` : ''} Em breve chegará até você!`,
-    'Entregue':        `Olá ${nome}! 🎉 Confirmamos a entrega do pedido ${id}. Esperamos que tudo chegou perfeitamente! Qualquer dúvida estamos à disposição.`,
-    'Cancelado':       `Olá ${nome}, o pedido ${id} foi cancelado. Em caso de dúvidas, entre em contato conosco.`,
+    'Novo':            `Olá ${nome}! 👋 Recebemos seu pedido ${id} e em breve confirmaremos o pagamento. Obrigado pela confiança!${assinatura}`,
+    'Pag. Confirmado': `Olá ${nome}! ✅ Confirmamos o pagamento do pedido ${id}. Estamos preparando tudo com cuidado!${assinatura}`,
+    'Em Separação':    `Olá ${nome}! 📋 Estamos separando os itens do pedido ${id}. Em breve estará embalado!${assinatura}`,
+    'Embalado':        `Olá ${nome}! 📦 Seu pedido ${id} foi embalado e está pronto para envio!${assinatura}`,
+    'Etiqueta Gerada': `Olá ${nome}! 🏷️ A etiqueta do pedido ${id} foi gerada. Aguardando coleta!${assinatura}`,
+    'Enviado':         `Olá ${nome}! 🚚 Seu pedido ${id} foi enviado!${order.rastreio ? `\nRastreio: *${order.rastreio}*\nhttps://rastreamento.correios.com.br/app/resultado.app?objeto=${order.rastreio}` : ''} Em breve chegará até você!${assinatura}`,
+    'Entregue':        `Olá ${nome}! 🎉 Confirmamos a entrega do pedido ${id}. Esperamos que tudo chegou perfeitamente! Qualquer dúvida estamos à disposição.${assinatura}`,
+    'Cancelado':       `Olá ${nome}, o pedido ${id} foi cancelado. Em caso de dúvidas, entre em contato conosco.${assinatura}`,
   };
-  return msgs[order.status] || `Olá ${nome}! Atualização sobre o pedido ${id}.`;
+  return msgs[order.status] || `Olá ${nome}! Atualização sobre o pedido ${id}.${assinatura}`;
+}
+
+// Helper compacto pro card: detecta juros no campo `parcelas` e retorna
+// { temJuros, totalComJuros }. Casos cobertos:
+//   "3x de R$ 229,39"       (formato real — calcula via parcelas × valor)
+//   "3x (2.5% juros)"       (formato com pct)
+//   "3x sem juros" / "3x"   (sem juros)
+function _calcJurosCard(parcelasStr, totalVista) {
+  const s = String(parcelasStr || '');
+  const mPct  = s.match(/(\d+)x.*?\((\d+(?:[.,]\d+)?)%\s*juros\)/i);
+  const mVal  = s.match(/(\d+)x\s+de\s+R?\$?\s*(\d+(?:\.\d{3})*(?:[.,]\d{1,2})?)/i);
+  if (mPct) {
+    const pct = parseFloat(mPct[2].replace(',','.'));
+    const totalCom = totalVista * (1 + pct/100);
+    return { temJuros: totalCom - totalVista > 0.01, totalComJuros: totalCom };
+  }
+  if (mVal) {
+    const parcN  = parseInt(mVal[1]);
+    const vParc  = parseFloat(mVal[2].replace(/\./g,'').replace(',','.'));
+    const totalCom = parcN * vParc;
+    return { temJuros: totalCom - totalVista > 0.01, totalComJuros: totalCom };
+  }
+  return { temJuros: false, totalComJuros: totalVista };
 }
 
 function renderCard(order) {
@@ -441,6 +466,16 @@ function renderCard(order) {
     ? next.replace('Pag. Confirmado','Confirmar Pag.').replace('Etiqueta Gerada','Gerar Etiqueta')
     : '';
 
+  // Mostra "à vista R$ X · cartão R$ Y" quando o parcelamento tem juros
+  const totalVista = parseFloat(String(order.total || '0').replace(',','.')) || 0;
+  const jurosInfo  = _calcJurosCard(order.parcelas, totalVista);
+  const totalHtml  = jurosInfo.temJuros
+    ? `<div class="card-total card-total-2lines">
+         <span class="ct-vista">${formatMoeda(totalVista)}</span>
+         <span class="ct-cartao">cartão ${formatMoeda(jurosInfo.totalComJuros)}</span>
+       </div>`
+    : `<div class="card-total">${formatMoeda(totalVista)}</div>`;
+
   return `
     <div class="kanban-card${stuck ? ' card-stuck' : ''}${isDev ? ' card-dev' : ''}"
       draggable="true"
@@ -455,7 +490,7 @@ function renderCard(order) {
       <div class="card-clinica">${esc(order.clinica)}</div>
       <div class="card-prod">${esc(preview)}</div>
       ${extras}
-      <div class="card-total">${formatMoeda(order.total)}</div>
+      ${totalHtml}
       <div class="card-footer">
         <span class="card-pag">${esc(order.pagamento || '')}</span>
         <span class="card-tempo${stuck ? ' tempo-alert' : ''}">${tempo}</span>
@@ -669,9 +704,10 @@ function renderDrawer(order) {
   const addrParts = [order.endereco, order.cidade, order.estado ? `— ${order.estado}` : '', order.cep ? `CEP ${order.cep}` : '']
     .filter(Boolean).join(', ');
 
+  const _empresa = (typeof CLIENT !== 'undefined' && CLIENT && CLIENT.name) ? CLIENT.name : 'nossa equipe';
   const waRastreioHref = order.rastreio && order.telefone
     ? `https://wa.me/55${order.telefone.replace(/\D/g,'')}?text=${encodeURIComponent(
-        `Olá ${order.clinica}! 📦\nSeu pedido foi enviado!\nRastreio: *${order.rastreio}*\nAcompanhe em: https://rastreamento.correios.com.br/app/resultado.app?objeto=${order.rastreio}`
+        `Olá ${order.clinica}! 📦\nSeu pedido foi enviado!\nRastreio: *${order.rastreio}*\nAcompanhe em: https://rastreamento.correios.com.br/app/resultado.app?objeto=${order.rastreio}\n\n— Equipe ${_empresa}`
       )}`
     : null;
 
@@ -698,9 +734,13 @@ function renderDrawer(order) {
       <div class="drawer-section">
         <h3>📋 Produtos</h3>
         <table class="items-table">
-          <thead><tr><th>Produto</th><th>Dose</th><th style="width:50px;text-align:center">Qtd</th></tr></thead>
+          <thead><tr><th style="width:48px"></th><th>Produto</th><th>Dose</th><th style="width:50px;text-align:center">Qtd</th></tr></thead>
           <tbody>${itens.map(it => `
             <tr>
+              <td>${it.imagem
+                ? `<img src="../assets/img/produtos/${escAttr(it.imagem)}" alt="" style="width:36px;height:36px;border-radius:6px;object-fit:cover;display:block" onerror="this.outerHTML='<div style=\\'width:36px;height:36px;border-radius:6px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px\\'>📦</div>'"/>`
+                : `<div style="width:36px;height:36px;border-radius:6px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px">📦</div>`}
+              </td>
               <td>${esc(it.nome)}</td>
               <td>${esc(it.dose || '—')}</td>
               <td style="text-align:center">${it.qty}</td>
@@ -714,19 +754,47 @@ function renderDrawer(order) {
         const freteV     = parseFloat(String(order.freteValor || '0').replace(',','.')) || 0;
         const cupomV     = parseFloat(String(order.cupomValor || '0').replace(',','.')) || 0;
         const subtotal   = Math.max(0, total - freteV + cupomV);
-        // Tenta detectar juros: se parcelas tem "juros", calcula valor sem juros
-        const parcelasStr = String(order.parcelas || '');
-        const matchJuros  = parcelasStr.match(/(\d+)x.*?\((\d+(?:[.,]\d+)?)%\s*juros\)/i);
-        const matchSemJuros = parcelasStr.match(/^(\d+)x sem juros$/i);
-        let semJurosVal = 0, jurosPct = 0, parcelasN = 1;
-        if (matchJuros) {
-          parcelasN = parseInt(matchJuros[1]);
-          jurosPct  = parseFloat(matchJuros[2].replace(',','.'));
-          semJurosVal = total / (1 + jurosPct/100);
+
+        // Detecta juros no campo "parcelas". 3 formatos cobertos:
+        //   A) "3x (2.5% juros)"         → calcula valor sem juros via pct
+        //   B) "3x sem juros"            → sem juros explícito
+        //   C) "3x de R$ 229,39"         → calcula juros via parcelas × valor
+        // Convenção: `order.total` é sempre o valor SEM juros (à vista). O juros
+        // é cobrado depois na maquininha, então `totalComJuros` é informativo.
+        const parcelasStr        = String(order.parcelas || '');
+        const matchJurosPct      = parcelasStr.match(/(\d+)x.*?\((\d+(?:[.,]\d+)?)%\s*juros\)/i);
+        const matchSemJuros      = parcelasStr.match(/^(\d+)x\s+sem\s+juros$/i);
+        const matchParcelaValor  = parcelasStr.match(/(\d+)x\s+de\s+R?\$?\s*(\d+(?:\.\d{3})*(?:[.,]\d{1,2})?)/i);
+        let parcelasN     = 1;
+        let valorParcela  = 0;
+        let totalComJuros = total;     // default: sem juros adicional
+        let jurosValor    = 0;
+        let jurosPct      = 0;
+
+        if (matchJurosPct) {
+          parcelasN     = parseInt(matchJurosPct[1]);
+          jurosPct      = parseFloat(matchJurosPct[2].replace(',','.'));
+          totalComJuros = total * (1 + jurosPct/100);
+          jurosValor    = totalComJuros - total;
+          valorParcela  = totalComJuros / parcelasN;
+        } else if (matchParcelaValor) {
+          parcelasN     = parseInt(matchParcelaValor[1]);
+          valorParcela  = parseFloat(matchParcelaValor[2].replace(/\./g,'').replace(',','.'));
+          totalComJuros = parcelasN * valorParcela;
+          jurosValor    = totalComJuros - total;
+          if (total > 0) jurosPct = (totalComJuros / total - 1) * 100;
         } else if (matchSemJuros) {
-          parcelasN = parseInt(matchSemJuros[1]);
-          semJurosVal = total;
+          parcelasN     = parseInt(matchSemJuros[1]);
+          valorParcela  = total / parcelasN;
         }
+        const temJuros = jurosValor > 0.01;
+
+        // Desconto pós-venda (admin aplicou retroativamente)
+        const descPos      = parseFloat(String(order.descontoPos || '0').replace(',','.')) || 0;
+        const descPosMot   = String(order.descontoPosMotivo || '');
+        const descPosData  = String(order.descontoPosData || '');
+        const totalEfetivo = Math.max(0, total - descPos);
+
         return `
         <div class="drawer-section">
           <h3>💰 Resumo Financeiro</h3>
@@ -734,11 +802,25 @@ function renderDrawer(order) {
             <div class="fin-row"><span>Subtotal produtos</span><strong>${formatMoeda(subtotal)}</strong></div>
             ${cupomV > 0 ? `<div class="fin-row fin-desc"><span>🎟️ Desconto${order.cupom ? ' ('+esc(order.cupom)+')' : ''}</span><strong>− ${formatMoeda(cupomV)}</strong></div>` : ''}
             ${(freteV > 0 || order.freteMetodo) ? `<div class="fin-row"><span>📦 Frete${order.freteMetodo ? ' ('+esc(String(order.freteMetodo).toUpperCase())+')' : ''}</span><strong>${formatMoeda(freteV)}</strong></div>` : ''}
-            ${jurosPct > 0 ? `<div class="fin-row fin-meta"><span>Subtotal sem juros</span><strong>${formatMoeda(semJurosVal)}</strong></div>` : ''}
-            ${jurosPct > 0 ? `<div class="fin-row fin-meta"><span>+ Juros (${jurosPct}%)</span><strong>${formatMoeda(total - semJurosVal)}</strong></div>` : ''}
-            <div class="fin-row fin-total"><span>Total pago</span><strong>${formatMoeda(total)}</strong></div>
-            ${parcelasStr ? `<div class="fin-row fin-meta"><span>💳 ${esc(parcelasStr)}</span>${parcelasN > 1 ? `<strong>${parcelasN}× ${formatMoeda(total/parcelasN)}</strong>` : ''}</div>` : ''}
+            <div class="fin-row fin-total"><span>Total à vista${temJuros ? ' (sem juros)' : ''}</span><strong>${formatMoeda(total)}</strong></div>
+            ${temJuros ? `<div class="fin-row fin-meta"><span>+ Juros do cartão (${jurosPct.toFixed(2)}%)</span><strong>+ ${formatMoeda(jurosValor)}</strong></div>` : ''}
+            ${temJuros ? `<div class="fin-row fin-total fin-total-cartao"><span>Total no cartão (com juros)</span><strong>${formatMoeda(totalComJuros)}</strong></div>` : ''}
+            ${parcelasStr ? `<div class="fin-row fin-meta"><span>💳 ${esc(parcelasStr)}</span>${parcelasN > 1 ? `<strong>${parcelasN}× ${formatMoeda(valorParcela || (total/parcelasN))}</strong>` : ''}</div>` : ''}
             ${order.pagamento ? `<div class="fin-row fin-meta"><span>Pagamento</span><strong>${esc(order.pagamento)}</strong></div>` : ''}
+            ${descPos > 0 ? `
+              <div class="fin-row fin-desc-pos">
+                <span>💰 Desconto pós-venda${descPosData ? ' · ' + esc(descPosData.split(' ')[0]) : ''}</span>
+                <strong>− ${formatMoeda(descPos)}</strong>
+              </div>
+              ${descPosMot ? `<div class="fin-row fin-meta"><span style="font-style:italic;opacity:.85">↳ ${esc(descPosMot)}</span><strong></strong></div>` : ''}
+              <div class="fin-row fin-total fin-total-efetivo"><span>Total efetivo (após ajuste)</span><strong>${formatMoeda(totalEfetivo)}</strong></div>
+            ` : ''}
+          </div>
+          <div class="fin-actions">
+            <button class="btn-sm btn-accent btn-desc-pos" onclick="openDescontoPosModal(${order.id})">
+              ${descPos > 0 ? '✏️ Editar desconto pós-venda' : '💰 Aplicar desconto pós-venda'}
+            </button>
+            ${descPos > 0 ? `<button class="btn-sm btn-ghost" onclick="removerDescontoPos(${order.id})" style="margin-left:8px">🗑️ Remover desconto</button>` : ''}
           </div>
         </div>`;
       })()}
@@ -837,21 +919,26 @@ function parseItens(order) {
         const prod = App.produtos.find(p => p.id === prodId);
         if (prod && varIdx !== undefined && prod.variantes?.[parseInt(varIdx)]) {
           const v = prod.variantes[parseInt(varIdx)];
-          return { nome: prod.nome, dose: v.dose, qty };
+          return { nome: prod.nome, dose: v.dose, qty, imagem: prod.imagem || '' };
         }
-        if (prod) return { nome: prod.nome, dose: prod.conc, qty };
-        return { nome: prodId, dose: '', qty };
+        if (prod) return { nome: prod.nome, dose: prod.conc, qty, imagem: prod.imagem || '' };
+        return { nome: prodId, dose: '', qty, imagem: '' };
       });
       if (itens.length > 0) return itens;
     } catch (e) {}
   }
   const prods = (order.produtos || '').split('\n').filter(Boolean);
   const qtds  = (order.quantidades || '').split('\n').filter(Boolean);
-  return prods.map((p, i) => ({
-    nome: p.replace(/^\d+x\s*/, '').trim(),
-    dose: '',
-    qty:  qtds[i] || '1',
-  }));
+  return prods.map((p, i) => {
+    const nome = p.replace(/^\d+x\s*/, '').trim();
+    const found = App.produtos.find(pr => pr.nome === nome);
+    return {
+      nome,
+      dose: '',
+      qty:  qtds[i] || '1',
+      imagem: found?.imagem || '',
+    };
+  });
 }
 
 async function salvarLogistica(orderId) {
@@ -965,7 +1052,7 @@ function renderClientes() {
     const initials = (c.responsavel || c.clinica || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
     const isVip = c.vip === 'SIM';
     return `
-      <div class="admin-card">
+      <div class="admin-card" data-cli-doc="${escAttr(c.cpf || c.documento || c.email || '')}" title="Right-click pra mais opções">
         <div class="cli-avatar">${esc(initials)}</div>
         <div class="cli-card-name">${esc(c.responsavel || c.clinica)}${isVip ? '<span class="vip-badge">⭐ VIP</span>' : ''}</div>
         <div class="cli-card-clinic">${esc(c.clinica)}</div>
@@ -1061,7 +1148,7 @@ function renderProdutos() {
       : (parseInt(p.estoque) || 0);
     const low = est < 5;
     return `
-      <div class="admin-card">
+      <div class="admin-card" data-prod-id="${escAttr(p.id)}" title="Right-click pra mais opções">
         <div class="prod-card-icon">${p.icone || '💊'}</div>
         <div class="prod-card-name">${esc(p.nome)}</div>
         <div class="prod-card-conc">${esc(p.conc || '—')}</div>
@@ -1107,32 +1194,95 @@ async function carregarConfigIndicacao() {
   try {
     const data = await API.call({ action: 'get_config_indicacao' });
     if (data && data.ok) {
-      const pctEl = document.getElementById('cfg-ind-pct');
-      const diasEl = document.getElementById('cfg-ind-dias');
-      if (pctEl) pctEl.value = data.pct_display || '5.0';
+      const pctEl   = document.getElementById('cfg-ind-pct');
+      const diasEl  = document.getElementById('cfg-ind-dias');
+      const ativaEl = document.getElementById('cfg-ind-ativa');
+      if (pctEl)  pctEl.value  = data.pct_display || '5.0';
       if (diasEl) diasEl.value = String(data.carencia_dias || 14);
+      const ativa = (data.ativa !== false); // default true
+      if (ativaEl) ativaEl.checked = ativa;
+      _aplicarToggleIndicacaoUI(ativa);
     }
   } catch (e) { /* silently */ }
 }
 
-async function salvarConfigIndicacao() {
-  const pctEl = document.getElementById('cfg-ind-pct');
+// Desabilita visualmente os campos pct/dias quando indicação está desativada
+function _aplicarToggleIndicacaoUI(ativa) {
+  const pctEl  = document.getElementById('cfg-ind-pct');
   const diasEl = document.getElementById('cfg-ind-dias');
-  const status = document.getElementById('cfg-ind-status');
+  [pctEl, diasEl].forEach(el => {
+    if (!el) return;
+    el.disabled = !ativa;
+    el.style.opacity = ativa ? '1' : '0.5';
+  });
+}
+
+async function salvarConfigIndicacao() {
+  const pctEl   = document.getElementById('cfg-ind-pct');
+  const diasEl  = document.getElementById('cfg-ind-dias');
+  const ativaEl = document.getElementById('cfg-ind-ativa');
+  const status  = document.getElementById('cfg-ind-status');
   if (!pctEl || !diasEl) return;
-  const pct  = parseFloat(pctEl.value);
-  const dias = parseInt(diasEl.value);
+  const pct   = parseFloat(pctEl.value);
+  const dias  = parseInt(diasEl.value);
+  const ativa = ativaEl ? !!ativaEl.checked : true;
   if (status) { status.textContent = '⏳ Salvando…'; status.style.color = 'var(--text2)'; }
   try {
-    const data = await API.call({ action: 'set_config_indicacao', pct, carencia_dias: dias });
+    const data = await API.call({ action: 'set_config_indicacao', pct, carencia_dias: dias, ativa: ativa ? 'true' : 'false' });
     if (data && data.ok) {
       if (status) { status.textContent = '✅ Salvo'; status.style.color = '#22C55E'; setTimeout(() => status.textContent = '', 2500); }
-      showToast('Configuração de indicação salva');
+      showToast(ativa ? 'Indicação ativa e config salva' : 'Sistema de indicação DESATIVADO');
+      _aplicarToggleIndicacaoUI(ativa);
     } else {
       if (status) { status.textContent = '⚠️ ' + (data?.erro || 'Erro'); status.style.color = '#FCA5A5'; }
     }
   } catch (e) {
     if (status) { status.textContent = '⚠️ Erro de conexão'; status.style.color = '#FCA5A5'; }
+  }
+}
+
+// Toggle inline (chamado pelo onchange do checkbox no HTML)
+function onToggleIndicacaoAtiva(el) {
+  _aplicarToggleIndicacaoUI(!!el.checked);
+}
+
+// ── FEATURE FLAGS (Recursos Opcionais) ───────────────────────────────────────
+async function carregarConfigFeatures() {
+  try {
+    const data = await API.call({ action: 'get_config_features' });
+    if (!data || !data.ok || !data.flags) return;
+    const map = {
+      'cfg-feat-pagina-produto':   'feature_pagina_produto',
+      'cfg-feat-fotos-produtos':   'feature_fotos_produtos',
+      'cfg-feat-informativos-novo':'feature_informativos_novo_layout',
+    };
+    Object.keys(map).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.checked = data.flags[map[id]] !== false; // default true
+    });
+  } catch (e) { /* silently */ }
+}
+
+async function salvarFeatureFlag(el) {
+  const chave = el.dataset.feature;
+  const valor = !!el.checked;
+  const status = document.getElementById('cfg-feat-status');
+  if (status) { status.textContent = '⏳ Salvando…'; status.style.color = 'var(--text2)'; }
+  el.disabled = true;
+  try {
+    const data = await API.call({ action: 'set_config_features', chave, valor: valor ? 'true' : 'false' });
+    if (data && data.ok) {
+      if (status) { status.textContent = '✅ ' + (valor ? 'Ativado' : 'Desativado'); status.style.color = '#22C55E'; setTimeout(() => { if (status) status.textContent = ''; }, 2500); }
+      showToast(valor ? 'Recurso ATIVADO' : 'Recurso DESATIVADO');
+    } else {
+      el.checked = !valor; // reverte UI
+      if (status) { status.textContent = '⚠️ ' + ((data && data.erro) || 'Erro ao salvar'); status.style.color = '#FCA5A5'; }
+    }
+  } catch (e) {
+    el.checked = !valor; // reverte UI
+    if (status) { status.textContent = '⚠️ Erro de conexão'; status.style.color = '#FCA5A5'; }
+  } finally {
+    el.disabled = false;
   }
 }
 
@@ -1142,6 +1292,7 @@ function renderConfig() {
   const stockEl = document.getElementById('cfg-stock-alert');
   if (stockEl) stockEl.value = String(getStockAlertThreshold());
   carregarConfigIndicacao();
+  carregarConfigFeatures();
   updateNotifStatus();
 
   const tbody = document.getElementById('admins-tbody');
@@ -1182,6 +1333,128 @@ async function cadastrarAdmin(e) {
   } catch (ex) {
     msg.textContent = 'Erro de conexão';
     msg.style.color = 'var(--danger)';
+  }
+}
+
+// ── DESCONTO PÓS-VENDA ────────────────────────────────────────────────────────
+function openDescontoPosModal(orderId) {
+  const order = App.pedidos.find(p => p.id === orderId);
+  if (!order) return;
+  const totalAtual = parseFloat(String(order.total || '0').replace(',','.')) || 0;
+  const descAtual  = parseFloat(String(order.descontoPos || '0').replace(',','.')) || 0;
+  const motivoAtual = String(order.descontoPosMotivo || '');
+
+  openModal(`
+    <div class="modal-header">
+      <h2>💰 Desconto pós-venda</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" style="padding:18px 22px;display:flex;flex-direction:column;gap:14px">
+      <div style="background:rgba(245,158,11,.08);border-left:3px solid var(--accent);padding:10px 12px;border-radius:4px;font-size:12px;line-height:1.5;color:var(--text)">
+        Pedido <strong>#${orderId}</strong> · ${esc(order.clinica||'')}<br/>
+        Total atual: <strong>${formatMoeda(totalAtual)}</strong>${descAtual > 0 ? ` · Desconto já aplicado: <strong>${formatMoeda(descAtual)}</strong>` : ''}
+      </div>
+      <div>
+        <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px">Tipo de desconto</label>
+        <div style="display:flex;gap:14px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+            <input type="radio" name="dp-tipo" value="rs" checked onchange="_dpUpdatePreview()"/>
+            <span>R$ (valor fixo)</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+            <input type="radio" name="dp-tipo" value="pct" onchange="_dpUpdatePreview()"/>
+            <span>% (percentual)</span>
+          </label>
+        </div>
+      </div>
+      <div>
+        <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px">Valor</label>
+        <input id="dp-valor" type="number" step="0.01" min="0" placeholder="0,00" oninput="_dpUpdatePreview()" value="${descAtual > 0 ? descAtual.toFixed(2) : ''}" style="width:100%;padding:9px 12px;font-size:14px"/>
+        <div id="dp-preview" style="margin-top:6px;font-size:12px;color:var(--gray);min-height:18px"></div>
+      </div>
+      <div>
+        <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px">Motivo (opcional)</label>
+        <textarea id="dp-motivo" rows="2" placeholder="ex: cliente fiel · erro de cotação · gesto comercial" style="width:100%;padding:9px 12px;font-size:13px;resize:vertical">${escAttr(motivoAtual)}</textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+        <button class="btn-sm btn-ghost" onclick="closeModal()">Cancelar</button>
+        <button class="btn-sm btn-accent" onclick="submitDescontoPos(${orderId})">💾 Aplicar</button>
+      </div>
+      <div id="dp-status" style="font-size:12px;text-align:center"></div>
+    </div>
+  `, { wide: false });
+  setTimeout(() => { document.getElementById('dp-valor')?.focus(); _dpUpdatePreview(); }, 50);
+}
+
+function _dpUpdatePreview() {
+  const tipo = document.querySelector('input[name="dp-tipo"]:checked')?.value || 'rs';
+  const valor = parseFloat(document.getElementById('dp-valor')?.value || '0') || 0;
+  const order = App.pedidos.find(p => p.id === parseInt((document.querySelector('[onclick^="submitDescontoPos"]')?.getAttribute('onclick')||'').match(/\d+/)?.[0] || '0'));
+  const total = order ? (parseFloat(String(order.total||'0').replace(',','.')) || 0) : 0;
+  const previewEl = document.getElementById('dp-preview');
+  if (!previewEl || !order) return;
+  if (valor <= 0) { previewEl.textContent = ''; return; }
+  if (tipo === 'rs') {
+    if (valor > total) previewEl.innerHTML = `⚠️ valor maior que total (${formatMoeda(total)})`;
+    else previewEl.innerHTML = `→ Novo total efetivo: <strong style="color:var(--accent)">${formatMoeda(total - valor)}</strong>`;
+  } else {
+    if (valor > 100) previewEl.innerHTML = `⚠️ percentual deve ser ≤ 100`;
+    else {
+      const descRs = total * (valor/100);
+      previewEl.innerHTML = `→ Desconto de <strong>${formatMoeda(descRs)}</strong> · Novo total efetivo: <strong style="color:var(--accent)">${formatMoeda(total - descRs)}</strong>`;
+    }
+  }
+}
+
+async function submitDescontoPos(orderId) {
+  const tipo   = document.querySelector('input[name="dp-tipo"]:checked')?.value || 'rs';
+  const valor  = parseFloat(document.getElementById('dp-valor')?.value || '0') || 0;
+  const motivo = document.getElementById('dp-motivo')?.value || '';
+  const status = document.getElementById('dp-status');
+  if (valor <= 0) { if (status) { status.textContent = '⚠️ Informe um valor maior que zero'; status.style.color = '#FCA5A5'; } return; }
+  if (status) { status.textContent = '⏳ Aplicando…'; status.style.color = 'var(--gray)'; }
+  try {
+    const data = await API.aplicarDescontoPos(orderId, tipo, valor, motivo);
+    if (data && data.ok) {
+      // Atualiza order local pra UI refletir imediato
+      const order = App.pedidos.find(p => p.id === orderId);
+      if (order) {
+        order.descontoPos       = String(data.desconto_rs);
+        order.descontoPosMotivo = motivo;
+        order.descontoPosData   = data.data;
+      }
+      closeModal();
+      showToast(`Desconto de ${formatMoeda(data.desconto_rs)} aplicado no pedido #${orderId}`);
+      if (App.drawerOrderId === orderId) renderDrawer(order);
+      // Reload pra garantir sincronização (caso outras pestanas estejam abertas)
+      loadPedidos();
+    } else {
+      if (status) { status.textContent = '⚠️ ' + ((data && data.erro) || 'Erro ao aplicar'); status.style.color = '#FCA5A5'; }
+    }
+  } catch (e) {
+    if (status) { status.textContent = '⚠️ Erro de conexão'; status.style.color = '#FCA5A5'; }
+  }
+}
+
+async function removerDescontoPos(orderId) {
+  if (!confirm('Remover o desconto pós-venda deste pedido?')) return;
+  try {
+    const data = await API.aplicarDescontoPos(orderId, 'rs', 0, '');
+    if (data && data.ok) {
+      const order = App.pedidos.find(p => p.id === orderId);
+      if (order) {
+        order.descontoPos       = '';
+        order.descontoPosMotivo = '';
+        order.descontoPosData   = '';
+      }
+      showToast(`Desconto removido do pedido #${orderId}`);
+      if (App.drawerOrderId === orderId) renderDrawer(order);
+      loadPedidos();
+    } else {
+      showToast('Erro ao remover: ' + ((data && data.erro) || 'desconhecido'), 'error');
+    }
+  } catch (e) {
+    showToast('Erro de conexão', 'error');
   }
 }
 
@@ -1683,7 +1956,9 @@ function _buildCupomCard(c) {
   const isExp   = c.status === 'Expirado';
   const tipoCompacto = c.tipo === '%'
     ? `${esc(c.valor)}% desc.`
-    : 'Preço fixo';
+    : c.tipo === 'combo'
+      ? `🎁 Combo${c.combo_modo === 'variante' ? ' (variantes)' : ''}`
+      : 'Preço fixo';
 
   const receita = (c.receita_gerada||0);
   const receitaTxt = receita > 0
@@ -2091,16 +2366,55 @@ function toggleFreteGratis(cb) {
 }
 
 function toggleCupomTipo() {
-  const tipo   = document.getElementById('nc-tipo').value;
-  const isFixo = tipo === 'fixo';
-  document.getElementById('nc-valor-wrap').style.display = isFixo ? 'none' : '';
-  if (isFixo) {
-    // Preço fixo exige produtos específicos — desmarcar "Todos"
-    const todosCheck = document.getElementById('nc-todos-prods');
+  const tipo    = document.getElementById('nc-tipo').value;
+  const isFixo  = tipo === 'fixo';
+  const isCombo = tipo === 'combo';
+  const valorWrap = document.getElementById('nc-valor-wrap');
+  const comboWrap = document.getElementById('nc-combo-wrap');
+  const comboValorWrap = document.getElementById('nc-combo-valor-wrap');
+  const todosCheck = document.getElementById('nc-todos-prods');
+  const todosLabel = todosCheck?.closest('label');
+
+  // Mostra/esconde campo de % (só pra tipo '%')
+  if (valorWrap) valorWrap.style.display = (isFixo || isCombo) ? 'none' : '';
+  // Mostra wrap do combo
+  if (comboWrap) comboWrap.classList.toggle('hidden', !isCombo);
+
+  if (isFixo || isCombo) {
+    // Fixo e Combo exigem produtos específicos — desmarca "Todos"
     if (todosCheck?.checked) { todosCheck.checked = false; toggleTodosProdutos(todosCheck); }
-    renderPrecosFixos();
+    if (todosLabel) todosLabel.style.display = isCombo ? 'none' : ''; // combo NÃO permite "todos"
+    if (isFixo) renderPrecosFixos();
+    if (isCombo) {
+      onComboPrecoTipoChange(); // atualiza visibilidade dos preços do combo
+      onComboModoChange();      // atualiza hint
+    }
   } else {
+    if (todosLabel) todosLabel.style.display = '';
     document.getElementById('nc-precos-wrap')?.classList.add('hidden');
+    if (comboValorWrap) comboValorWrap.classList.add('hidden');
+  }
+}
+
+// Combo: alterna entre "valor final único" e "preço de cada item"
+function onComboPrecoTipoChange() {
+  const tipo = document.querySelector('input[name="nc-combo-preco-tipo"]:checked')?.value || 'final';
+  const isFinal = tipo === 'final';
+  const valorWrap = document.getElementById('nc-combo-valor-wrap');
+  if (valorWrap) valorWrap.classList.toggle('hidden', !isFinal);
+  // Reusa renderPrecosFixos pra renderizar inputs por item (label vira "preço do item no combo")
+  if (!isFinal) renderPrecosFixos();
+  else document.getElementById('nc-precos-wrap')?.classList.add('hidden');
+}
+
+// Combo: alterna modo qualquer/variante e atualiza hint
+function onComboModoChange() {
+  const modo = document.querySelector('input[name="nc-combo-modo"]:checked')?.value || 'qualquer';
+  const hint = document.getElementById('nc-combo-modo-hint');
+  if (hint) {
+    hint.textContent = modo === 'variante'
+      ? '↳ Cliente precisa pegar EXATAMENTE as variantes selecionadas (ex: Ipamorelin 10mg + BPC-157 5mg)'
+      : '↳ Cliente leva o combo independente da dose escolhida (ex: Ipamorelin qualquer dose + BPC-157 qualquer dose)';
   }
 }
 
@@ -2110,23 +2424,54 @@ async function salvarCupomAdmin(e) {
   msg.textContent = '';
   const freteToggle = document.getElementById('nc-frete-toggle');
   const tipo = document.getElementById('nc-tipo').value;
-  const precos = tipo === 'fixo'
+
+  // Combo: pega modo + tipo de preço
+  const comboModo      = document.querySelector('input[name="nc-combo-modo"]:checked')?.value || 'qualquer';
+  const comboPrecoTipo = document.querySelector('input[name="nc-combo-preco-tipo"]:checked')?.value || 'final';
+  const comboValorFinal = parseFloat(document.getElementById('nc-combo-valor')?.value || '0') || 0;
+
+  // 'precos' (col 5 do Sheets): preenchido só pra fixo OU combo+por-item
+  const precos = (tipo === 'fixo' || (tipo === 'combo' && comboPrecoTipo === 'item'))
     ? [...document.querySelectorAll('.preco-fix-input')]
         .filter(i => i.value.trim())
         .map(i => `${i.dataset.key}:${i.value.trim()}`)
         .join('|')
     : '';
+
+  // 'valor' (col 3 do Sheets): pct pra %, preço final pra combo (se modo final), vazio pro resto
+  let valorParam = '';
+  if (tipo === '%') valorParam = document.getElementById('nc-valor').value;
+  else if (tipo === 'combo' && comboPrecoTipo === 'final') valorParam = comboValorFinal;
+
+  // Validações client-side rápidas
+  if (tipo === 'combo') {
+    const itens = (document.getElementById('nc-produtos').value || '').split(',').filter(Boolean);
+    if (itens.length < 2) {
+      msg.textContent = '⚠️ Combo precisa de pelo menos 2 itens diferentes';
+      msg.style.color = 'var(--danger)'; return;
+    }
+    if (comboPrecoTipo === 'final' && comboValorFinal <= 0) {
+      msg.textContent = '⚠️ Informe o valor final do combo (R$)';
+      msg.style.color = 'var(--danger)'; return;
+    }
+    if (comboPrecoTipo === 'item' && !precos) {
+      msg.textContent = '⚠️ Informe o preço de pelo menos 1 item do combo';
+      msg.style.color = 'var(--danger)'; return;
+    }
+  }
+
   const freteAtivo = !!freteToggle?.checked;
   const params = {
     codigo:              document.getElementById('nc-codigo').value.trim(),
     tipo,
-    valor:               document.getElementById('nc-valor').value,
+    valor:               valorParam,
     produtos:            document.getElementById('nc-produtos').value.trim() || 'todos',
     precos,
     validade:            document.getElementById('nc-validade').value.trim() || 'INDETERMINADO',
     frete_gratis_acima:  freteAtivo ? (document.getElementById('nc-frete').value || '') : '',
     frete_gratis_ativo:  freteAtivo ? 'SIM' : 'NAO',
     parcelamento:        document.getElementById('nc-parc').checked ? 'SIM' : 'NAO',
+    combo_modo:          tipo === 'combo' ? comboModo : '',
   };
   try {
     const data = await API.criarCupom(params);
@@ -2220,9 +2565,10 @@ function buildVariantesStr(prefix) {
     }).filter(Boolean).join('|');
 }
 
-// Preview ao vivo da imagem do produto no editor
-function previewImagemProduto(filename) {
-  const wrap = document.getElementById('ep-imagem-preview');
+// Preview ao vivo da imagem do produto no editor (ep) e no novo produto (np)
+function previewImagemProduto(filename, prefix) {
+  const pref = prefix || 'ep';
+  const wrap = document.getElementById(pref + '-imagem-preview');
   if (!wrap) return;
   const f = (filename || '').trim();
   if (!f) { wrap.innerHTML = '📦'; return; }
@@ -2244,8 +2590,14 @@ function abrirEditarProduto(prodId) {
     <form class="cfg-form" onsubmit="salvarProduto(event)">
       <div class="cfg-row">
         <div class="field-inline" style="flex:0 0 60px"><label>Ícone</label><input id="ep-icone" value="${escAttr(p.icone||'💊')}" maxlength="4" style="text-align:center;font-size:20px"/></div>
+        <div class="field-inline" style="flex:0 0 110px"><label>ID</label>
+          <input id="ep-id" value="${escAttr(p.id||'')}" style="font-family:monospace"/>
+        </div>
         <div class="field-inline"><label>Nome</label><input id="ep-nome" value="${escAttr(p.nome)}"/></div>
         <div class="field-inline"><label>Concentração / Dose</label><input id="ep-conc" value="${escAttr(p.conc||'')}"/></div>
+      </div>
+      <div style="font-size:.7rem;color:var(--text2);margin-top:-6px;line-height:1.3">
+        ⚠️ Mudar o <strong>ID</strong> quebra link com pedidos antigos. O protocolo é sincronizado automaticamente.
       </div>
       <div class="cfg-row">
         <div class="field-inline"><label>Preço Base (R$)</label><input type="number" step="0.01" id="ep-preco" value="${p.preco||0}" ${hasVariantes?'disabled':''}/>  </div>
@@ -2271,8 +2623,12 @@ function abrirEditarProduto(prodId) {
       <div class="cfg-row">
         <div class="field-inline" style="flex:0 0 240px">
           <label>Imagem (arquivo)</label>
-          <input id="ep-imagem" value="${escAttr(p.imagem||'')}" placeholder="bpc-157.webp"
-            oninput="previewImagemProduto(this.value)"/>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input id="ep-imagem" value="${escAttr(p.imagem||'')}" placeholder="bpc-157.webp"
+              oninput="previewImagemProduto(this.value,'ep')" style="flex:1"/>
+            <button type="button" class="btn-sm" title="Remover imagem"
+              onclick="document.getElementById('ep-imagem').value='';previewImagemProduto('','ep');">🗑</button>
+          </div>
           <small style="font-size:.7rem;color:var(--gray);margin-top:4px;display:block;line-height:1.3">
             Suba o arquivo em <code>assets/img/produtos/</code> no GitHub e coloque o nome aqui.
           </small>
@@ -2298,10 +2654,13 @@ function abrirEditarProduto(prodId) {
             <option value="false">Inativo</option>
           </select>
         </div>
-        <div class="field-inline" style="flex:0 0 auto;align-items:flex-end">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-            <input type="checkbox" id="ep-destaque" ${p.destaque==='sim'?'checked':''}/> Destaque
-          </label>
+        <div class="field-inline" style="flex:0 0 160px">
+          <label>Destaque</label>
+          <select id="ep-destaque">
+            <option value="" ${!p.destaque?'selected':''}>— Nenhum —</option>
+            <option value="destaque" ${p.destaque==='destaque'?'selected':''}>⭐ Destaque</option>
+            <option value="recomendado" ${p.destaque==='recomendado'?'selected':''}>👍 Recomendado</option>
+          </select>
         </div>
       </div>
 
@@ -2315,9 +2674,10 @@ function abrirEditarProduto(prodId) {
       </details>
 
       <div id="ep-status" class="cfg-status-msg"></div>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:8px;align-items:center">
         <button type="submit" class="btn-sm btn-accent">Salvar</button>
         <button type="button" class="btn-sm" onclick="closeModal()">Cancelar</button>
+        <button type="button" class="btn-sm btn-danger" style="margin-left:auto" onclick="apagarProdutoConfirm('${escAttr(prodId)}','${escAttr(p.nome||'')}')">🗑 Apagar</button>
       </div>
     </form>`);
   // Populate variant rows after modal renders
@@ -2333,6 +2693,9 @@ async function salvarProduto(e) {
   msg.textContent = 'Salvando...';
   if (!prodId) { msg.textContent = 'Erro: ID do produto não encontrado'; msg.style.color = 'var(--danger)'; return; }
   const params = { prod_id: prodId, id: prodId, rowNum: App.currentEditRow || '' };
+  // Mudança de ID: backend detecta e sincroniza com aba Protocolos.
+  const novoId = document.getElementById('ep-id')?.value.trim();
+  if (novoId && novoId !== prodId) params.novo_id = novoId;
   const nome = document.getElementById('ep-nome')?.value.trim(); if (nome) params.nome = nome;
   const conc = document.getElementById('ep-conc')?.value.trim(); if (conc !== undefined) params.conc = conc;
   const temVar = document.getElementById('ep-tem-variantes')?.checked;
@@ -2351,30 +2714,56 @@ async function salvarProduto(e) {
   const icone = document.getElementById('ep-icone')?.value.trim(); if (icone) params.icone = icone;
   const cat = document.getElementById('ep-categoria')?.value; if (cat !== undefined) params.categoria = cat;
   const tags = document.getElementById('ep-tags')?.value.trim(); if (tags !== undefined) params.tags = tags;
-  const img = document.getElementById('ep-imagem')?.value.trim(); if (img !== undefined) params.imagem = img;
-  // Destaque aceita 'destaque' ou 'recomendado' (ou vazio). Aqui é binário —
-  // checkbox marcado = 'destaque'. Pra 'recomendado' edita manualmente na planilha.
-  params.destaque = document.getElementById('ep-destaque')?.checked ? 'destaque' : '';
-  // Pós-save: verifica se a alteração realmente persistiu (proteção contra
-  // CORS no redirect do GAS que joga catch sem ter falhado de fato).
+  // Imagem é salva em chamada SEPARADA (endpoint dedicado salvar_imagem_produto)
+  // — não vai junto no editar_produto_completo pra evitar URL longa.
+  const novaImagem = document.getElementById('ep-imagem')?.value.trim();
+  const imagemAtual = (App.produtos.find(p => p.id === prodId)?.imagem || '').trim();
+  const imagemMudou = novaImagem !== undefined && novaImagem !== imagemAtual;
+  // Destaque: select com 3 opções (vazio | 'destaque' | 'recomendado')
+  const destEl = document.getElementById('ep-destaque');
+  if (destEl) params.destaque = destEl.value || '';
+  // Pós-save: verifica se a alteração textual realmente persistiu.
+  // Imagem é chamada à parte (endpoint dedicado), então não entra aqui.
   const verificarPersistencia = async () => {
     await loadProdutos();
+    const buscaId = (params.novo_id && params.novo_id !== prodId) ? params.novo_id : prodId;
     const atual = (App.produtos || []).find(p =>
-      String(p.prod_id || p.id || '') === String(prodId)
+      String(p.prod_id || p.id || '') === String(buscaId)
     );
     if (!atual) return false;
     if (params.nome && (atual.nome || '').trim() !== params.nome.trim()) return false;
     if (params.preco && String(atual.preco || '').replace(/\D/g,'') !== String(params.preco).replace(/\D/g,'')) return false;
+    if (params.destaque !== undefined && (atual.destaque || '').trim() !== params.destaque.trim()) return false;
     return true;
+  };
+
+  // Helper pra salvar imagem em chamada separada
+  const salvarImagemSeMudou = async () => {
+    if (!imagemMudou) return { ok: true, skipped: true };
+    msg.textContent = 'Salvando imagem...';
+    try {
+      const r = await API.salvarImagemProduto(
+        (params.novo_id && params.novo_id !== prodId) ? params.novo_id : prodId,
+        novaImagem
+      );
+      return r || { ok: false, erro: 'sem resposta' };
+    } catch(imgEx) {
+      return { ok: false, erro: 'conexão imagem' };
+    }
   };
 
   try {
     const data = await API.editarProduto(params);
     if (data && (data.ok || data._silent)) {
+      const imgRes = await salvarImagemSeMudou();
       const persistiu = await verificarPersistencia();
-      if (persistiu) {
+      if (persistiu && imgRes.ok) {
         showToast('Produto atualizado!');
         closeModal();
+        renderProdutos();
+      } else if (!imgRes.ok) {
+        msg.textContent = '⚠️ Texto salvo, mas imagem falhou: ' + (imgRes.erro || 'erro');
+        msg.style.color = 'var(--danger)';
         renderProdutos();
       } else {
         msg.textContent = '⚠️ Backend não confirmou alteração. Recarregue (F5) e verifique.';
@@ -2388,8 +2777,9 @@ async function salvarProduto(e) {
   } catch(ex) {
     // Network error pode ter salvo mesmo assim (CORS no redirect do GAS)
     try {
+      const imgRes = await salvarImagemSeMudou();
       const persistiu = await verificarPersistencia();
-      if (persistiu) {
+      if (persistiu && imgRes.ok) {
         showToast('Produto atualizado!');
         closeModal();
         renderProdutos();
@@ -2400,6 +2790,214 @@ async function salvarProduto(e) {
     msg.style.color = 'var(--danger)';
   }
 }
+
+// ── APAGAR PRODUTO ────────────────────────────────────────────────────────────
+async function apagarProdutoConfirm(prodId, nome) {
+  if (!prodId) return;
+  const label = nome ? `"${nome}" (${prodId})` : prodId;
+  if (!confirm('Apagar o produto ' + label + '?\n\nIsso apaga o produto E o protocolo. Pedidos antigos mantêm o histórico, mas perdem o link com este produto.\n\nAÇÃO IRREVERSÍVEL.')) return;
+  if (!confirm('Tem CERTEZA? Última confirmação.')) return;
+  try {
+    const data = await API.apagarProduto(prodId);
+    if (data && data.ok) {
+      showToast('Produto apagado.');
+      closeModal && closeModal();
+      await loadProdutos();
+      renderProdutos();
+    } else {
+      alert('Erro ao apagar: ' + ((data && data.erro) || 'falha desconhecida'));
+    }
+  } catch(ex) {
+    alert('Erro de conexão ao apagar.');
+  }
+}
+
+// ── CONTEXT MENU CUSTOMIZADO ──────────────────────────────────────────────────
+// Substitui o menu do navegador por opções do site.
+// Uso: showContextMenu(event, [{icon:'✏️', label:'Editar', action: fn}, {divider:true}, {icon:'🗑', label:'Apagar', danger:true, action: fn}])
+function showContextMenu(e, items) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.querySelectorAll('.ctx-menu').forEach(m => m.remove());
+  if (!items || !items.length) return;
+
+  const menu = document.createElement('div');
+  menu.className = 'ctx-menu';
+  items.forEach(it => {
+    if (it.divider) {
+      const d = document.createElement('div');
+      d.className = 'ctx-menu-divider';
+      menu.appendChild(d);
+      return;
+    }
+    const li = document.createElement('div');
+    li.className = 'ctx-menu-item' + (it.danger ? ' danger' : '') + (it.disabled ? ' disabled' : '');
+    li.innerHTML = '<span class="ctx-icon">' + (it.icon || '•') + '</span><span>' + it.label + '</span>';
+    if (!it.disabled) {
+      li.addEventListener('click', function() {
+        menu.remove();
+        try { it.action && it.action(); } catch(err) { console.error(err); }
+      });
+    }
+    menu.appendChild(li);
+  });
+  document.body.appendChild(menu);
+
+  // Posicionar — ajusta se sair da viewport
+  const w = menu.offsetWidth, h = menu.offsetHeight;
+  let x = e.clientX, y = e.clientY;
+  if (x + w > window.innerWidth)  x = window.innerWidth  - w - 8;
+  if (y + h > window.innerHeight) y = window.innerHeight - h - 8;
+  menu.style.left = x + 'px';
+  menu.style.top  = y + 'px';
+
+  // Fechar ao clicar fora ou pressionar Esc
+  function close(ev) {
+    if (ev && menu.contains(ev.target)) return;
+    menu.remove();
+    document.removeEventListener('mousedown', close);
+    document.removeEventListener('contextmenu', close);
+    document.removeEventListener('keydown', escClose);
+    window.removeEventListener('scroll', close, true);
+    window.removeEventListener('resize', close);
+  }
+  function escClose(ev) { if (ev.key === 'Escape') close(); }
+  setTimeout(() => {
+    document.addEventListener('mousedown', close);
+    document.addEventListener('contextmenu', close);
+    document.addEventListener('keydown', escClose);
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+  }, 0);
+}
+
+// Acopla um listener contextmenu (right-click) num elemento, recebendo um
+// builder que retorna os items dinamicamente (pra usar valores atualizados).
+function bindContextMenu(el, itemsBuilder) {
+  if (!el) return;
+  el.addEventListener('contextmenu', function(e) {
+    const items = (typeof itemsBuilder === 'function') ? itemsBuilder(e) : itemsBuilder;
+    showContextMenu(e, items);
+  });
+}
+
+// ── HELPERS DE AÇÃO RÁPIDA ────────────────────────────────────────────────────
+async function toggleAtivoProduto(prodId, ativar) {
+  try {
+    const data = await API.editarProduto({ prod_id: prodId, id: prodId, ativo: ativar ? 'true' : 'false' });
+    if (data && (data.ok || data._silent)) {
+      showToast(ativar ? 'Produto ativado' : 'Produto desativado');
+      await loadProdutos();
+      renderProdutos();
+    } else {
+      alert('Erro: ' + ((data && data.erro) || 'falha'));
+    }
+  } catch(ex) { alert('Erro de conexão'); }
+}
+
+async function copiarParaClipboard(texto) {
+  try {
+    await navigator.clipboard.writeText(texto);
+    showToast('Copiado!');
+  } catch(_) {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = texto; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); showToast('Copiado!'); } catch(__) {}
+    ta.remove();
+  }
+}
+
+// Builders de menu por entidade (chamados via right-click nos cards)
+function menuItemsProduto(prod) {
+  return [
+    { icon: '✏️',  label: 'Editar',          action: () => abrirEditarProduto(prod.id) },
+    { icon: '📋',  label: 'Copiar ID',       action: () => copiarParaClipboard(prod.id) },
+    { divider: true },
+    { icon: prod.ativo === false ? '✅' : '⏸',
+      label: prod.ativo === false ? 'Ativar' : 'Desativar',
+      action: () => toggleAtivoProduto(prod.id, prod.ativo === false) },
+    { icon: '📝',  label: 'Editar protocolo', action: () => (typeof abrirEditarProtocolo === 'function') && abrirEditarProtocolo(prod.id) },
+    { divider: true },
+    { icon: '🗑',  label: 'Apagar produto',  danger: true,
+      action: () => apagarProdutoConfirm(prod.id, prod.nome) },
+  ];
+}
+
+function menuItemsPedido(order) {
+  const tel = order && order.telefone ? order.telefone.replace(/\D/g,'') : '';
+  return [
+    { icon: '👁',  label: 'Ver detalhes',       action: () => openDrawer && openDrawer(order.id) },
+    { icon: '📋',  label: 'Copiar nº do pedido', action: () => copiarParaClipboard(String(order.id)) },
+    { divider: true },
+    { icon: '💬',  label: 'WhatsApp cliente',    action: () => tel ? window.open('https://wa.me/55'+tel, '_blank') : alert('Sem telefone'),
+      disabled: !tel },
+    { divider: true },
+    { icon: '🏷',  label: 'Editar nota interna', action: () => openDrawer && openDrawer(order.id) },
+  ];
+}
+
+function menuItemsCliente(cli) {
+  const docu = cli && (cli.documento || cli.cpfCnpj || '') || '';
+  const tel  = cli && cli.telefone ? cli.telefone.replace(/\D/g,'') : '';
+  return [
+    { icon: '✏️',  label: 'Editar',          action: () => (typeof abrirEditarCliente === 'function') && abrirEditarCliente(cli) },
+    { icon: '📦',  label: 'Ver pedidos',     action: () => (typeof verPedidosCliente === 'function') && verPedidosCliente(docu) },
+    { divider: true },
+    { icon: '💬',  label: 'WhatsApp',        action: () => tel ? window.open('https://wa.me/55'+tel, '_blank') : alert('Sem telefone'),
+      disabled: !tel },
+    { icon: '📋',  label: 'Copiar email',    action: () => copiarParaClipboard(cli.email || '') },
+    { divider: true },
+    { icon: '🗑',  label: 'Apagar cliente',  danger: true,
+      action: () => (typeof apagarClienteConfirm === 'function')
+        ? apagarClienteConfirm(docu, cli.email)
+        : confirm('Apagar ' + (cli.nome||cli.clinica||'cliente') + '?') && API.apagarCliente(docu, cli.email).then(() => loadClientes().then(() => (typeof renderClientes === 'function') && renderClientes())) },
+  ];
+}
+
+function menuItemsProtocolo(prod) {
+  return [
+    { icon: '✏️',  label: 'Editar protocolo', action: () => (typeof abrirEditarProtocolo === 'function') && abrirEditarProtocolo(prod.id) },
+    { icon: '💊',  label: 'Editar produto',  action: () => abrirEditarProduto(prod.id) },
+    { divider: true },
+    { icon: '📋',  label: 'Copiar ID',       action: () => copiarParaClipboard(prod.id) },
+  ];
+}
+
+// Acopla via event delegation no document — funciona pra cards renderizados depois
+document.addEventListener('contextmenu', function(e) {
+  // Produto card
+  const pCard = e.target.closest('[data-prod-id]');
+  if (pCard) {
+    const id = pCard.getAttribute('data-prod-id');
+    const prod = (App.produtos || []).find(p => String(p.id) === String(id));
+    if (prod) return showContextMenu(e, menuItemsProduto(prod));
+  }
+  // Pedido card
+  const oCard = e.target.closest('.kanban-card[onclick*="openDrawer"]');
+  if (oCard) {
+    const m = oCard.getAttribute('onclick').match(/openDrawer\((\d+)\)/);
+    if (m) {
+      const id = parseInt(m[1]);
+      const order = (App.pedidos || []).find(p => p.id === id);
+      if (order) return showContextMenu(e, menuItemsPedido(order));
+    }
+  }
+  // Cliente row
+  const cRow = e.target.closest('[data-cli-doc]');
+  if (cRow) {
+    const docu = cRow.getAttribute('data-cli-doc');
+    const cli  = (App.clientes || []).find(c => String(c.documento||c.cpfCnpj||'') === String(docu));
+    if (cli) return showContextMenu(e, menuItemsCliente(cli));
+  }
+  // Protocolo row
+  const ptRow = e.target.closest('[data-proto-id]');
+  if (ptRow) {
+    const id = ptRow.getAttribute('data-proto-id');
+    const prod = (App.produtos || []).find(p => String(p.id) === String(id));
+    if (prod) return showContextMenu(e, menuItemsProtocolo(prod));
+  }
+});
 
 // ── PROTOCOLOS ────────────────────────────────────────────────────────────────
 function setProtoFilter(btn) {
@@ -2424,7 +3022,7 @@ function renderProtocolos() {
   }
   grid.innerHTML = lista.map(p => {
     const temProto = !!(App.protocolos && App.protocolos[p.id]);
-    return `<div class="proto-card">
+    return `<div class="proto-card" data-proto-id="${escAttr(p.id)}" title="Right-click pra mais opções">
       <div class="proto-card-icon">${p.icone||'💊'}</div>
       <div class="proto-card-nome">${esc(p.nome)}</div>
       <div class="proto-card-conc">${esc(p.conc||'')}</div>
@@ -2815,6 +3413,29 @@ function abrirNovoProduto() {
           <input id="np-tags" placeholder="ex: tag1, tag2"/></div>
       </div>
 
+      <div class="cfg-row">
+        <div class="field-inline" style="flex:0 0 240px">
+          <label>Imagem (arquivo)</label>
+          <input id="np-imagem" placeholder="bpc-157.webp"
+            oninput="previewImagemProduto(this.value,'np')"/>
+          <small style="font-size:.7rem;color:var(--gray);margin-top:4px;display:block;line-height:1.3">
+            Suba o arquivo em <code>assets/img/produtos/</code> no GitHub e coloque o nome aqui.
+          </small>
+        </div>
+        <div class="field-inline" style="flex:0 0 88px;align-items:center">
+          <label>Preview</label>
+          <div id="np-imagem-preview" style="width:72px;height:72px;border-radius:10px;background:var(--input-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:1.6rem">📦</div>
+        </div>
+        <div class="field-inline" style="flex:0 0 160px">
+          <label>Destaque</label>
+          <select id="np-destaque">
+            <option value="">— Nenhum —</option>
+            <option value="destaque">⭐ Destaque</option>
+            <option value="recomendado">👍 Recomendado</option>
+          </select>
+        </div>
+      </div>
+
       <div class="var-section">
         <label class="var-toggle-label">
           <input type="checkbox" id="np-tem-variantes" onchange="toggleVariantEditor(this,'np')"/>
@@ -2852,6 +3473,8 @@ async function salvarNovoProduto(e) {
     variantes: temVar ? buildVariantesStr('np') : '',
     categoria: document.getElementById('np-categoria').value,
     tags:      document.getElementById('np-tags').value.trim(),
+    imagem:    document.getElementById('np-imagem')?.value.trim() || '',
+    destaque:  document.getElementById('np-destaque')?.value || '',
   };
   try {
     const data = await API.criarProduto(params);

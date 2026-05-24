@@ -282,11 +282,46 @@ function toggleTodos() {
 
 function setTipo(tipo) {
   tipoAtual = tipo;
-  document.getElementById('btn-pct').classList.toggle('active',  tipo==='pct');
-  document.getElementById('btn-fixo').classList.toggle('active', tipo==='fixo');
-  document.getElementById('modo-pct').style.display  = tipo==='pct'  ? '' : 'none';
-  document.getElementById('modo-fixo').style.display = tipo==='fixo' ? '' : 'none';
-  if (tipo==='fixo') renderTabelaPrecos();
+  document.getElementById('btn-pct').classList.toggle('active',   tipo==='pct');
+  document.getElementById('btn-fixo').classList.toggle('active',  tipo==='fixo');
+  document.getElementById('btn-combo')?.classList.toggle('active',tipo==='combo');
+  document.getElementById('modo-pct').style.display   = tipo==='pct'   ? '' : 'none';
+  document.getElementById('modo-fixo').style.display  = tipo==='fixo'  ? '' : 'none';
+  const modoCombo = document.getElementById('modo-combo');
+  if (modoCombo) modoCombo.style.display = tipo==='combo' ? '' : 'none';
+  if (tipo==='fixo')  renderTabelaPrecos();
+  if (tipo==='combo') { setComboPrecoTipo(); renderComboPrecosTabela(); }
+}
+
+// Combo: alterna entre "valor final" e "preço de cada item"
+function setComboPrecoTipo() {
+  const tipo = document.querySelector('input[name="f_combo_preco_tipo"]:checked')?.value || 'final';
+  const isFinal = tipo === 'final';
+  const v = document.getElementById('combo-valor-wrap');
+  const i = document.getElementById('combo-itens-wrap');
+  if (v) v.style.display = isFinal ? '' : 'none';
+  if (i) i.style.display = isFinal ? 'none' : '';
+  if (!isFinal) renderComboPrecosTabela();
+}
+
+// Combo: tabela de preços por item (formato igual renderTabelaPrecos)
+function renderComboPrecosTabela() {
+  document.querySelectorAll('input[id^="combo-preco-"]').forEach(inp => {
+    if (inp.value) precosFixos[inp.id.replace('combo-preco-','')] = inp.value;
+  });
+  Object.keys(precosFixos).forEach(id => { if (!selecionados.has(id)) delete precosFixos[id]; });
+
+  const wrap = document.getElementById('combo-precos-tabela');
+  if (!wrap) return;
+  const prods = PRODUTOS.filter(p => selecionados.has(p.id));
+  if (!prods.length) { wrap.innerHTML = '<p style="color:var(--gray);font-size:.82rem">Selecione produtos acima.</p>'; return; }
+  wrap.innerHTML = `<table class="preco-table"><thead><tr><th>Produto</th><th>Preço atual</th><th>Preço no combo (R$)</th></tr></thead><tbody>
+    ${prods.map(p => `<tr>
+      <td class="td-nome">${esc(p.icone||'💊')} ${esc(p.nome)}${p.conc?` <span style="color:var(--gray);font-weight:400">${esc(p.conc)}</span>`:''}</td>
+      <td class="td-orig">R$ ${(parseFloat(p.preco)||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+      <td class="td-novo"><input type="number" id="combo-preco-${escAttr(p.id)}" min="0" step="0.01" placeholder="${(parseFloat(p.preco)||0).toFixed(2)}" value="${escAttr(precosFixos[p.id]||'')}" oninput="precosFixos[this.id.replace('combo-preco-','')]=this.value"/></td>
+    </tr>`).join('')}
+  </tbody></table>`;
 }
 
 function renderTabelaPrecos() {
@@ -343,16 +378,18 @@ async function criarCupom() {
   const validade = document.getElementById('f_validade').value;
   if (selecionados.size===0 && tipoAtual!=='pct') { mostrarAlerta('Selecione pelo menos 1 produto.'); return; }
   if (!codigo) { mostrarAlerta('Gere ou digite um código para o cupom.'); return; }
+  if (tipoAtual==='combo' && selecionados.size < 2) { mostrarAlerta('Combo precisa de pelo menos 2 produtos diferentes.'); return; }
   // Sem data preenchida = INDETERMINADO (não força clicar no botão)
   let validadeFmt = 'INDETERMINADO';
   if (validade) { const [y,m,d] = validade.split('-'); validadeFmt = `${d}/${m}/${y}`; }
   let produtos, precos, valor;
+  let comboModo = '';
   if (tipoAtual==='pct') {
     valor = parseFloat(document.getElementById('f_pct').value);
     if (!valor||valor<=0||valor>=100) { mostrarAlerta('Informe um percentual válido (1–99%).'); return; }
     produtos = selecionados.size===0 ? 'todos' : [...selecionados].join(',');
     precos   = '';
-  } else {
+  } else if (tipoAtual==='fixo') {
     const prods = PRODUTOS.filter(p=>selecionados.has(p.id));
     if (!prods.length) { mostrarAlerta('Selecione pelo menos 1 produto.'); return; }
     const precoParts = [];
@@ -365,6 +402,28 @@ async function criarCupom() {
     produtos = prods.map(p=>p.id).join(',');
     precos   = precoParts.join('|');
     valor    = 0;
+  } else { // combo
+    const prods = PRODUTOS.filter(p=>selecionados.has(p.id));
+    const precoTipo = document.querySelector('input[name="f_combo_preco_tipo"]:checked')?.value || 'final';
+    produtos  = prods.map(p=>p.id).join(',');
+    // Na vendedora cada variante já é tratada como item separado (id 'prod__idx'),
+    // então o modo do combo é sempre 'variante' (match exato na chave).
+    comboModo = 'variante';
+    if (precoTipo === 'final') {
+      valor = parseFloat(document.getElementById('f_combo_valor').value) || 0;
+      if (valor <= 0) { mostrarAlerta('Informe o valor final do combo (R$).'); return; }
+      precos = '';
+    } else {
+      const precoParts = [];
+      for (const p of prods) {
+        const inp = document.getElementById(`combo-preco-${p.id}`);
+        const val = parseFloat(inp?.value||0);
+        if (!val||val<=0) { mostrarAlerta(`Informe o preço do combo para: ${p.nome}`); return; }
+        precoParts.push(`${p.id}:${val.toFixed(2)}`);
+      }
+      precos = precoParts.join('|');
+      valor  = 0;
+    }
   }
   const btn = document.getElementById('btn-submit');
   btn.disabled=true; btn.textContent='Salvando…';
@@ -372,13 +431,15 @@ async function criarCupom() {
     const parcelamento  = document.getElementById('f_parcelamento').checked ? 'SIM' : 'NAO';
     const freteAtivo    = document.getElementById('f_frete_gratis').checked;
     const freteMin      = parseFloat(document.getElementById('f_frete_minimo').value) || 0;
+    const tipoAPI = tipoAtual === 'pct' ? '%' : (tipoAtual === 'combo' ? 'combo' : 'fixo');
     const data = await postAction_('criarcupom', {
       email: SESSION.email, senha: SESSION.senha,
-      codigo, tipo: tipoAtual === 'pct' ? '%' : 'fixo',
+      codigo, tipo: tipoAPI,
       valor: valor || 0, produtos, precos, validade: validadeFmt,
       parcelamento,
       frete_gratis_acima: freteAtivo ? freteMin.toFixed(2) : '',
       frete_gratis_ativo: freteAtivo ? 'SIM' : 'NAO',
+      combo_modo: comboModo,
     });
     if (data.ok) {
       document.getElementById('suc-code').textContent = codigo;

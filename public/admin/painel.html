@@ -14,6 +14,7 @@
 <link rel="apple-touch-icon" href="icons/icon-192.svg"/>
 <link rel="stylesheet" href="../assets/css/theme.css"/>
 <link rel="stylesheet" href="assets/css/admin.css"/>
+<link rel="stylesheet" href="assets/css/admin-features.css"/>
 <link rel="stylesheet" href="../assets/css/gerador_pedido.css"/>
 </head>
 <body class="admin-layout">
@@ -250,11 +251,16 @@
             <select id="nc-tipo" onchange="toggleCupomTipo()">
               <option value="%">% Desconto</option>
               <option value="fixo">Preço Fixo</option>
+              <option value="combo">🎁 Combo</option>
             </select>
           </div>
           <div class="field-inline" id="nc-valor-wrap">
             <label>Desconto (%)</label>
             <input type="number" id="nc-valor" min="1" max="100" placeholder="10"/>
+          </div>
+          <div class="field-inline hidden" id="nc-combo-valor-wrap">
+            <label>Valor final do combo (R$)</label>
+            <input type="number" id="nc-combo-valor" min="0" step="0.01" placeholder="180.00"/>
           </div>
           <div class="field-inline">
             <label>Validade</label>
@@ -281,6 +287,40 @@
             <div id="nc-precos-items"></div>
           </div>
           <input type="hidden" id="nc-produtos" value="todos"/>
+        </div>
+
+        <!-- Combo: opções específicas (modo + tipo de preço) -->
+        <div id="nc-combo-wrap" class="cupom-combo-wrap hidden" style="background:rgba(245,158,11,0.06);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:12px;font-weight:700;color:var(--accent)">🎁 Configuração do combo</div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">Como combinar variantes</label>
+            <div style="display:flex;gap:14px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+                <input type="radio" name="nc-combo-modo" value="qualquer" checked onchange="onComboModoChange()"/>
+                <span>Qualquer variante</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+                <input type="radio" name="nc-combo-modo" value="variante" onchange="onComboModoChange()"/>
+                <span>Variante específica</span>
+              </label>
+            </div>
+            <div style="font-size:11px;color:var(--text2);margin-top:3px" id="nc-combo-modo-hint">
+              ↳ Cliente leva o combo independente da dose escolhida
+            </div>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;margin-bottom:4px">Como definir o preço</label>
+            <div style="display:flex;gap:14px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+                <input type="radio" name="nc-combo-preco-tipo" value="final" checked onchange="onComboPrecoTipoChange()"/>
+                <span>Valor final único do combo</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+                <input type="radio" name="nc-combo-preco-tipo" value="item" onchange="onComboPrecoTipoChange()"/>
+                <span>Preço de cada item</span>
+              </label>
+            </div>
+          </div>
         </div>
 
         <!-- Linha 3: extras -->
@@ -670,6 +710,14 @@
       <div class="config-section">
         <h3 class="cfg-section-title">🎁 Programa de Indicação</h3>
         <div class="cfg-form">
+          <!-- Toggle ATIVAR / DESATIVAR -->
+          <label class="ind-toggle" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F5F1E8;border:1px solid #E5E0D5;border-radius:10px;cursor:pointer;margin-bottom:6px">
+            <input type="checkbox" id="cfg-ind-ativa" onchange="onToggleIndicacaoAtiva(this)" style="width:18px;height:18px;cursor:pointer;accent-color:#15A47A"/>
+            <div style="flex:1">
+              <div style="font-weight:700;color:#1F2937">Sistema de indicação ativo</div>
+              <div style="font-size:11px;color:#4B5563">Ao desativar, o programa some da tela do cliente. Pedidos e comissões existentes não são apagados — só não geram novas.</div>
+            </div>
+          </label>
           <div class="cfg-row" style="display:flex;gap:18px;flex-wrap:wrap">
             <div class="field-inline" style="flex:0 0 auto">
               <label>Percentual de comissão</label>
@@ -696,6 +744,39 @@
             Comissão é calculada na primeira compra de cada cliente indicado.
             Após a carência (e pedido pago/enviado), a comissão fica disponível pro indicador no perfil dele.
           </p>
+        </div>
+      </div>
+
+      <!-- Recursos Opcionais (feature flags) -->
+      <div class="config-section">
+        <h3 class="cfg-section-title">🎛️ Recursos Opcionais</h3>
+        <div class="cfg-form">
+          <p style="font-size:12px;color:var(--text2);margin:0 0 10px;line-height:1.5">
+            Liga ou desliga funcionalidades do site sem precisar mexer no código.
+            Se algo der problema, basta desativar aqui.
+          </p>
+          <label class="ind-toggle" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F5F1E8;border:1px solid #E5E0D5;border-radius:10px;cursor:pointer;margin-bottom:6px">
+            <input type="checkbox" id="cfg-feat-pagina-produto" data-feature="feature_pagina_produto" onchange="salvarFeatureFlag(this)" style="width:18px;height:18px;cursor:pointer;accent-color:#15A47A"/>
+            <div style="flex:1">
+              <div style="font-weight:700;color:#1F2937">Página individual de produto</div>
+              <div style="font-size:11px;color:#4B5563">Permite ao cliente clicar num produto e ver uma página detalhada (/produto.html?id=…). Quando desligado, o link some do catálogo.</div>
+            </div>
+          </label>
+          <label class="ind-toggle" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F5F1E8;border:1px solid #E5E0D5;border-radius:10px;cursor:pointer;margin-bottom:6px">
+            <input type="checkbox" id="cfg-feat-fotos-produtos" data-feature="feature_fotos_produtos" onchange="salvarFeatureFlag(this)" style="width:18px;height:18px;cursor:pointer;accent-color:#15A47A"/>
+            <div style="flex:1">
+              <div style="font-weight:700;color:#1F2937">Fotos nos cards do catálogo</div>
+              <div style="font-size:11px;color:#4B5563">Mostra a foto JPEG do produto no card. Se a foto não existir, o card volta automaticamente pro emoji — não quebra nada.</div>
+            </div>
+          </label>
+          <label class="ind-toggle" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F5F1E8;border:1px solid #E5E0D5;border-radius:10px;cursor:pointer;margin-bottom:6px">
+            <input type="checkbox" id="cfg-feat-informativos-novo" data-feature="feature_informativos_novo_layout" onchange="salvarFeatureFlag(this)" style="width:18px;height:18px;cursor:pointer;accent-color:#15A47A"/>
+            <div style="flex:1">
+              <div style="font-weight:700;color:#1F2937">Novo layout dos informativos</div>
+              <div style="font-size:11px;color:#4B5563">Usa o sistema unificado (informativo.js) nas páginas dos 45 produtos. Mais leve e fácil de manter. Desligar volta pro modelo antigo.</div>
+            </div>
+          </label>
+          <span id="cfg-feat-status" style="font-size:12px;display:inline-block;margin-top:4px"></span>
         </div>
       </div>
 

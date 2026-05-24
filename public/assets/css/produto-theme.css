@@ -1,0 +1,169 @@
+/*
+ * produto-theme.css
+ * Override de cores do produto.css usando as variáveis CSS de theme.css.
+ * Garante que a página de produto respeite a identidade visual do site
+ * (dark theme do Pharmafit, em vez da paleta verde/bege neutra do template).
+ *
+ * Carregar DEPOIS de produto.css no <head>.
+ */
+
+/* ── HEADER ────────────────────────────────────────────────────────────────── */
+.produto-header {
+  background: var(--header-bg) !important;
+  color: var(--header-text) !important;
+  border-bottom-color: var(--accent) !important;
+}
+.produto-logo {
+  background: transparent !important;
+}
+.produto-header-btn {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: var(--border) !important;
+  color: var(--header-text) !important;
+}
+.produto-header-btn:hover {
+  background: var(--surface) !important;
+  border-color: var(--accent) !important;
+}
+
+/* ── MAIN ─────────────────────────────────────────────────────────────────── */
+.produto-main {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+/* ── BREADCRUMB ───────────────────────────────────────────────────────────── */
+.produto-breadcrumb {
+  color: var(--gray) !important;
+}
+.produto-breadcrumb a {
+  color: var(--accent) !important;
+}
+.produto-breadcrumb span {
+  color: var(--gray2) !important;
+}
+.produto-bc-current {
+  color: var(--text) !important;
+}
+
+/* ── LOADING / ERRO ──────────────────────────────────────────────────────── */
+.produto-loading,
+.produto-erro {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+.produto-erro-title { color: var(--text) !important; }
+.produto-erro-sub   { color: var(--gray) !important; }
+
+/* ── COLUNAS: GALERIA + INFO ─────────────────────────────────────────────── */
+.produto-image-main,
+.produto-info {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25) !important;
+}
+.img-placeholder {
+  background: linear-gradient(135deg, var(--surface), var(--card)) !important;
+  border-color: var(--border) !important;
+}
+
+/* ── INFO TEXTOS ─────────────────────────────────────────────────────────── */
+.produto-lab       { color: var(--gray) !important; }
+.produto-name      { color: var(--text) !important; }
+.produto-conc      { color: var(--gray2) !important; }
+.produto-meta-item { color: var(--gray) !important; }
+.produto-categoria-label, #produto-categoria-label,
+#produto-estoque { color: var(--gray) !important; }
+
+/* ── PREÇO ───────────────────────────────────────────────────────────────── */
+.produto-price-current        { color: var(--accent) !important; }
+.produto-price-current.promo  { color: var(--red) !important; }
+.produto-price-old            { color: var(--gray) !important; }
+.produto-price-from           { color: var(--gray) !important; }
+.produto-promo-pct {
+  background: var(--red) !important;
+  color: var(--white) !important;
+}
+
+/* ── VARIANTES ───────────────────────────────────────────────────────────── */
+.produto-variantes-label { color: var(--text) !important; }
+.produto-variante-btn {
+  background: var(--input-bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+.produto-variante-btn:hover {
+  border-color: var(--accent) !important;
+}
+.produto-variante-btn.active {
+  border-color: var(--accent) !important;
+  background: rgba(245,158,11,0.10) !important;
+  box-shadow: 0 0 0 1px var(--accent) inset !important;
+}
+.produto-variante-dose   { color: var(--text) !important; }
+.produto-variante-preco  { color: var(--accent) !important; }
+
+/* ── QUANTIDADE ──────────────────────────────────────────────────────────── */
+.produto-qty-control {
+  border-color: var(--border) !important;
+}
+.qty-btn {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+}
+#produto-qty {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+}
+.produto-qty-control .qty-btn:hover {
+  background: var(--surface) !important;
+}
+
+/* ── TAGS ────────────────────────────────────────────────────────────────── */
+.produto-tag {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--gray2) !important;
+}
+
+/* ── ABAS DESCRIÇÃO / PROTOCOLO ──────────────────────────────────────────── */
+.produto-tabs-wrap {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+}
+.produto-tab {
+  color: var(--gray) !important;
+  background: transparent !important;
+}
+.produto-tab:hover { color: var(--text) !important; }
+.produto-tab.active {
+  color: var(--accent) !important;
+  border-bottom-color: var(--accent) !important;
+}
+.produto-tab-content,
+#produto-descricao-body,
+#produto-protocolo-body {
+  color: var(--text) !important;
+}
+
+/* ── PRODUTOS RELACIONADOS ───────────────────────────────────────────────── */
+.produto-relacionados-section {
+  background: transparent !important;
+}
+.produto-relacionados-title {
+  color: var(--text) !important;
+}
+.produto-relacionados-grid .card,
+.produto-rel-card {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────────────────── */
+.produto-footer {
+  background: var(--surface) !important;
+  color: var(--gray) !important;
+  border-top-color: var(--border) !important;
+}

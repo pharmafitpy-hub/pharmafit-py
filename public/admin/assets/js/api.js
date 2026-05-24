@@ -39,6 +39,8 @@ const API = {
   },
 
   pedidos:      ()               => API.call({ action: 'painel_pedidos' }),
+  aplicarDescontoPos: (pedido_id, tipo, valor, motivo) =>
+    API.call({ action: 'aplicar_desconto_pos_venda', pedido_id, tipo, valor, motivo: motivo || '' }),
   estatisticas: ()               => API.call({ action: 'estatisticas' }),
   clientes:     ()               => API.call({ action: 'clientes' }),
   produtos:     ()               => API.call({ action: 'produtos' }),
@@ -63,6 +65,8 @@ const API = {
   relatorio:        ()                  => API.call({ action: 'relatorio' }),
   salvarNotaInt:    (id, nota)          => API.call({ action: 'salvar_nota_interna', id, nota }),
   criarProduto:     (p)                 => API.call({ action: 'criar_produto', ...p }),
+  apagarProduto:    (prodId)            => API.call({ action: 'apagar_produto', prod_id: prodId }),
+  salvarImagemProduto: (prodId, filename) => API.call({ action: 'salvar_imagem_produto', prod_id: prodId, imagem: filename || '' }),
   retornarEstoque:  (id)                => API.call({ action: 'retornar_estoque', id }),
   protocolos:       ()                  => API.call({ action: 'protocolos' }),
   editarProtocolo:  (p)                 => API.call({ action: 'editar_protocolo', ...p }),
