@@ -685,10 +685,12 @@ function _aplicarComoCupom(codigo) {
         // Combo incompleto — não aplica + lista o que falta
         const faltantes = itensCombo.filter(id => qtyPorItem[id] === 0);
         const nomesFaltantes = faltantes.map(id => {
-          const baseId = id.split('__')[0];
-          const p = (typeof PRODUTOS !== 'undefined' && Array.isArray(PRODUTOS))
-            ? PRODUTOS.find(x => x.id === baseId) : null;
-          return p ? p.nome : baseId;
+          const baseId = String(id).split('__')[0];
+          const list = (typeof CATALOG !== 'undefined' && Array.isArray(CATALOG)) ? CATALOG
+                     : (typeof PRODUTOS !== 'undefined' && Array.isArray(PRODUTOS)) ? PRODUTOS
+                     : [];
+          const p = list.find(x => String(x.id) === baseId);
+          return p ? p.nome : `produto ${baseId}`;
         });
         cupomAplicado = false; cupomCodigo = ''; cupomDesconto = 0; cupomData = null;
         document.getElementById('f_codigo').disabled   = false;
