@@ -71,6 +71,73 @@
   background: var(--card) !important;
 }
 
+/* ── Controle de quantidade [− qty +] (era fundo branco/bege) ─────────── */
+.produto-qty-control {
+  background: var(--input-bg) !important;
+  border-color: var(--border) !important;
+}
+.produto-qty-control .qty-btn {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+.produto-qty-control .qty-btn:hover {
+  background: var(--card) !important;
+  color: var(--accent) !important;
+}
+#produto-qty {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+}
+
+/* ── Tabs Descrição / Protocolo (era fundo branco/bege) ───────────────── */
+.produto-tabs {
+  background: var(--surface) !important;
+  border-bottom-color: var(--border) !important;
+}
+.produto-tab {
+  color: var(--gray) !important;
+  background: transparent !important;
+}
+.produto-tab:hover { color: var(--text) !important; }
+.produto-tab.active {
+  color: var(--accent) !important;
+  background: var(--card) !important;
+  border-bottom-color: var(--accent) !important;
+}
+.produto-tab-content {
+  color: var(--text) !important;
+  background: var(--card) !important;
+}
+.produto-tab-content h3 {
+  color: var(--accent) !important;
+}
+.produto-tab-content code {
+  background: rgba(245,158,11,0.10) !important;
+  color: var(--accent) !important;
+}
+.produto-tab-empty { color: var(--gray) !important; }
+
+/* ── Produtos relacionados (cards eram brancos) ────────────────────────── */
+.produto-relacionados-title { color: var(--text) !important; }
+.rel-card {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+.rel-card:hover {
+  border-color: var(--accent) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4) !important;
+}
+.rel-card .rel-media {
+  background: var(--surface) !important;
+  border-bottom-color: var(--border) !important;
+}
+.rel-card .rel-name { color: var(--text) !important; }
+.rel-card .rel-price,
+.rel-card .rel-price-current { color: var(--accent) !important; }
+.rel-card .rel-lab,
+.rel-card .rel-conc { color: var(--gray) !important; }
+
 /* ── BREADCRUMB ───────────────────────────────────────────────────────────── */
 .produto-breadcrumb {
   color: var(--gray) !important;
