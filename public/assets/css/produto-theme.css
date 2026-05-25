@@ -32,6 +32,45 @@
   color: var(--text) !important;
 }
 
+/* ── WRAPPER 2 COLUNAS (era branco com bordas claras) ─────────────────── */
+.produto-wrap {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* ── Container das abas Descrição/Protocolo ────────────────────────────── */
+.produto-tabs-wrap {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25) !important;
+}
+
+/* ── LOGO sem fundo branco ─────────────────────────────────────────────── */
+.produto-logo {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* ── Botão Voltar inline (perto do breadcrumb) ─────────────────────────── */
+.produto-btn-voltar-inline {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: border-color .12s, background .12s;
+  flex-shrink: 0;
+}
+.produto-btn-voltar-inline:hover {
+  border-color: var(--accent) !important;
+  background: var(--card) !important;
+}
+
 /* ── BREADCRUMB ───────────────────────────────────────────────────────────── */
 .produto-breadcrumb {
   color: var(--gray) !important;

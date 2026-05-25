@@ -466,6 +466,15 @@ async function carregarProdutos() {
     // Remove skeleton agora que CATALOG está pronto
     const sk = document.getElementById('skeleton-wrap');
     if (sk) sk.style.display = 'none';
+    // Restaura scroll se cliente voltou de produto.html
+    try {
+      const savedScroll = sessionStorage.getItem('pf_pedido_scroll');
+      const cameFromProduto = document.referrer && document.referrer.indexOf('produto.html') > -1;
+      if (savedScroll && cameFromProduto) {
+        setTimeout(() => { window.scrollTo(0, parseInt(savedScroll, 10) || 0); }, 50);
+      }
+      sessionStorage.removeItem('pf_pedido_scroll');
+    } catch (_) {}
 
   } catch(e) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#e74c3c">⚠️ Erro ao carregar produtos. Recarregue a página.</div>';
@@ -1080,7 +1089,7 @@ function renderProducts() {
       <span class="promo-price-old">R$ ${p.price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>` : '';
     const temProtocolo = PROTOCOLS && PROTOCOLS[p.id];
     const saibaMaisBtn = temProtocolo ? `<button class="btn-saiba-mais" onclick="event.stopPropagation(); abrirProtocolo('${escAttr(p.id)}')">📋 Saiba mais sobre este produto</button>` : '';
-    const verPaginaBtn = `<a class="btn-ver-pagina" href="produto.html?id=${escAttr(p.id)}" onclick="event.stopPropagation()">📄 Ver página completa do produto</a>`;
+    const verPaginaBtn = `<a class="btn-ver-pagina" href="produto.html?id=${escAttr(p.id)}" onclick="event.stopPropagation(); try{sessionStorage.setItem('pf_pedido_scroll', String(window.scrollY||0));}catch(_){}">📄 Ver página completa do produto</a>`;
     const temVariantes = p.variantes && p.variantes.length > 0;
 
     // Produtos COM variantes: cada dose tem sua própria linha com [− qty +]

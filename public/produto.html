@@ -14,9 +14,6 @@
 <body>
 
 <header class="produto-header">
-  <button type="button" class="produto-header-btn produto-btn-voltar" onclick="if(document.referrer && history.length>1){history.back();}else{window.location.href='pedido.html';}" title="Voltar pra onde você estava">
-    ← Voltar
-  </button>
   <a href="index.html" class="produto-logo-link">
     <img src="assets/img/logo.png" alt="Sua Empresa" class="produto-logo" />
   </a>
@@ -28,15 +25,20 @@
 
 <main class="produto-main">
 
-  <!-- BREADCRUMB -->
-  <div class="produto-breadcrumb">
-    <a href="index.html">Início</a>
-    <span>›</span>
-    <a href="pedido.html">Catálogo</a>
-    <span>›</span>
-    <span id="bc-categoria">…</span>
-    <span>›</span>
-    <span id="bc-produto" class="produto-bc-current">Carregando…</span>
+  <!-- VOLTAR + BREADCRUMB -->
+  <div class="produto-nav-row" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px">
+    <button type="button" class="produto-btn-voltar-inline" onclick="if(document.referrer && document.referrer.indexOf(window.location.host)>-1 && history.length>1){history.back();}else{window.location.href='pedido.html';}" title="Voltar pra onde você estava">
+      ← Voltar
+    </button>
+    <div class="produto-breadcrumb" style="margin:0">
+      <a href="index.html">Início</a>
+      <span>›</span>
+      <a href="pedido.html">Catálogo</a>
+      <span>›</span>
+      <span id="bc-categoria">…</span>
+      <span>›</span>
+      <span id="bc-produto" class="produto-bc-current">Carregando…</span>
+    </div>
   </div>
 
   <!-- LOADING -->

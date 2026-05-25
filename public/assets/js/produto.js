@@ -77,8 +77,12 @@
   }
 
   function imagemHTML(p, sizeClass) {
-    if (p.imagem) {
-      return `<img src="assets/img/produtos/${escAttr(p.imagem)}" alt="${escAttr(p.nome)}" onerror="this.outerHTML='<div class=\\'img-placeholder tone-0\\'><span class=\\'ph-icon\\'>📦</span></div>'"/>`;
+    // Suporta URL completa (Drive — upload pelo admin) OU nome de arquivo legado
+    const fotoVal = p.imagem || p.foto || '';
+    if (fotoVal) {
+      const isUrl = /^https?:\/\//i.test(fotoVal);
+      const src   = isUrl ? fotoVal : `assets/img/produtos/${fotoVal}`;
+      return `<img src="${escAttr(src)}" alt="${escAttr(p.nome)}" onerror="this.outerHTML='<div class=\\'img-placeholder tone-0\\'><span class=\\'ph-icon\\'>📦</span></div>'"/>`;
     }
     return `<div class="img-placeholder tone-0"><span class="ph-icon">${esc(p.icone || '📦')}</span></div>`;
   }
