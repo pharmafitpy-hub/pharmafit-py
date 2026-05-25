@@ -1147,9 +1147,16 @@ function renderProdutos() {
       ? p.variantes.reduce((s, v) => s + (parseInt(v.estoque) || 0), 0)
       : (parseInt(p.estoque) || 0);
     const low = est < 5;
+    // Imagem do produto (URL drive ou nome de arquivo) — fallback emoji
+    const fotoVal = p.imagem || p.foto || '';
+    const isUrl   = /^https?:\/\//i.test(fotoVal);
+    const srcFoto = isUrl ? fotoVal : (fotoVal ? `../assets/img/produtos/${fotoVal}` : '');
+    const fotoHtml = srcFoto
+      ? `<img class="prod-card-foto" src="${escAttr(srcFoto)}" alt="${escAttr(p.nome)}" loading="lazy" onerror="this.outerHTML='<div class=\\'prod-card-icon\\'>${esc(p.icone || '💊').replace(/'/g,'&apos;')}</div>'"/>`
+      : `<div class="prod-card-icon">${p.icone || '💊'}</div>`;
     return `
       <div class="admin-card" data-prod-id="${escAttr(p.id)}" title="Right-click pra mais opções">
-        <div class="prod-card-icon">${p.icone || '💊'}</div>
+        ${fotoHtml}
         <div class="prod-card-name">${esc(p.nome)}</div>
         <div class="prod-card-conc">${esc(p.conc || '—')}</div>
         <div class="prod-card-stock${low ? ' stock-low' : ''}">
@@ -1162,10 +1169,157 @@ function renderProdutos() {
         <div class="prod-card-price">R$ ${formatNum(p.preco)}</div>
         <div class="admin-card-footer">
           <span class="badge ${est > 0 ? 'badge-on' : 'badge-off'}">${est > 0 ? 'Ativo' : 'Esgotado'}</span>
+          <button class="btn-xs btn-foto" onclick="openUploadFotoModal('${escAttr(p.id)}')" title="${srcFoto ? 'Trocar foto' : 'Adicionar foto'}">📷</button>
           <button class="btn-xs" onclick="abrirEditarProduto('${escAttr(p.id)}')">✏️ Editar</button>
         </div>
       </div>`;
   }).join('');
+}
+
+// ── UPLOAD DE FOTO DE PRODUTO ─────────────────────────────────────────────────
+function openUploadFotoModal(prodId) {
+  const prod = App.produtos.find(p => String(p.id) === String(prodId));
+  if (!prod) return;
+  const fotoAtual = prod.imagem || prod.foto || '';
+  const isUrlAtual = /^https?:\/\//i.test(fotoAtual);
+  const srcAtual = isUrlAtual ? fotoAtual : (fotoAtual ? `../assets/img/produtos/${fotoAtual}` : '');
+
+  openModal(`
+    <div class="modal-header">
+      <h2>📷 Foto · ${esc(prod.nome)}</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" style="padding:18px 22px;display:flex;flex-direction:column;gap:14px">
+      ${srcAtual ? `
+        <div style="text-align:center">
+          <div style="font-size:12px;color:var(--gray);margin-bottom:6px">Foto atual</div>
+          <img src="${escAttr(srcAtual)}" style="max-height:140px;max-width:100%;border-radius:8px;border:1px solid var(--border)"/>
+        </div>` : ''}
+      <div>
+        <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px">Escolher nova foto</label>
+        <input type="file" id="uf-file" accept="image/jpeg,image/png,image/webp" onchange="_ufPreview(this)"
+          style="width:100%;padding:8px;border:1px dashed var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:13px"/>
+        <div style="font-size:11px;color:var(--gray);margin-top:4px">JPG, PNG ou WEBP · será redimensionada pra 800px e comprimida automaticamente</div>
+      </div>
+      <div id="uf-preview-wrap" style="display:none;text-align:center;border-top:1px dashed var(--border);padding-top:12px">
+        <div style="font-size:12px;color:var(--accent);margin-bottom:6px">Pré-visualização</div>
+        <img id="uf-preview" style="max-height:200px;max-width:100%;border-radius:8px;border:2px solid var(--accent)"/>
+        <div id="uf-info" style="font-size:11px;color:var(--gray);margin-top:6px"></div>
+      </div>
+      <div id="uf-status" style="font-size:12px;text-align:center"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        ${srcAtual ? `<button class="btn-sm btn-ghost" onclick="removerFotoProduto('${escAttr(prodId)}')">🗑️ Remover atual</button>` : ''}
+        <button class="btn-sm btn-ghost" onclick="closeModal()">Cancelar</button>
+        <button class="btn-sm btn-accent" onclick="enviarFotoProduto('${escAttr(prodId)}')" id="uf-btn-send" disabled>Enviar foto</button>
+      </div>
+    </div>
+  `);
+}
+
+async function _ufPreview(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const status = document.getElementById('uf-status');
+  // Validações
+  if (file.size > 10 * 1024 * 1024) {
+    if (status) { status.textContent = '⚠️ Arquivo muito grande (máx 10MB)'; status.style.color = '#FCA5A5'; }
+    return;
+  }
+  if (!/^image\/(jpeg|jpg|png|webp)$/i.test(file.type)) {
+    if (status) { status.textContent = '⚠️ Use JPG, PNG ou WEBP'; status.style.color = '#FCA5A5'; }
+    return;
+  }
+  try {
+    const { dataUrl, sizeKb, w, h } = await _comprimirImagem(file, 800, 0.85);
+    const preview = document.getElementById('uf-preview');
+    const wrap = document.getElementById('uf-preview-wrap');
+    const info = document.getElementById('uf-info');
+    const btn = document.getElementById('uf-btn-send');
+    if (preview) preview.src = dataUrl;
+    if (wrap)    wrap.style.display = 'block';
+    if (info)    info.textContent = `${w}×${h}px · ~${sizeKb}KB`;
+    if (btn)     { btn.disabled = false; btn.dataset.dataUrl = dataUrl; }
+    if (status)  status.textContent = '';
+  } catch (e) {
+    if (status) { status.textContent = '⚠️ Erro ao processar imagem'; status.style.color = '#FCA5A5'; }
+  }
+}
+
+// Comprime imagem client-side via canvas — retorna dataURL JPEG
+function _comprimirImagem(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > h && w > maxDim) { h = h * maxDim / w; w = maxDim; }
+        else if (h >= w && h > maxDim) { w = w * maxDim / h; h = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(w);
+        canvas.height = Math.round(h);
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        const sizeKb = Math.round((dataUrl.length * 0.75) / 1024);
+        resolve({ dataUrl, sizeKb, w: canvas.width, h: canvas.height });
+      };
+      img.onerror = () => reject(new Error('Falha ao carregar imagem'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Falha ao ler arquivo'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function enviarFotoProduto(prodId) {
+  const btn = document.getElementById('uf-btn-send');
+  const status = document.getElementById('uf-status');
+  const dataUrl = btn?.dataset?.dataUrl;
+  if (!dataUrl) return;
+  const m = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if (!m) { if (status) status.textContent = '⚠️ Formato inválido'; return; }
+  const mime = m[1];
+  const base64 = m[2];
+  btn.disabled = true;
+  if (status) { status.textContent = '⏳ Enviando…'; status.style.color = 'var(--gray)'; }
+  try {
+    const data = await API.uploadImagemProduto(prodId, base64, mime);
+    if (data && data.ok) {
+      const prod = App.produtos.find(p => String(p.id) === String(prodId));
+      if (prod) prod.imagem = data.imagem;
+      if (status) { status.textContent = '✅ Foto enviada!'; status.style.color = '#22C55E'; }
+      showToast('Foto enviada!');
+      closeModal();
+      renderProdutos();
+    } else {
+      if (status) { status.textContent = '⚠️ ' + ((data && data.erro) || 'Erro ao enviar'); status.style.color = '#FCA5A5'; }
+      btn.disabled = false;
+    }
+  } catch (e) {
+    if (status) { status.textContent = '⚠️ Erro de conexão'; status.style.color = '#FCA5A5'; }
+    btn.disabled = false;
+  }
+}
+
+async function removerFotoProduto(prodId) {
+  if (!confirm('Remover a foto deste produto?')) return;
+  try {
+    const data = await API.removerImagemProduto(prodId);
+    if (data && data.ok) {
+      const prod = App.produtos.find(p => String(p.id) === String(prodId));
+      if (prod) { prod.imagem = ''; prod.foto = ''; }
+      showToast('Foto removida');
+      closeModal();
+      renderProdutos();
+    } else {
+      showToast('Erro ao remover: ' + ((data && data.erro) || ''), 'error');
+    }
+  } catch (e) {
+    showToast('Erro de conexão', 'error');
+  }
 }
 
 async function updateStock(prodId, valor) {

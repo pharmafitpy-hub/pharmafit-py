@@ -440,7 +440,14 @@ function _pfRenderCodigo(codigo) {
   if (btnShare && !btnShare._wired) {
     btnShare._wired = true;
     btnShare.addEventListener('click', async () => {
-      const msg = `🎁 Use meu código *${codigo}* na sua primeira compra! Catálogo: ${window.location.origin}`;
+      // Base URL: prefere CLIENT.baseUrl (config.js). Senão monta a partir do
+      // location atual sem o nome do arquivo final — preserva subpath do GitHub
+      // Pages (ex: pharmafitpy-hub.github.io/Pharmafitpy/ em vez de só /).
+      const base = (typeof CLIENT !== 'undefined' && CLIENT.baseUrl && String(CLIENT.baseUrl).trim())
+        ? String(CLIENT.baseUrl).replace(/\/$/, '')
+        : (window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, ''));
+      const linkInd = `${base}/?ref=${encodeURIComponent(codigo)}`;
+      const msg = `🎁 Use meu código *${codigo}* na sua primeira compra!\n${linkInd}`;
       if (navigator.share) {
         try { await navigator.share({ text: msg }); } catch (_) {}
       } else {

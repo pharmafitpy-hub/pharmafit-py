@@ -4,6 +4,26 @@ let catAtiva  = '';
 let queryAtiva = '';
 let FLAGS     = { feature_pagina_produto: true, feature_fotos_produtos: true };
 
+// ── Captura ?ref=CODIGO da URL e salva no localStorage (30 dias) ──
+// Permite que cliente clique no link de indicação compartilhado pelo perfil
+// e o código seja auto-preenchido depois no checkout (pedido.js lê isso).
+(function _captureRefIndicacao() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const ref = (params.get('ref') || '').trim().toUpperCase();
+    if (!ref) return;
+    if (!/^[A-Z0-9_-]{1,30}$/.test(ref)) return;
+    const data = { code: ref, expires: Date.now() + (30 * 24 * 60 * 60 * 1000) };
+    localStorage.setItem('pf_ref_pending', JSON.stringify(data));
+    if (window.history && window.history.replaceState) {
+      params.delete('ref');
+      const newSearch = params.toString();
+      const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+  } catch (_) { /* silencioso */ }
+})();
+
 // ── ESCAPE HTML ──
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -171,10 +191,16 @@ function buildCard(p) {
       <div class="variants-list">${rows}</div>`;
   }
 
-  // Foto opcional (feature_fotos_produtos) — fallback emoji se 404
-  const temFoto = FLAGS.feature_fotos_produtos !== false && p.foto;
+  // Foto opcional (feature_fotos_produtos) — fallback emoji se 404.
+  // Suporta:
+  //   - URL completa (Drive, https://...) — gerada pelo upload no admin
+  //   - Nome de arquivo legado (assets/img/produtos/<nome>)
+  const fotoVal  = p.imagem || p.foto || '';
+  const temFoto  = FLAGS.feature_fotos_produtos !== false && fotoVal;
+  const isUrl    = /^https?:\/\//i.test(fotoVal);
+  const srcFoto  = isUrl ? fotoVal : `assets/img/produtos/${fotoVal}`;
   const iconHtml = temFoto
-    ? `<img class="card-foto" src="assets/img/produtos/${escAttr(p.foto)}" alt="${escAttr(p.nome)}" loading="lazy" onerror="this.outerHTML='<div class=\\'card-icon\\'>${esc(p.icone || '💊').replace(/'/g,'&apos;')}</div>'"/>`
+    ? `<img class="card-foto" src="${escAttr(srcFoto)}" alt="${escAttr(p.nome)}" loading="lazy" onerror="this.outerHTML='<div class=\\'card-icon\\'>${esc(p.icone || '💊').replace(/'/g,'&apos;')}</div>'"/>`
     : `<div class="card-icon">${esc(p.icone || '💊')}</div>`;
 
   // Link pra página de produto (feature_pagina_produto)

@@ -4,6 +4,51 @@ let freteMetodo = '';
 let freteCep = '';
 let freteEstado = '';
 
+// ── Captura ?ref=CODIGO da URL e salva no localStorage (30 dias) ──
+// Usado pelo link de indicação compartilhado pelo perfil. Auto-preenche
+// o campo de cupom/indicação no checkout depois.
+(function _captureRefIndicacao() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const ref = (params.get('ref') || '').trim().toUpperCase();
+    if (!ref) return;
+    if (!/^[A-Z0-9_-]{1,30}$/.test(ref)) return;
+    const data = { code: ref, expires: Date.now() + (30 * 24 * 60 * 60 * 1000) };
+    localStorage.setItem('pf_ref_pending', JSON.stringify(data));
+    if (window.history && window.history.replaceState) {
+      params.delete('ref');
+      const newSearch = params.toString();
+      const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+  } catch (_) { /* silencioso */ }
+})();
+
+// ── Auto-preenche campo de código se houver ref pendente do localStorage ──
+function _autoPreencherRefIndicacao() {
+  try {
+    const raw = localStorage.getItem('pf_ref_pending');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (!data || !data.code) return;
+    if (Date.now() > (data.expires || 0)) {
+      localStorage.removeItem('pf_ref_pending');
+      return;
+    }
+    const inp = document.getElementById('f_codigo');
+    if (inp && !inp.value && !inp.disabled) {
+      inp.value = data.code;
+      const msg = document.getElementById('codigo-msg');
+      if (msg) msg.innerHTML = '<div style="font-size:.78rem;color:var(--accent);margin-top:4px;padding:6px 8px;background:rgba(245,158,11,0.08);border-radius:4px">🎁 Código de indicação detectado automaticamente. Clique em <strong>Aplicar</strong> pra ativar.</div>';
+    }
+  } catch (_) { /* silencioso */ }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _autoPreencherRefIndicacao);
+} else {
+  _autoPreencherRefIndicacao();
+}
+
 // ── ESCAPE HTML ──
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

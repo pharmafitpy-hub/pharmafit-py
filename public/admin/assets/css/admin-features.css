@@ -78,3 +78,28 @@
   border-color: var(--accent) !important;
   color: var(--text) !important;
 }
+
+/* ── Foto do produto no card admin ──────────────────────────────────────── */
+.prod-card-foto {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: block;
+  margin-bottom: 6px;
+}
+.btn-foto {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  padding: 3px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.btn-foto:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
