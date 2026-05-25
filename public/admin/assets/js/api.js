@@ -7,11 +7,27 @@ const API = {
       if (!params.email) params.email = admin.email;
       if (!params.token) params.token = admin.token;
     }
-    const url = new URL(SHEETS_URL);
-    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, String(v)));
+    // Detecta payload grande (ex: foto em base64) — usa POST pra evitar
+    // estouro do limite de URL (browsers limitam ~8KB; Apps Script ~16KB).
+    // Threshold conservador: 5000 chars no total dos values.
+    const totalSize = Object.values(params).reduce((s, v) => s + String(v || '').length, 0);
+    const usePost = totalSize > 5000;
     let res;
     try {
-      res = await fetch(url.toString());
+      if (usePost) {
+        // POST com body JSON em text/plain pra evitar preflight CORS.
+        // Apps Script doPost lê e.postData.contents e parseia JSON.
+        res = await fetch(SHEETS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(params),
+          redirect: 'follow',
+        });
+      } else {
+        const url = new URL(SHEETS_URL);
+        Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, String(v)));
+        res = await fetch(url.toString());
+      }
     } catch (netErr) {
       console.error('[API] Erro de rede:', netErr, 'action:', params.action);
       throw new Error('Sem conexão com o servidor');

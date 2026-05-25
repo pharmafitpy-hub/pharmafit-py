@@ -1169,7 +1169,6 @@ function renderProdutos() {
         <div class="prod-card-price">R$ ${formatNum(p.preco)}</div>
         <div class="admin-card-footer">
           <span class="badge ${est > 0 ? 'badge-on' : 'badge-off'}">${est > 0 ? 'Ativo' : 'Esgotado'}</span>
-          <button class="btn-xs btn-foto" onclick="openUploadFotoModal('${escAttr(p.id)}')" title="${srcFoto ? 'Trocar foto' : 'Adicionar foto'}">📷</button>
           <button class="btn-xs" onclick="abrirEditarProduto('${escAttr(p.id)}')">✏️ Editar</button>
         </div>
       </div>`;
@@ -1272,6 +1271,98 @@ function _comprimirImagem(file, maxDim, quality) {
     reader.onerror = () => reject(new Error('Falha ao ler arquivo'));
     reader.readAsDataURL(file);
   });
+}
+
+// ── Upload inline dentro dos modais de produto (Editar/Novo) ────────────────
+// prefix: 'ep' (Editar — tem App.currentEditProdId) ou 'np' (Novo — guarda
+// dataURL em window._npPendingFoto, upload acontece após criar produto).
+async function _uploadFotoInline(input, prefix) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById(prefix + '-imagem-status');
+  const previewEl = document.getElementById(prefix + '-imagem-preview');
+  const hiddenEl  = document.getElementById(prefix + '-imagem');
+  const setStatus = (txt, color) => {
+    if (!statusEl) return;
+    statusEl.textContent = txt;
+    statusEl.style.color = color || 'var(--gray)';
+  };
+
+  if (file.size > 10 * 1024 * 1024) { setStatus('⚠️ Arquivo muito grande (máx 10MB)', '#FCA5A5'); return; }
+  if (!/^image\/(jpeg|jpg|png|webp)$/i.test(file.type)) { setStatus('⚠️ Use JPG, PNG ou WEBP', '#FCA5A5'); return; }
+
+  try {
+    setStatus('⏳ Comprimindo…');
+    const { dataUrl, sizeKb, w, h } = await _comprimirImagem(file, 800, 0.85);
+    if (previewEl) previewEl.innerHTML = `<img src="${dataUrl}" alt="" style="width:100%;height:100%;object-fit:cover"/>`;
+
+    if (prefix === 'ep') {
+      // Editar: tem prodId — upload imediato pro Drive
+      const prodId = App.currentEditProdId;
+      if (!prodId) { setStatus('⚠️ ID do produto não encontrado', '#FCA5A5'); return; }
+      const m = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+      if (!m) { setStatus('⚠️ Formato inválido', '#FCA5A5'); return; }
+      setStatus('⏳ Enviando pro Drive…');
+      const data = await API.uploadImagemProduto(prodId, m[2], m[1]);
+      if (data && data.ok) {
+        if (hiddenEl) hiddenEl.value = data.imagem;
+        setStatus(`✅ Foto enviada · ${w}×${h}px · ~${sizeKb}KB`, '#22C55E');
+        // Atualiza estado local
+        const prod = App.produtos.find(p => String(p.id) === String(prodId));
+        if (prod) prod.imagem = data.imagem;
+      } else {
+        setStatus('⚠️ ' + ((data && data.erro) || 'Erro ao enviar'), '#FCA5A5');
+      }
+    } else {
+      // Novo: guarda dataURL pendente — upload acontece após criar o produto
+      window._npPendingFoto = { dataUrl, mime: file.type };
+      const btnRem = document.getElementById('np-btn-remover-foto');
+      if (btnRem) btnRem.style.display = '';
+      setStatus(`📷 Foto pronta · ${w}×${h}px · ~${sizeKb}KB · será enviada ao criar`, 'var(--accent)');
+    }
+  } catch (e) {
+    setStatus('⚠️ Erro ao processar imagem', '#FCA5A5');
+  }
+}
+
+async function _removerFotoInline(prefix) {
+  const previewEl = document.getElementById(prefix + '-imagem-preview');
+  const hiddenEl  = document.getElementById(prefix + '-imagem');
+  const statusEl  = document.getElementById(prefix + '-imagem-status');
+  const fileEl    = document.getElementById(prefix + '-imagem-file');
+  const setStatus = (txt, color) => { if (statusEl) { statusEl.textContent = txt; statusEl.style.color = color || 'var(--gray)'; } };
+
+  if (prefix === 'ep') {
+    // Editar: remove do Drive + Sheets via API
+    const prodId = App.currentEditProdId;
+    if (!prodId) return;
+    if (!confirm('Remover a foto deste produto?')) return;
+    try {
+      setStatus('⏳ Removendo…');
+      const data = await API.removerImagemProduto(prodId);
+      if (data && data.ok) {
+        if (hiddenEl) hiddenEl.value = '';
+        if (previewEl) previewEl.innerHTML = '📦';
+        if (fileEl) fileEl.value = '';
+        setStatus('🗑 Foto removida');
+        const prod = App.produtos.find(p => String(p.id) === String(prodId));
+        if (prod) prod.imagem = '';
+      } else {
+        setStatus('⚠️ ' + ((data && data.erro) || 'Erro ao remover'), '#FCA5A5');
+      }
+    } catch (e) {
+      setStatus('⚠️ Erro de conexão', '#FCA5A5');
+    }
+  } else {
+    // Novo: só limpa local (sem chamada API — produto ainda não existe)
+    window._npPendingFoto = null;
+    if (previewEl) previewEl.innerHTML = '📦';
+    if (hiddenEl) hiddenEl.value = '';
+    if (fileEl) fileEl.value = '';
+    const btnRem = document.getElementById('np-btn-remover-foto');
+    if (btnRem) btnRem.style.display = 'none';
+    setStatus('');
+  }
 }
 
 async function enviarFotoProduto(prodId) {
@@ -2778,21 +2869,22 @@ function abrirEditarProduto(prodId) {
       </div>
 
       <div class="cfg-row">
-        <div class="field-inline" style="flex:0 0 240px">
-          <label>Imagem (arquivo)</label>
-          <div style="display:flex;gap:6px;align-items:center">
-            <input id="ep-imagem" value="${escAttr(p.imagem||'')}" placeholder="bpc-157.webp"
-              oninput="previewImagemProduto(this.value,'ep')" style="flex:1"/>
-            <button type="button" class="btn-sm" title="Remover imagem"
-              onclick="document.getElementById('ep-imagem').value='';previewImagemProduto('','ep');">🗑</button>
+        <div class="field-inline" style="flex:1 1 100%">
+          <label>📷 Foto do produto</label>
+          <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;background:var(--surface);padding:10px;border-radius:8px;border:1px solid var(--border)">
+            <div id="ep-imagem-preview" style="width:90px;height:90px;flex-shrink:0;border-radius:10px;background:var(--input-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:1.8rem">${(() => { const f = p.imagem || ''; const isUrl = /^https?:\/\//i.test(f); const src = isUrl ? f : (f ? `../assets/img/produtos/${escAttr(f)}` : ''); return src ? `<img src="${src}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML='⚠️'"/>` : '📦'; })()}</div>
+            <div style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px">
+              <input type="file" id="ep-imagem-file" accept="image/jpeg,image/png,image/webp"
+                onchange="_uploadFotoInline(this,'ep')"
+                style="font-size:12px;padding:6px;background:var(--input-bg);border:1px dashed var(--border);border-radius:6px;color:var(--text);width:100%"/>
+              <div style="font-size:10px;color:var(--gray);line-height:1.3">JPG, PNG ou WEBP · auto-redimensionada pra 800px · enviada direto pro Google Drive</div>
+              <div id="ep-imagem-status" style="font-size:11px;min-height:14px"></div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                ${p.imagem ? `<button type="button" class="btn-xs btn-ghost" onclick="_removerFotoInline('ep')">🗑 Remover foto</button>` : ''}
+              </div>
+            </div>
           </div>
-          <small style="font-size:.7rem;color:var(--gray);margin-top:4px;display:block;line-height:1.3">
-            Suba o arquivo em <code>assets/img/produtos/</code> no GitHub e coloque o nome aqui.
-          </small>
-        </div>
-        <div class="field-inline" style="flex:0 0 88px;align-items:center">
-          <label>Preview</label>
-          <div id="ep-imagem-preview" style="width:72px;height:72px;border-radius:10px;background:var(--input-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:1.6rem">${p.imagem ? `<img src="../assets/img/produtos/${escAttr(p.imagem)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML='⚠️'"/>` : '📦'}</div>
+          <input type="hidden" id="ep-imagem" value="${escAttr(p.imagem||'')}"/>
         </div>
       </div>
       <div class="cfg-row">
@@ -3571,17 +3663,22 @@ function abrirNovoProduto() {
       </div>
 
       <div class="cfg-row">
-        <div class="field-inline" style="flex:0 0 240px">
-          <label>Imagem (arquivo)</label>
-          <input id="np-imagem" placeholder="bpc-157.webp"
-            oninput="previewImagemProduto(this.value,'np')"/>
-          <small style="font-size:.7rem;color:var(--gray);margin-top:4px;display:block;line-height:1.3">
-            Suba o arquivo em <code>assets/img/produtos/</code> no GitHub e coloque o nome aqui.
-          </small>
-        </div>
-        <div class="field-inline" style="flex:0 0 88px;align-items:center">
-          <label>Preview</label>
-          <div id="np-imagem-preview" style="width:72px;height:72px;border-radius:10px;background:var(--input-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:1.6rem">📦</div>
+        <div class="field-inline" style="flex:1 1 100%">
+          <label>📷 Foto do produto (opcional)</label>
+          <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;background:var(--surface);padding:10px;border-radius:8px;border:1px solid var(--border)">
+            <div id="np-imagem-preview" style="width:90px;height:90px;flex-shrink:0;border-radius:10px;background:var(--input-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:1.8rem">📦</div>
+            <div style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px">
+              <input type="file" id="np-imagem-file" accept="image/jpeg,image/png,image/webp"
+                onchange="_uploadFotoInline(this,'np')"
+                style="font-size:12px;padding:6px;background:var(--input-bg);border:1px dashed var(--border);border-radius:6px;color:var(--text);width:100%"/>
+              <div style="font-size:10px;color:var(--gray);line-height:1.3">JPG, PNG ou WEBP · será enviada ao criar o produto</div>
+              <div id="np-imagem-status" style="font-size:11px;min-height:14px"></div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button type="button" class="btn-xs btn-ghost" id="np-btn-remover-foto" onclick="_removerFotoInline('np')" style="display:none">🗑 Cancelar foto</button>
+              </div>
+            </div>
+          </div>
+          <input type="hidden" id="np-imagem" value=""/>
         </div>
         <div class="field-inline" style="flex:0 0 160px">
           <label>Destaque</label>
@@ -3636,6 +3733,16 @@ async function salvarNovoProduto(e) {
   try {
     const data = await API.criarProduto(params);
     if (data.ok) {
+      // Se cliente escolheu foto antes de salvar, faz upload agora com o ID retornado
+      if (window._npPendingFoto && data.id) {
+        try {
+          msg.textContent = '📷 Enviando foto pro Drive…';
+          const f = window._npPendingFoto;
+          const m = f.dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+          if (m) await API.uploadImagemProduto(data.id, m[2], m[1]);
+        } catch (e) { /* não bloqueia — produto já foi criado */ }
+        window._npPendingFoto = null;
+      }
       showToast(`Produto criado! (ID: ${data.id})`);
       closeModal();
       await loadProdutos();
