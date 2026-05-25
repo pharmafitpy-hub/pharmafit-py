@@ -457,7 +457,8 @@ async function carregarProdutos() {
       promo_preco: parseFloat(p.promo_preco) || 0,
       promo_pct:   parseFloat(p.promo_pct)   || 0,
       promo_inicio: p.promo_inicio || '',
-      promo_fim:   p.promo_fim || ''
+      promo_fim:   p.promo_fim || '',
+      imagem:      p.imagem || p.foto || ''
     }));
     renderFilters();
     renderProducts();
