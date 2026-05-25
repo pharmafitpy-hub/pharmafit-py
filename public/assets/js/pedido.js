@@ -1188,8 +1188,12 @@ function productImageHTML(p, sizeClass) {
   const tone = _imgHashTone(p.categoria || p.id || p.name || '');
   const icon = p.icon || '💊';
   const cls  = sizeClass || '';
-  if (p.imagem) {
-    const src = `assets/img/produtos/${p.imagem}`;
+  // Suporta tanto URL completa (Drive — gerada pelo upload) quanto nome de
+  // arquivo legado (assets/img/produtos/<nome>).
+  const fotoVal = p.imagem || p.foto || '';
+  if (fotoVal) {
+    const isUrl = /^https?:\/\//i.test(fotoVal);
+    const src   = isUrl ? fotoVal : `assets/img/produtos/${fotoVal}`;
     return `<img class="product-img ${cls}" src="${escAttr(src)}" alt="${escAttr(p.name)}" loading="lazy"
       data-tone="${tone}" data-icon="${escAttr(icon)}" data-size-class="${escAttr(cls)}"
       onerror="imgFallback(this)"/>`;
