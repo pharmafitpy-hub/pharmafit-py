@@ -1080,6 +1080,7 @@ function renderProducts() {
       <span class="promo-price-old">R$ ${p.price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>` : '';
     const temProtocolo = PROTOCOLS && PROTOCOLS[p.id];
     const saibaMaisBtn = temProtocolo ? `<button class="btn-saiba-mais" onclick="event.stopPropagation(); abrirProtocolo('${escAttr(p.id)}')">📋 Saiba mais sobre este produto</button>` : '';
+    const verPaginaBtn = `<a class="btn-ver-pagina" href="produto.html?id=${escAttr(p.id)}" onclick="event.stopPropagation()">📄 Ver página completa do produto</a>`;
     const temVariantes = p.variantes && p.variantes.length > 0;
 
     // Produtos COM variantes: cada dose tem sua própria linha com [− qty +]
@@ -1161,6 +1162,7 @@ function renderProducts() {
         ${variantRowsHtml}
         ${qtyWrapHtml}
         ${saibaMaisBtn}
+        ${verPaginaBtn}
       </div>`;
   });
   updateTotal();

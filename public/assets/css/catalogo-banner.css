@@ -74,10 +74,31 @@
 
 /* ── Espaço entre preço e botão "Saiba mais sobre este produto" ──────── */
 .product-card .saiba-mais-btn,
+.product-card .btn-saiba-mais,
+.product-card .btn-ver-pagina,
 .product-card .pc-btn-detalhes,
 .product-card .ver-detalhes-btn,
 .product-card a[href*="produto.html"],
 .product-card button[onclick*="produto.html"],
 .product-card button[onclick*="openInformativoModal"] {
-  margin-top: 14px !important;
+  margin-top: 10px !important;
+}
+
+/* ── Botão "Ver página completa" — destaque ─────────────────────────── */
+.product-card .btn-ver-pagina {
+  display: block;
+  text-align: center;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-d));
+  color: var(--white) !important;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: transform .12s, box-shadow .12s;
+  border: none;
+}
+.product-card .btn-ver-pagina:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245,158,11,0.3);
 }
