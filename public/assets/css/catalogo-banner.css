@@ -1,0 +1,83 @@
+/*
+ * catalogo-banner.css
+ * Estilos pro novo layout de card com foto destacada no topo (.pc-media).
+ * - Modo .pc-has-image: foto grande como banner em cima do card
+ * - Modo .pc-no-image: ícone pequeno (comportamento antigo)
+ * Carregar DEPOIS de pedido.css no <head>.
+ */
+
+/* ── BANNER da foto (card com imagem) ─────────────────────────────────── */
+.product-card.pc-has-image {
+  padding-top: 0;
+}
+.product-card.pc-has-image .pc-media {
+  width: 100%;
+  height: 150px;
+  margin: 0 0 12px 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--surface);
+  position: relative;
+  display: block;
+}
+.product-card.pc-has-image .pc-media .pc-img-card,
+.product-card.pc-has-image .pc-media img.product-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+  border-radius: 0 !important;
+}
+.product-card.pc-has-image .pc-media .img-placeholder {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 3rem !important;
+}
+.product-card.pc-has-image .pc-media .pc-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  background: rgba(0,0,0,0.5);
+  color: var(--accent);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* ── Modo sem imagem — ícone pequeno (layout antigo) ─────────────────── */
+.product-card.pc-no-image .pc-media {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.product-card.pc-no-image .pc-media .pc-img-card,
+.product-card.pc-no-image .pc-media .img-placeholder {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+
+/* ── Espaço entre preço e botão "Saiba mais sobre este produto" ──────── */
+.product-card .saiba-mais-btn,
+.product-card .pc-btn-detalhes,
+.product-card .ver-detalhes-btn,
+.product-card a[href*="produto.html"],
+.product-card button[onclick*="produto.html"],
+.product-card button[onclick*="openInformativoModal"] {
+  margin-top: 14px !important;
+}

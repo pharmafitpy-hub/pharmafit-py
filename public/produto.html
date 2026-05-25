@@ -14,6 +14,9 @@
 <body>
 
 <header class="produto-header">
+  <button type="button" class="produto-header-btn produto-btn-voltar" onclick="if(document.referrer && history.length>1){history.back();}else{window.location.href='pedido.html';}" title="Voltar pra onde você estava">
+    ← Voltar
+  </button>
   <a href="index.html" class="produto-logo-link">
     <img src="assets/img/logo.png" alt="Sua Empresa" class="produto-logo" />
   </a>
