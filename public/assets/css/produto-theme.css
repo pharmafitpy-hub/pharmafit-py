@@ -28,16 +28,31 @@
 
 /* ── MAIN ─────────────────────────────────────────────────────────────────── */
 .produto-main {
-  background: var(--bg) !important;
+  background: transparent !important;
   color: var(--text) !important;
 }
 
-/* ── WRAPPER 2 COLUNAS (era branco com bordas claras) ─────────────────── */
+/* ── WRAPPER 2 COLUNAS (era branco) — transparente, cards internos têm bg ─ */
 .produto-wrap {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
+}
+
+/* ── Coluna direita (info do produto) — card próprio com padding ───────── */
+.produto-info {
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.30) !important;
+}
+
+/* ── Coluna esquerda (imagem) — sombra e radius pra dar destaque ──────── */
+.produto-image-main {
+  border-radius: 16px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.30) !important;
 }
 
 /* ── Container das abas Descrição/Protocolo ────────────────────────────── */
